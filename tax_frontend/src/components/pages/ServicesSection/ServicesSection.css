@@ -1,0 +1,76 @@
+/* ServicesSection.css */
+.services-section {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.services-section-content {
+    max-width: 1200px; /* Adjust as needed */
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.service-block1, .service-block2 {
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px; /* Add margin for spacing between rows */
+}
+
+.service-block {
+    border: 1px solid #ccf1f1;
+    background: linear-gradient(to bottom, #023636, #a4f1f1);
+    text-align: left;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.service-block img {
+    width: 640px; /* Make images stretch to fill the block */
+    height: 200px; /* Set a fixed height for uniformity */
+    object-fit: cover; /* Ensures images scale properly without distortion */
+    display: block; /* Removes extra spacing below the image */
+    border-radius: 100px; /* Optional: Keeps rounded edges */
+    align-items: center;
+    margin: 0 auto;
+    border:1px solid #ebf6f6
+}
+
+
+.service-block h3 {
+    align-items: center;
+    margin-bottom: 15px;
+    color: #023636;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.service-block img {
+    width: 500px;  /* Set a fixed width */
+    height: 200px; /* Set a fixed height */
+    object-fit: cover; /* Ensures images fit without distortion */
+    display: block; /* Removes extra space below the image */
+    margin-top: 0 ; /* Centers the image inside the block */
+    border-radius: 8px; /* Keeps rounded corners */
+}
+.service-block p {
+    line-height: 1.6;
+    color: #023636;
+}
+
+.service-block ul {
+    list-style-type: disc;
+    margin-left: 20px;
+}
+
+.get-started-button {
+    background-color: #023636;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+  }

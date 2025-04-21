@@ -1,0 +1,187 @@
+.previewContainer {
+    min-height: 100vh;
+    background-color: #e8f8f8;
+    font-family: sans-serif; /* Add a default font-family */
+}
+
+.contentWrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.header h1 {
+    color: #023636;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.actionButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #023636;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.actionButton:hover {
+    background-color: #034f4f;
+}
+
+.documentContainer {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+}
+
+.document {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.documentHeader {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.documentHeader h2 {
+    color: #023636;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+/* Update the existing taxTable styles */
+.taxTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    border: 2px solid #023636; /* Add outer border */
+}
+
+.taxTable th,
+.taxTable td {
+    padding: 0.75rem;
+    text-align: left;
+    border: 1px solid #e0e0e0; /* Add cell borders */
+}
+
+.taxTable th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #023636;
+    border-bottom: 2px solid #023636; /* Thicker border below headers */
+}
+
+/* Add styles for specific rows */
+.taxTable tr.totalRow td {
+    border-top: 2px solid #023636; /* Thicker border above total rows */
+    font-weight: 600;
+}
+
+.taxTable tr:last-child td {
+    border-bottom: none; /* Remove bottom border of last row */
+}
+
+/* Add styles for specific columns */
+.taxTable td:last-child,
+.taxTable th:last-child {
+    text-align: right; /* Align amounts to the right */
+    border-left: 1px solid #e0e0e0;
+}
+
+/* Add hover effect for better readability */
+.taxTable tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Style negative numbers (for deductions) */
+.taxTable td.negative {
+    color: #dc3545;
+}
+
+.pendingRow {
+    background-color: #fff3e0;
+    font-style: italic;
+}
+
+.completedRow {
+    background-color: #e8f5e9;
+}
+
+.totalRow {
+    background-color: #e3f2fd;
+    font-weight: 600;
+}
+
+.totalRow td {
+    border-top: 2px solid #90caf9;
+}
+
+.noData {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+}
+
+.inProgress {
+    color: #666;
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.deductionRow {
+    background-color: #fff5f5;
+    color: #023636;
+}
+
+.deductionRow td:last-child {
+    color: #dc3545;
+}
+
+.negative {
+    color: #dc3545;
+}
+
+.pending {
+    color: #ff9800;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .contentWrapper {
+        padding: 1rem;
+    }
+
+    .documentContainer {
+        padding: 1rem;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+}

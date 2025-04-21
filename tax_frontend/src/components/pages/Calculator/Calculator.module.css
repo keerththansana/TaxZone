@@ -1,0 +1,676 @@
+.container {
+    min-height: 100vh;
+    background-color: #e8f8f8;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.calculatorWrapper {
+    display: flex;
+    gap: 2rem;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto;
+    align-items: flex-start;
+}
+
+.calculator {
+    flex: 0 0 30%;
+    min-width: 300px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    height: 100%;
+}
+
+.resultSection {
+    flex: 0 0 65%;
+    min-width: 600px;
+    height: 100%;
+    position: sticky;
+    top: 2rem;
+    opacity: 1;
+    visibility: visible;
+    animation: fadeIn 0.3s ease;
+    transition: all 0.3s ease;
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.resultSection.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.resultHeader {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e0f2f2;
+}
+
+.resultHeader h2 {
+    color: #023636;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.taxType {
+    color: #0d6efd;
+    margin: 8px 0 0;
+    font-size: 1.1rem;
+}
+
+.resultContent {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.resultRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #e0f2f2;
+}
+
+.resultRow:last-child {
+    border-bottom: none;
+}
+
+.resultRow.highlight {
+    background: #e0f2f2;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.resultRow.total {
+    background: #023636;
+    color: white;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+.resultRow span:first-child {
+    color: #666;
+    font-weight: 500;
+}
+
+.resultRow span:last-child {
+    color: #023636;
+    font-weight: 600;
+    font-family: monospace;
+}
+
+.bracketsList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bracketRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    border-radius: 6px;
+}
+
+.bracketRate {
+    font-weight: 600;
+    color: #0d6efd;
+    margin-right: 8px;
+}
+
+.bracketRange {
+    color: #666;
+}
+
+.bracketTax {
+    font-weight: 600;
+    color: #023636;
+}
+
+.bracketLabel {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rate {
+    background: #e0f2f2;
+    color: #023636;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.additionalInfo {
+    background: #f0f9f9;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 20px;
+}
+
+.additionalInfo h4 {
+    color: #023636;
+    margin: 0 0 12px;
+}
+
+.additionalInfo ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #666;
+}
+
+.additionalInfo li {
+    margin: 6px 0;
+}
+
+.relief {
+    color: #28a745 !important;
+}
+
+.totalTax {
+    font-weight: 600;
+    color: #dc3545;
+    font-size: 1.2rem;
+}
+
+.netIncome {
+    font-weight: 600;
+    color: #28a745;
+}
+
+.taxRate {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.header h1 {
+    color: #023636;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.icon {
+    color: #023636;
+    width: 32px;
+    height: 32px;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 0 auto;
+    max-width: 700px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.formGroup label {
+    color: #023636;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: left;
+}
+
+.formGroup select,
+.formGroup input {
+    padding: 0.75rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+    background-color: white;
+    transition: all 0.3s ease;
+}
+
+.formGroup select:focus,
+.formGroup input:focus {
+    outline: none;
+    border-color: #023636;
+    box-shadow: 0 0 0 2px rgba(2, 54, 54, 0.1);
+}
+
+.formGroup select {
+    cursor: pointer;
+}
+
+.formGroup input::placeholder {
+    color: #999;
+}
+
+.formGroup:last-child {
+    grid-column: 1 / -1;
+}
+
+.button {
+    background-color: #023636;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 50%;
+    align-self: right;
+    margin: 0 auto;
+}
+
+.button:hover:not(:disabled) {
+    background-color: #034f4f;
+}
+
+.button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.result {
+    margin: 2rem auto 0;
+    padding: 1.5rem;
+    border-radius: 4px;
+    background-color: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    max-width: 600px;
+}
+
+.taxBreakdown {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f0f0f0;
+    background: #f8fafa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.taxBreakdown h3 {
+    color: #023636;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.breakdownRow {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.slabDetails {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.slabDetails:last-child {
+    margin-bottom: 0;
+}
+
+.slabDetails span:first-child {
+    color: #666;
+    font-weight: 500;
+}
+
+.slabDetails span:last-child {
+    color: #023636;
+    font-weight: 600;
+}
+
+.incomeSection {
+    background: #f8fafa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.incomeSection h3 {
+    color: #023636;
+    margin: 0 0 16px;
+}
+
+.totalTaxRow {
+    margin-top: 20px;
+    padding: 16px;
+    background: #023636;
+    color: white;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+}
+
+.effectiveRate {
+    margin-top: 12px;
+    padding: 12px;
+    background: #e0f2f2;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #023636;
+    font-weight: 600;
+}
+
+.calculationMethod {
+    background: #f8fafa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.calculationMethod h3 {
+    color: #023636;
+    margin: 20px 0 12px;
+    font-size: 1.1rem;
+}
+
+.calculation {
+    background: white;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.calculationRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e0e0;
+}
+
+.calculationRow.result {
+    border-top: 2px solid #023636;
+    border-bottom: none;
+    font-weight: 600;
+    margin-top: 8px;
+    padding-top: 12px;
+}
+
+.subtraction {
+    color: #dc3545;
+}
+
+.bracketCalculations {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.bracketCalc {
+    background: white;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+.bracketHeader {
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0f2f2;
+}
+
+.bracketFormula {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-family: monospace;
+}
+
+.rate {
+    color: #0d6efd;
+    font-weight: 600;
+}
+
+.totalCalculation {
+    background: #023636;
+    color: white;
+    border-radius: 6px;
+    padding: 15px;
+    margin-top: 20px;
+}
+
+.totalCalculation .calculationRow {
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.totalCalculation .calculationRow:last-child {
+    border: none;
+}
+
+.taxTable {
+    margin-top: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.taxTable table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.taxTable th {
+    background: #023636;
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.taxTable td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0f2f2;
+    vertical-align: middle;
+    text-align: left;
+}
+
+.rangeColumn {
+    color: #444;
+    font-size: 0.95rem;
+    width: 40%;
+    text-align: left;
+}
+
+.rateColumn {
+    color: #0d6efd;
+    font-weight: 600;
+    width: 15%;
+    text-align: left;
+}
+
+.amountColumn {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 600;
+    color: #023636;
+    width: 22.5%;
+    text-align: left;
+}
+
+.totalRow {
+    background: #e0f2f2;
+    font-weight: 600;
+}
+
+.totalRow td {
+    border-top: 2px solid #023636;
+    border-bottom: none;
+    background: #e0f2f2;
+    font-weight: 600;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.topSummary {
+    background: #f8fafa;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    border: 1px solid #e0f2f2;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px dashed #e0f2f2;
+}
+
+.summaryRow:last-child {
+    border-bottom: none;
+}
+
+.summaryRow span:first-child {
+    color: #666;
+    font-weight: 500;
+}
+
+.summaryRow span:last-child {
+    font-family: monospace;
+    font-weight: 600;
+    color: #023636;
+}
+
+.summaryRow.highlight {
+    background: #e0f2f2;
+    border-radius: 6px;
+    margin-top: 8px;
+    border: none;
+}
+
+.infoNote {
+    font-size: 0.9em;
+    color: #666;
+    font-style: italic;
+    margin: 8px 0;
+    padding: 4px 0;
+}
+
+.wht {
+    color: #2c5282;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+        align-items: flex-start;
+    }
+    
+    .calculator {
+        padding: 1.5rem;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .form {
+        padding: 0 1rem;
+    }
+
+    .formGroup {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .formGroup label {
+        text-align: left;
+    }
+
+    .formGroup select,
+    .formGroup input {
+        max-width: 100%;
+    }
+
+    .button {
+        width: 100%;
+    }
+
+    .result {
+        margin-top: 1.5rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .calculatorWrapper {
+        flex-direction: column;
+    }
+
+    .calculator,
+    .resultSection {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .resultSection {
+        position: static;
+    }
+}
+
+@media (max-width: 1200px) {
+    .calculatorWrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .calculator, .resultSection {
+        flex: 1;
+        width: 100%;
+        min-width: auto;
+        max-width: 100%;
+    }
+
+    .resultSection {
+        position: static;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.error {
+    color: #dc3545;
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    background-color: #f8d7da;
+    border-radius: 4px;
+}

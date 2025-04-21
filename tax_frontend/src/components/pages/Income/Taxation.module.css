@@ -1,0 +1,333 @@
+.container {
+    max-width: 1500px;
+    margin: 1.5rem auto;
+    padding: 1.5rem;
+    background-color: #e8f8f8;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    color: #023636;
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: #023636;
+    font-size: 1rem;
+    
+}
+
+.formContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.categoryList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+}
+
+.categoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 1rem;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+}
+
+.categoryHeader.active {
+    border-color: #023636;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.checkboxWrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: #023636;
+    cursor: pointer;
+    margin: 0;
+}
+
+.categoryTitle {
+    font-size: 0.95rem;
+    color: #333;
+}
+
+.arrowWrapper {
+    cursor: pointer;
+    padding: 4px;
+}
+
+.arrow {
+    color: #023636;
+    width: 18px;
+    height: 18px;
+    transition: transform 0.3s ease;
+}
+
+.arrow.rotated {
+    transform: rotate(180deg);
+}
+
+.optionsList {
+    border: 1px solid #023636;
+    border-top: none;
+    border-bottom-left-radius: 2px;
+    border-bottom-right-radius: 2px;
+    background-color: white;
+}
+
+.optionItem {
+    padding: 0.6rem 3rem;
+    font-size: 0.9rem;
+    color: #023636;
+    text-align: left;
+    background-color: white;
+    transition: background-color 0.2s ease;
+}
+
+.optionItem:hover {
+    background-color: #f4f8f8;
+}
+
+.uploadSection {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 2px dashed #023636;
+}
+
+.uploadTitle {
+    color: #023636;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.uploadInstruction {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.uploadBox {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.uploadLabel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: white;
+    border: 2px dashed #023636;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.uploadLabel:hover {
+    background-color: #f0f8f8;
+}
+
+.fileInput {
+    display: none;
+}
+
+.fileList {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 0.75rem;
+    text-align: left;
+}
+
+.fileItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: #e8f8f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.removeFile {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+.removeFile:hover {
+    color: #c82333;
+}
+
+.nextButton {
+    padding: 0.6rem 1.5rem;
+    background-color: #023636;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.nextButton:hover {
+    background-color: #034f4f;
+}
+
+.uploadContainer {
+    margin-top: 0.5rem;
+}
+
+.uploadArea {
+    padding: 1rem;
+    min-height: 80px;
+    max-height: 250px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    border: 2px dashed #023636;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.uploadArea.dragging {
+    background-color: #e6f3f3;
+    border-color: #034f4f;
+}
+
+.uploadButtons {
+    display: flex;
+    gap: 1rem;
+}
+
+.uploadButtonWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.uploadButton {
+    background-color: #023636;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+}
+
+.uploadButton:hover {
+    background-color: #034f4f;
+}
+
+.dragText {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.fileInput {
+    display: none;
+}
+
+.fileList {
+    width: 100%;
+    max-height: 150px;
+    overflow-y: auto;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 1rem;
+    margin-top: 0.75rem;
+}
+
+.fileItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.fileName {
+    font-size: 0.9rem;
+    color: #333;
+    word-break: break-all;
+    margin-right: 1rem;
+}
+
+.removeButton {
+    background: none;
+    border: none;
+    color: #dc3545;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+    transition: color 0.3s ease;
+    flex-shrink: 0;
+}
+
+.removeButton:hover {
+    color: #c82333;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+}
+
+.selectAllContainer {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+    
+}
+
+.selectAllLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: #000000;
+}
+
+.selectAllLabel input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}

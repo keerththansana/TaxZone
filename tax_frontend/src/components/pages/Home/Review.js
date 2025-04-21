@@ -1,0 +1,68 @@
+import React from 'react';
+import { Star } from 'lucide-react';
+import './Review.css';
+
+const Review = () => {
+    const reviews = [
+        {
+            id: 1,
+            name: "John Smith",
+            role: "Small Business Owner",
+            rating: 5,
+            comment: "This AI tax assistant has transformed how I handle my business taxes. The real-time guidance and automated calculations are invaluable.",
+            image: "https://randomuser.me/api/portraits/men/1.jpg"
+        },
+        {
+            id: 2,
+            name: "Sarah Fernando",
+            role: "Freelancer",
+            rating: 5,
+            comment: "As a freelancer, keeping track of tax obligations was challenging. This platform makes it simple and intuitive. Highly recommended!",
+            image: "https://randomuser.me/api/portraits/women/2.jpg"
+        },
+        {
+            id: 3,
+            name: "David Perera",
+            role: "Corporate Employee",
+            rating: 4,
+            comment: "The APIT calculator and policy updates have been extremely helpful. It's like having a personal tax consultant available 24/7.",
+            image: "https://randomuser.me/api/portraits/men/3.jpg"
+        }
+    ];
+
+    return (
+        <section className="review-section">
+            <h2>What Our Users Say</h2>
+            <div className="review-container">
+                {reviews.map((review) => (
+                    <div key={review.id} className="review-card">
+                        <div className="review-header">
+                            <img 
+                                src={review.image} 
+                                alt={review.name} 
+                                className="reviewer-image"
+                            />
+                            <div className="reviewer-info">
+                                <h3>{review.name}</h3>
+                                <p className="reviewer-role">{review.role}</p>
+                            </div>
+                        </div>
+                        <div className="rating">
+                            {[...Array(review.rating)].map((_, index) => (
+                                <Star 
+                                    key={index}
+                                    size={20}
+                                    fill="#FFD700"
+                                    color="#FFD700"
+                                />
+                            ))}
+                        </div>
+                        <p className="review-text">{review.comment}</p>
+                    </div>
+                ))}
+            </div>
+        </section>
+    );
+};
+
+export default Review;

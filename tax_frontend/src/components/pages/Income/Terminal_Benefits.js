@@ -1,0 +1,277 @@
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import styles from './Employment_Income.module.css';
+import TaxationMenu from './Taxation_Menu';
+
+const TerminalBenefits = () => {
+    const [selectedTypes, setSelectedTypes] = useState([]);
+    const [openDescription, setOpenDescription] = useState(null);
+    const [commutedEntries, setCommutedEntries] = useState([{ name: 'Commuted Pension', amount: '' }]);
+    const [gratuityEntries, setGratuityEntries] = useState([{ name: 'Retiring Gratuity', amount: '' }]);
+    const [compensationEntries, setCompensationEntries] = useState([{ name: 'Compensation', amount: '' }]);
+    const [etfEntries, setEtfEntries] = useState([{ name: 'ETF Payment', amount: '' }]);
+    const [otherEntries, setOtherEntries] = useState([{ name: 'Other Terminal Benefits', amount: '' }]);
+    const [totalTerminalBenefits, setTotalTerminalBenefits] = useState(0); // Added state for total
+    const navigate = useNavigate();
+
+    const benefitTypes = [
+        {
+            id: 'commuted',
+            label: 'Commuted Pension',
+            description: 'Lump sum received instead of regular pension payments'
+        },
+        {
+            id: 'gratuity',
+            label: 'Retiring Gratuity',
+            description: 'One-time payment given upon retirement'
+        },
+        {
+            id: 'compensation',
+            label: 'Compensation for Job Loss',
+            description: 'Payment received for loss of employment under a uniform scheme'
+        },
+        {
+            id: 'etf',
+            label: 'ETF Payment',
+            description: 'Amount received from the Employees\' Trust Fund at or after retirement'
+        },
+        {
+            id: 'other',
+            label: 'Other Terminal Benefits',
+            description: 'Any other terminal benefits not listed above'
+        }
+    ];
+
+    useEffect(() => {
+        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+        const currentCategory = sessionStorage.getItem('currentCategory');
+        
+        if (!selectedCategories.includes('terminal') || currentCategory !== 'terminal') {
+            navigate('/taxation');
+        }
+    }, [navigate]);
+
+    useEffect(() => {
+        // Calculate total terminal benefits
+        const commutedTotal = commutedEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        const gratuityTotal = gratuityEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        const compensationTotal = compensationEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        const etfTotal = etfEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        const otherTotal = otherEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+
+        setTotalTerminalBenefits(
+            commutedTotal + 
+            gratuityTotal + 
+            compensationTotal + 
+            etfTotal + 
+            otherTotal
+        );
+    }, [commutedEntries, gratuityEntries, compensationEntries, etfEntries, otherEntries]);
+
+    const handleTypeToggle = (typeId) => {
+        setSelectedTypes(prev => {
+            const newTypes = prev.includes(typeId) 
+                ? prev.filter(id => id !== typeId)
+                : [...prev, typeId];
+            
+            switch(typeId) {
+                case 'commuted':
+                    !prev.includes(typeId) 
+                        ? setCommutedEntries([{ name: 'Commuted Pension', amount: '' }]) 
+                        : setCommutedEntries([]);
+                    break;
+                case 'gratuity':
+                    !prev.includes(typeId) 
+                        ? setGratuityEntries([{ name: 'Retiring Gratuity', amount: '' }]) 
+                        : setGratuityEntries([]);
+                    break;
+                case 'compensation':
+                    !prev.includes(typeId) 
+                        ? setCompensationEntries([{ name: 'Compensation', amount: '' }]) 
+                        : setCompensationEntries([]);
+                    break;
+                case 'etf':
+                    !prev.includes(typeId) 
+                        ? setEtfEntries([{ name: 'ETF Payment', amount: '' }]) 
+                        : setEtfEntries([]);
+                    break;
+                case 'other':
+                    !prev.includes(typeId) 
+                        ? setOtherEntries([{ name: 'Other Terminal Benefits', amount: '' }]) 
+                        : setOtherEntries([]);
+                    break;
+            }
+            return newTypes;
+        });
+    };
+
+    const handleEntryChange = (index, field, value, type) => {
+        const entries = {
+            'commuted': [commutedEntries, setCommutedEntries],
+            'gratuity': [gratuityEntries, setGratuityEntries],
+            'compensation': [compensationEntries, setCompensationEntries],
+            'etf': [etfEntries, setEtfEntries],
+            'other': [otherEntries, setOtherEntries]
+        }[type];
+
+        const [currentEntries, setEntries] = entries;
+        const newEntries = [...currentEntries];
+        newEntries[index][field] = value;
+        setEntries(newEntries);
+    };
+
+    const handleAddEntry = (type) => {
+        const [entries, setEntries] = {
+            'commuted': [commutedEntries, setCommutedEntries],
+            'gratuity': [gratuityEntries, setGratuityEntries],
+            'compensation': [compensationEntries, setCompensationEntries],
+            'etf': [etfEntries, setEtfEntries],
+            'other': [otherEntries, setOtherEntries]
+        }[type];
+
+        setEntries([...entries, { name: '', amount: '' }]);
+    };
+
+    const handleRemoveEntry = (index, type) => {
+        const setEntries = {
+            'commuted': setCommutedEntries,
+            'gratuity': setGratuityEntries,
+            'compensation': setCompensationEntries,
+            'etf': setEtfEntries,
+            'other': setOtherEntries
+        }[type];
+
+        setEntries(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        const formData = {
+            commutedEntries,
+            gratuityEntries,
+            compensationEntries,
+            etfEntries,
+            otherEntries
+        };
+        sessionStorage.setItem('terminalBenefitsData', JSON.stringify(formData));
+
+        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+        const currentIndex = selectedCategories.indexOf('terminal');
+        const nextCategory = selectedCategories[currentIndex + 1];
+
+        sessionStorage.setItem('currentCategory', nextCategory || 'preview');
+
+        const routes = {
+            employment: '/employment_income',
+            business: '/business_income',
+            investment: '/investment_income',
+            other: '/other_income',
+            qualifying: '/qualifying_payments'
+        };
+
+        if (nextCategory && routes[nextCategory]) {
+            navigate(routes[nextCategory]);
+        } else {
+            navigate('/preview');
+        }
+    };
+
+    return (
+        <>
+            <TaxationMenu />
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>Terminal Benefits</h1>
+                    <h2 className={styles.subtitle}>Select Applicable Terminal Benefits</h2>
+                </div>
+
+                <form className={styles.formContainer} onSubmit={handleSubmit}>
+                    <div className={styles.selectionGroup}>
+                        {benefitTypes.map((type) => (
+                            <div key={type.id} className={styles.selectionItem}>
+                                <div className={styles.selectionHeader}>
+                                    <label className={styles.checkboxLabel}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedTypes.includes(type.id)}
+                                            onChange={() => handleTypeToggle(type.id)}
+                                            className={styles.checkbox}
+                                        />
+                                        {type.label}
+                                    </label>
+                                    <button 
+                                        type="button"
+                                        className={styles.descriptionToggle}
+                                        onClick={() => setOpenDescription(openDescription === type.id ? null : type.id)}
+                                    >
+                                        <ChevronDown className={`${styles.arrow} ${openDescription === type.id ? styles.rotated : ''}`} />
+                                    </button>
+                                </div>
+                                {openDescription === type.id && (
+                                    <div className={styles.description}>
+                                        {type.description}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {Object.entries({
+                        'commuted': [commutedEntries, 'Commuted Pension'],
+                        'gratuity': [gratuityEntries, 'Retiring Gratuity'],
+                        'compensation': [compensationEntries, 'Compensation for Job Loss'],
+                        'etf': [etfEntries, 'ETF Payment'],
+                        'other': [otherEntries, 'Other Terminal Benefits']
+                    }).map(([type, [entries, title]]) => (
+                        selectedTypes.includes(type) && (
+                            <div key={type} className={styles.section}>
+                                <h3>{title}</h3>
+                                {entries.map((entry, index) => (
+                                    <div key={index} className={styles.entryRow}>
+                                        <input
+                                            type="text"
+                                            value={entry.name}
+                                            onChange={(e) => handleEntryChange(index, 'name', e.target.value, type)}
+                                            placeholder="Description"
+                                            className={styles.inputField}
+                                        />
+                                        <input
+                                            type="number"
+                                            value={entry.amount}
+                                            onChange={(e) => handleEntryChange(index, 'amount', e.target.value, type)}
+                                            placeholder="Amount"
+                                            className={styles.inputField}
+                                        />
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleRemoveEntry(index, type)}
+                                            className={styles.removeButton}
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                                <button type="button" onClick={() => handleAddEntry(type)} className={styles.addButton}>
+                                    <Plus size={16} />
+                                </button>
+                            </div>
+                        )
+                    ))}
+                    <div className={styles.totalSection}>
+                        <div className={styles.totalRow}>
+                            <span className={styles.totalLabel}>Total Terminal Benefits:</span>
+                            <span className={styles.totalAmount}>Rs. {totalTerminalBenefits.toLocaleString()}</span>
+                        </div>
+                    </div>
+                    <div className={styles.buttonContainer}>
+                        <button type="submit" className={styles.nextButton}>Next</button>
+                    </div>
+                </form>
+            </div>
+        </>
+    );
+};
+
+export default TerminalBenefits;
