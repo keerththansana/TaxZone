@@ -45,8 +45,10 @@ const CalculatorResponse = ({ results }) => {
                         <span>{formatCurrency(results.gross_income)}</span>
                     </div>
                     
-                    {/* Show tax relief for employment income */}
-                    {results.tax_type === 'employment' && (
+                    {/* Show tax relief for employment, professional, and general business income */}
+                    {(results.tax_type === 'employment' || 
+                      results.tax_type === 'professional' || 
+                      (results.tax_type === 'business' && results.business_type === 'general')) && (
                         <div className={styles.summaryRow}>
                             <span>Less: Personal Relief ({results.period}):</span>
                             <span className={styles.relief}>
@@ -55,25 +57,14 @@ const CalculatorResponse = ({ results }) => {
                         </div>
                     )}
                     
-                    {/* Add business income relief */}
-                    {results.tax_type === 'business' && (
-                        <>
-                            {results.business_type === 'general' ? (
-                                <div className={styles.summaryRow}>
-                                    <span>Less: Business Income Relief ({results.period}):</span>
-                                    <span className={styles.relief}>
-                                        ({formatCurrency(results.relief_amount)})
-                                    </span>
-                                </div>
-                            ) : (
-                                <div className={styles.summaryRow}>
-                                    <span>Less: Tax Relief:</span>
-                                    <span className={styles.relief}>
-                                        ({formatCurrency(0)})
-                                    </span>
-                                </div>
-                            )}
-                        </>
+                    {/* Special business type (betting/gaming) relief */}
+                    {results.tax_type === 'business' && results.business_type === 'special' && (
+                        <div className={styles.summaryRow}>
+                            <span>Less: Tax Relief:</span>
+                            <span className={styles.relief}>
+                                ({formatCurrency(0)})
+                            </span>
+                        </div>
                     )}
                     
                     {/* Rental income section */}

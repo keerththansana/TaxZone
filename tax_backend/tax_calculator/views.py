@@ -91,6 +91,7 @@ def calculate_tax(request):
                     WHERE p.period_type = %s 
                     AND p.is_active = 1
                     AND r.is_active = 1
+                    AND r.rate > 0
                     ORDER BY r.bracket_order
                 """, [period])
                 
@@ -121,7 +122,7 @@ def calculate_tax(request):
                 bracket_details = []
                 cumulative_limit = Decimal('0')
 
-                # Calculate tax using progressive rates
+                # Calculate tax using progressive rates (matching employment income structure)
                 for row in tax_data:
                     if remaining_income <= 0:
                         break
@@ -132,14 +133,15 @@ def calculate_tax(request):
                     taxable_in_bracket = min(remaining_income, limit)
                     tax_in_bracket = taxable_in_bracket * rate
 
-                    bracket_details.append({
-                        'rate': float(row[4]),
-                        'limit': float(limit),
-                        'taxable_amount': float(taxable_in_bracket),
-                        'tax_amount': float(tax_in_bracket),
-                        'cumulative_limit': float(cumulative_limit),
-                        'next_limit': float(cumulative_limit + limit)
-                    })
+                    if rate > 0:  # Only include non-zero rate brackets
+                        bracket_details.append({
+                            'rate': float(row[4]),
+                            'limit': float(limit),
+                            'taxable_amount': float(taxable_in_bracket),
+                            'tax_amount': float(tax_in_bracket),
+                            'cumulative_limit': float(cumulative_limit),
+                            'next_limit': float(cumulative_limit + limit)
+                        })
 
                     total_tax += tax_in_bracket
                     remaining_income -= taxable_in_bracket
@@ -302,14 +304,176 @@ def calculate_tax(request):
                     'total_tax': float(total_tax),
                     'brackets': brackets
                 })
+            elif tax_type == 'dividend':
+                # Get dividend tax rate
+                cursor.execute("""
+                    SELECT rate
+                    FROM dividend_tax_rates 
+                    WHERE is_active = 1
+                    ORDER BY effective_from DESC
+                    LIMIT 1
+                """)
+                
+                rate_data = cursor.fetchone()
+                if not rate_data:
+                    return Response({
+                        'error': 'No dividend tax rates found'
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-            else:
-                cursor.execute(f"""
-                    SELECT rate, bracket_limit, COALESCE(relief_amount, 0) as relief_amount, bracket_order
-                    FROM {table_name}
-                    WHERE period_type = %s AND is_active = 1
-                    ORDER BY bracket_order
+                # Calculate tax using flat rate
+                rate = Decimal(str(rate_data[0])) / Decimal('100')
+                total_tax = amount * rate
+                
+                bracket_details = [{
+                    'rate': float(rate_data[0]),
+                    'limit': float(amount),
+                    'taxable_amount': float(amount),
+                    'tax_amount': float(total_tax),
+                    'cumulative_limit': 0,
+                    'next_limit': float(amount)
+                }]
+
+                return Response({
+                    'period': period,
+                    'tax_type': tax_type,
+                    'gross_income': float(amount),
+                    'relief_amount': float(0),  # No relief for dividend income
+                    'taxable_income': float(amount),
+                    'total_tax': float(total_tax),
+                    'brackets': bracket_details,
+                    'effective_rate': float(rate_data[0])
+                })
+            elif tax_type == 'interest':
+                # Get interest tax rates and parameters
+                cursor.execute("""
+                    SELECT rate, bracket_limit, relief_amount, wht_rate, exemption_limit
+                    FROM interest_tax_rates 
+                    WHERE period_type = %s
+                    AND is_active = 1
+                    ORDER BY effective_from DESC
+                    LIMIT 1
                 """, [period])
+                
+                rate_data = cursor.fetchone()
+                if not rate_data:
+                    return Response({
+                        'error': 'No interest tax rates found'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                # Extract parameters
+                rate = Decimal(str(rate_data[0])) / Decimal('100')
+                bracket_limit = Decimal(str(rate_data[1]))
+                relief_amount = Decimal(str(rate_data[2])) if rate_data[2] else Decimal('0')
+                wht_rate = Decimal(str(rate_data[3])) / Decimal('100')
+                exemption_limit = Decimal(str(rate_data[4]))
+
+                # Calculate WHT if applicable
+                wht_applicable = amount > exemption_limit
+                wht_amount = amount * wht_rate if wht_applicable else Decimal('0')
+
+                # Calculate taxable income after relief
+                taxable_income = max(Decimal('0'), amount - relief_amount)
+                total_tax = taxable_income * rate
+
+                bracket_details = [{
+                    'rate': float(rate_data[0]),
+                    'limit': float(bracket_limit),
+                    'taxable_amount': float(taxable_income),
+                    'tax_amount': float(total_tax),
+                    'cumulative_limit': 0,
+                    'next_limit': float(bracket_limit)
+                }]
+
+                return Response({
+                    'period': period,
+                    'tax_type': tax_type,
+                    'gross_income': float(amount),
+                    'relief_amount': float(relief_amount),
+                    'taxable_income': float(taxable_income),
+                    'total_tax': float(total_tax),
+                    'wht_applicable': wht_applicable,
+                    'wht_threshold': float(exemption_limit),
+                    'wht_rate': float(wht_rate * 100),
+                    'wht_amount': float(wht_amount),
+                    'brackets': bracket_details,
+                    'effective_rate': float((total_tax / amount * 100) if amount > 0 else Decimal('0'))
+                })
+            elif tax_type == 'capital_gains':
+                # Get capital gains tax rates
+                cursor.execute("""
+                    SELECT rate, bracket_limit, relief_amount, is_flat_rate
+                    FROM capital_gain_tax_rates 
+                    WHERE period_type = %s
+                    AND is_active = 1
+                    ORDER BY effective_from DESC
+                    LIMIT 1
+                """, [period])
+                
+                rate_data = cursor.fetchone()
+                if not rate_data:
+                    return Response({
+                        'error': 'No capital gains tax rates found'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+
+                # Extract parameters
+                rate = Decimal(str(rate_data[0])) / Decimal('100')  # 15%
+                bracket_limit = Decimal(str(rate_data[1]))
+                relief_amount = Decimal(str(rate_data[2])) if rate_data[2] else Decimal('0')
+                is_flat_rate = bool(rate_data[3])
+
+                # Calculate taxable income
+                taxable_income = max(Decimal('0'), amount - relief_amount)
+                total_tax = taxable_income * rate
+
+                bracket_details = [{
+                    'rate': float(rate_data[0]),
+                    'limit': float(bracket_limit),
+                    'taxable_amount': float(taxable_income),
+                    'tax_amount': float(total_tax),
+                    'cumulative_limit': 0,
+                    'next_limit': float(bracket_limit)
+                }]
+
+                return Response({
+                    'period': period,
+                    'tax_type': tax_type,
+                    'gross_income': float(amount),
+                    'relief_amount': float(relief_amount),
+                    'taxable_income': float(taxable_income),
+                    'total_tax': float(total_tax),
+                    'is_flat_rate': is_flat_rate,
+                    'brackets': bracket_details,
+                    'effective_rate': float(rate_data[0])
+                })
+            else:
+                # Get business type for business income or foreign type for foreign income
+                business_type = request.data.get('businessType', 'general') if tax_type == 'business' else None
+                foreign_type = request.data.get('foreignType', 'other') if tax_type == 'foreign' else None
+
+                # Modify query for business tax rates or foreign tax rates to include their respective types
+                if tax_type == 'business':
+                    query = f"""
+                        SELECT rate, bracket_limit, COALESCE(relief_amount, 0) as relief_amount, bracket_order, is_flat_rate
+                        FROM {table_name}
+                        WHERE period_type = %s AND is_active = 1 AND business_type = %s
+                        ORDER BY bracket_order
+                    """
+                    cursor.execute(query, [period, business_type])
+                elif tax_type == 'foreign':
+                    query = f"""
+                        SELECT rate, bracket_limit, COALESCE(relief_amount, 0) as relief_amount, bracket_order, is_flat_rate
+                        FROM {table_name}
+                        WHERE period_type = %s AND is_active = 1 AND foreign_type = %s
+                        ORDER BY bracket_order
+                    """
+                    cursor.execute(query, [period, foreign_type])
+                else:
+                    cursor.execute(f"""
+                        SELECT rate, bracket_limit, COALESCE(relief_amount, 0) as relief_amount, bracket_order, is_flat_rate
+                        FROM {table_name}
+                        WHERE period_type = %s AND is_active = 1
+                        ORDER BY bracket_order
+                    """, [period])
                 
                 tax_rates = cursor.fetchall()
 
@@ -318,14 +482,15 @@ def calculate_tax(request):
                         'error': f'No active tax rates found for {tax_type} ({period})'
                     }, status=status.HTTP_400_BAD_REQUEST)
 
-                # For flat rate taxes (foreign, dividend, interest, etc.)
-                if len(tax_rates) == 1:
+                # For flat rate taxes (special business type, remitted foreign income, or other flat rate taxes)
+                if len(tax_rates) == 1 or tax_rates[0][4] or (tax_type == 'business' and business_type == 'special') or (tax_type == 'foreign' and foreign_type == 'remitted'):
                     rate = Decimal(str(tax_rates[0][0])) / Decimal('100')
                     total_tax = amount * rate
+                    relief_amount = Decimal(str(tax_rates[0][2])) if tax_rates[0][2] else Decimal('0')
                     
                     bracket_details = [{
-                        'rate': float(tax_rates[0][0]),  # Use rate from database
-                        'limit': float(tax_rates[0][1]),  # Use limit from database
+                        'rate': float(tax_rates[0][0]),
+                        'limit': float(tax_rates[0][1]),
                         'taxable_amount': float(amount),
                         'tax_amount': float(total_tax),
                         'cumulative_limit': 0,
@@ -335,12 +500,14 @@ def calculate_tax(request):
                     return Response({
                         'period': period,
                         'tax_type': tax_type,
+                        'business_type': business_type if tax_type == 'business' else None,
+                        'foreign_type': foreign_type if tax_type == 'foreign' else None,
                         'gross_income': float(amount),
-                        'relief_amount': float(tax_rates[0][2]),  # Use relief from database
+                        'relief_amount': float(relief_amount),
                         'taxable_income': float(amount),
                         'total_tax': float(total_tax),
                         'brackets': bracket_details,
-                        'effective_rate': float(tax_rates[0][0])  # Use rate from database
+                        'effective_rate': float(tax_rates[0][0])
                     })
 
                 # For progressive tax rates
@@ -351,7 +518,7 @@ def calculate_tax(request):
                 bracket_details = []
                 cumulative_limit = Decimal('0')
 
-                for rate, limit, _, _ in tax_rates:
+                for rate, limit, _, _, _ in tax_rates:
                     if remaining_income <= 0:
                         break
 
@@ -377,6 +544,8 @@ def calculate_tax(request):
                 return Response({
                     'period': period,
                     'tax_type': tax_type,
+                    'business_type': business_type if tax_type == 'business' else None,
+                    'foreign_type': foreign_type if tax_type == 'foreign' else None,
                     'gross_income': float(amount),
                     'relief_amount': float(relief),
                     'taxable_income': float(taxable_income),
