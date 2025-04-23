@@ -41,3 +41,23 @@ class TaxRate(models.Model):
     class Meta:
         db_table = 'tax_rates'
         managed = True
+
+class TaxDocument(models.Model):
+    title = models.CharField(max_length=255, null=True, blank=True)
+    file = models.FileField(upload_to='tax_documents/')
+    content = models.TextField(null=True, blank=True, default='')  # Make content nullable with empty default
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.title or f"Document {self.id}"
+
+    def save(self, *args, **kwargs):
+        if not self.title and self.file:
+            self.title = self.file.name.split('/')[-1]
+        if not self.content:
+            self.content = ''
+        super().save(*args, **kwargs)
+
+    class Meta:
+        db_table = 'tax_calculator_taxdocument'
+        ordering = ['-uploaded_at']

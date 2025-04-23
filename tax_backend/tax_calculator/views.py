@@ -1,9 +1,14 @@
-from rest_framework.decorators import api_view, authentication_classes, permission_classes # type: ignore
+from rest_framework.decorators import api_view, authentication_classes, permission_classes, parser_classes # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
 from django.db import connection # type: ignore
 from decimal import Decimal
 import logging
+from rest_framework.parsers import MultiPartParser, FormParser # type: ignore
+from .models import TaxDocument
+from .serializers import TaxDocumentSerializer
+import PyPDF2 # type: ignore
+import io
 
 logger = logging.getLogger(__name__)
 
@@ -450,8 +455,15 @@ def calculate_tax(request):
                 business_type = request.data.get('businessType', 'general') if tax_type == 'business' else None
                 foreign_type = request.data.get('foreignType', 'other') if tax_type == 'foreign' else None
 
-                # Modify query for business tax rates or foreign tax rates to include their respective types
-                if tax_type == 'business':
+                # Modify query based on tax type
+                if tax_type in ['employment', 'professional']:
+                    cursor.execute(f"""
+                        SELECT rate, bracket_limit, COALESCE(relief_amount, 0) as relief_amount, bracket_order
+                        FROM {table_name}
+                        WHERE period_type = %s AND is_active = 1
+                        ORDER BY bracket_order
+                    """, [period])
+                elif tax_type == 'business':
                     query = f"""
                         SELECT rate, bracket_limit, COALESCE(relief_amount, 0) as relief_amount, bracket_order, is_flat_rate
                         FROM {table_name}
@@ -482,8 +494,50 @@ def calculate_tax(request):
                         'error': f'No active tax rates found for {tax_type} ({period})'
                     }, status=status.HTTP_400_BAD_REQUEST)
 
+                # For employment and professional income, always use progressive rates
+                if tax_type in ['employment', 'professional']:
+                    relief = Decimal(str(tax_rates[0][2]))  # Get relief amount
+                    taxable_income = max(Decimal('0'), amount - relief)
+                    remaining_income = taxable_income
+                    total_tax = Decimal('0')
+                    bracket_details = []
+                    cumulative_limit = Decimal('0')
+
+                    for rate, limit, _, _ in tax_rates:
+                        if remaining_income <= 0:
+                            break
+
+                        rate = Decimal(str(rate)) / Decimal('100')
+                        limit = Decimal(str(limit))
+                        
+                        taxable_in_bracket = min(remaining_income, limit)
+                        tax_in_bracket = taxable_in_bracket * rate
+
+                        bracket_details.append({
+                            'rate': float(rate * 100),
+                            'limit': float(limit),
+                            'taxable_amount': float(taxable_in_bracket),
+                            'tax_amount': float(tax_in_bracket),
+                            'cumulative_limit': float(cumulative_limit),
+                            'next_limit': float(cumulative_limit + limit)
+                        })
+
+                        total_tax += tax_in_bracket
+                        remaining_income -= taxable_in_bracket
+                        cumulative_limit += limit
+
+                    return Response({
+                        'period': period,
+                        'tax_type': tax_type,
+                        'gross_income': float(amount),
+                        'relief_amount': float(relief),
+                        'taxable_income': float(taxable_income),
+                        'total_tax': float(total_tax),
+                        'brackets': bracket_details,
+                        'effective_rate': float((total_tax / amount * 100) if amount > 0 else Decimal('0'))
+                    })
                 # For flat rate taxes (special business type, remitted foreign income, or other flat rate taxes)
-                if len(tax_rates) == 1 or tax_rates[0][4] or (tax_type == 'business' and business_type == 'special') or (tax_type == 'foreign' and foreign_type == 'remitted'):
+                elif len(tax_rates) == 1 or tax_rates[0][4] or (tax_type == 'business' and business_type == 'special') or (tax_type == 'foreign' and foreign_type == 'remitted'):
                     rate = Decimal(str(tax_rates[0][0])) / Decimal('100')
                     total_tax = amount * rate
                     relief_amount = Decimal(str(tax_rates[0][2])) if tax_rates[0][2] else Decimal('0')
@@ -559,3 +613,41 @@ def calculate_tax(request):
         return Response({
             'error': f'Calculation error: {str(e)}'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def upload_document(request):
+    try:
+        serializer = TaxDocumentSerializer(data=request.data)
+        if serializer.is_valid():
+            # Save the document
+            document = serializer.save()
+            
+            # Extract text from PDF
+            pdf_file = document.file
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            text_content = ""
+            
+            # Extract text from each page
+            for page in pdf_reader.pages:
+                text_content += page.extract_text() + "\n"
+            
+            # Save extracted text
+            document.content = text_content
+            document.save()
+            
+            return Response({
+                'message': 'Document uploaded successfully',
+                'document': serializer.data
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def list_documents(request):
+    documents = TaxDocument.objects.all()
+    serializer = TaxDocumentSerializer(documents, many=True)
+    return Response(serializer.data)
