@@ -35,7 +35,7 @@ const CalculatorResponse = ({ results }) => {
     return (
         <div className={styles.resultSection}>
             <div className={styles.resultHeader}>
-                <h2>Tax Calculation - {results.period}</h2>
+                <h2>Tax Calculation - {results.period} ({results.tax_year})</h2>
             </div>
 
             <div className={styles.resultContent}>

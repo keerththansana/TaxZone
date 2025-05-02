@@ -5,6 +5,7 @@ import CalculatorResponse from './Calculator_Response.js';
 
 const Calculator = () => {
     const [formData, setFormData] = useState({
+        taxYear: '2024/2025', // Add default tax year
         taxType: '',
         period: '',
         amount: '',
@@ -44,58 +45,32 @@ const Calculator = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+        setLoading(true);
+        setError(null);
+
         try {
-            setError(null);
-            setResults(null);
-
-            // Create request data with business type
-            const requestData = {
-                taxType: formData.taxType.toLowerCase(),
-                period: formData.period.toLowerCase(),
-                amount: Number(formData.amount),
-                // Include businessType for business income
-                ...(formData.taxType === 'business' && { businessType: formData.businessType }),
-                // Keep existing foreign type handling
-                ...(formData.taxType === 'foreign' && { foreignType: formData.foreignType })
-            };
-
-            console.log('Sending request:', requestData);
-
             const response = await fetch('http://localhost:8000/api/calculator/calculate/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(requestData)
+                body: JSON.stringify({
+                    ...formData,
+                    amount: Number(formData.amount),
+                    taxYear: formData.taxYear // Include selected tax year
+                })
             });
 
             const data = await response.json();
             
-            if (!response.ok) {
-                throw new Error(data.error || 'Calculation failed');
+            if (data.success) {
+                setResults(data);
+            } else {
+                setError(data.error || 'Calculation failed');
             }
-
-            // For special business types, ensure 45% rate is applied
-            if (formData.taxType === 'business' && formData.businessType === 'special') {
-                data.total_tax = Number(formData.amount) * 0.45;
-                data.taxable_income = Number(formData.amount);
-                data.relief_amount = 0;
-
-                data.business_type = 'special';
-                data.show_zero_relief = true; // Add flag to show 0 LKR relief
-                data.brackets = [{
-                    rate: 45,
-                    limit: Number(formData.amount),
-                    taxable_amount: Number(formData.amount),
-                    tax_amount: data.total_tax
-                }];
-            }
-
-            setResults(data);
-        } catch (error) {
-            console.error('Calculation Error:', error);
-            setError(error.message);
+        } catch (err) {
+            setError('Failed to calculate tax');
+            console.error('Calculation error:', err);
         } finally {
             setLoading(false);
         }
@@ -111,6 +86,32 @@ const Calculator = () => {
                     </div>
 
                     <form className={styles.form} onSubmit={handleSubmit}>
+                        <div className={styles.formGroup}>
+                            <label>Tax Year</label>
+                            <div className={styles.radioGroup}>
+                                <label className={styles.radioLabel}>
+                                    <input
+                                        type="radio"
+                                        name="taxYear"
+                                        value="2024/2025"
+                                        checked={formData.taxYear === '2024/2025'}
+                                        onChange={handleChange}
+                                    />
+                                    2024/2025
+                                </label>
+                                <label className={styles.radioLabel}>
+                                    <input
+                                        type="radio"
+                                        name="taxYear"
+                                        value="2025/2026"
+                                        checked={formData.taxYear === '2025/2026'}
+                                        onChange={handleChange}
+                                    />
+                                    2025/2026
+                                </label>
+                            </div>
+                        </div>
+
                         <div className={styles.formGroup}>
                             <label>Income Type</label>
                             <select 

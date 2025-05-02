@@ -69,6 +69,19 @@ const TerminalBenefits = () => {
         );
     }, [commutedEntries, gratuityEntries, compensationEntries, etfEntries, otherEntries]);
 
+    useEffect(() => {
+        const savedData = sessionStorage.getItem('terminalBenefitsData');
+        if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            setSelectedTypes(parsedData.selectedTypes || []);
+            setCommutedEntries(parsedData.commutedEntries || [{ name: 'Commuted Pension', amount: '' }]);
+            setGratuityEntries(parsedData.gratuityEntries || [{ name: 'Retiring Gratuity', amount: '' }]);
+            setCompensationEntries(parsedData.compensationEntries || [{ name: 'Compensation', amount: '' }]);
+            setEtfEntries(parsedData.etfEntries || [{ name: 'ETF Payment', amount: '' }]);
+            setOtherEntries(parsedData.otherEntries || [{ name: 'Other Terminal Benefits', amount: '' }]);
+        }
+    }, []);
+
     const handleTypeToggle = (typeId) => {
         setSelectedTypes(prev => {
             const newTypes = prev.includes(typeId) 
@@ -149,30 +162,54 @@ const TerminalBenefits = () => {
         e.preventDefault();
         
         const formData = {
+            selectedTypes,
             commutedEntries,
             gratuityEntries,
             compensationEntries,
             etfEntries,
-            otherEntries
+            otherEntries,
+            totalTerminalBenefits
         };
+
+        // Save to sessionStorage
         sessionStorage.setItem('terminalBenefitsData', JSON.stringify(formData));
 
+        // Update selected categories
+        const currentCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+        if (!currentCategories.includes('terminal')) {
+            sessionStorage.setItem('selectedCategories', 
+                JSON.stringify([...currentCategories, 'terminal']));
+        }
+        
+        // Trigger preview update
+        window.dispatchEvent(new Event('incomeDataUpdated'));
+
+        // Get next form to navigate to
         const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
         const currentIndex = selectedCategories.indexOf('terminal');
         const nextCategory = selectedCategories[currentIndex + 1];
 
-        sessionStorage.setItem('currentCategory', nextCategory || 'preview');
+        // Update current category
+        if (nextCategory) {
+            sessionStorage.setItem('currentCategory', nextCategory);
+        }
 
-        const routes = {
-            employment: '/employment_income',
-            business: '/business_income',
-            investment: '/investment_income',
-            other: '/other_income',
-            qualifying: '/qualifying_payments'
-        };
+        // Navigate to appropriate form
+        if (nextCategory) {
+            const routes = {
+                employment: '/employment_income',
+                business: '/business_income',
+                investment: '/investment_income',
+                other: '/other_income',
+                qualifying: '/qualifying_payments'
+            };
 
-        if (nextCategory && routes[nextCategory]) {
-            navigate(routes[nextCategory]);
+            const nextRoute = routes[nextCategory];
+            if (nextRoute) {
+                navigate(nextRoute);
+            } else {
+                navigate('/preview');
+            }
         } else {
             navigate('/preview');
         }

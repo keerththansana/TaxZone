@@ -77,6 +77,20 @@ const QualifyingPayments = () => {
         );
     }, [donationEntries, samurdhiEntries, solarEntries, cinemaEntries, housingEntries, otherEntries]);
 
+    useEffect(() => {
+        const savedData = sessionStorage.getItem('qualifyingPaymentsData');
+        if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            setSelectedTypes(parsedData.selectedTypes || []);
+            setDonationEntries(parsedData.donationEntries || []);
+            setSamurdhiEntries(parsedData.samurdhiEntries || []);
+            setSolarEntries(parsedData.solarEntries || []);
+            setCinemaEntries(parsedData.cinemaEntries || []);
+            setHousingEntries(parsedData.housingEntries || []);
+            setOtherEntries(parsedData.otherEntries || []);
+        }
+    }, []);
+
     const handleTypeToggle = (typeId) => {
         setSelectedTypes(prev => {
             const newTypes = prev.includes(typeId) 
@@ -231,12 +245,14 @@ const QualifyingPayments = () => {
         e.preventDefault();
         
         const formData = {
+            selectedTypes,
             donationEntries,
             samurdhiEntries,
             solarEntries,
             cinemaEntries,
             housingEntries,
-            otherEntries
+            otherEntries,
+            totalQualifyingPayments
         };
         sessionStorage.setItem('qualifyingPaymentsData', JSON.stringify(formData));
 

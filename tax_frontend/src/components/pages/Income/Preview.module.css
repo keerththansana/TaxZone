@@ -152,12 +152,25 @@
     font-size: 0.9em;
 }
 
-.deductionRow {
-    background-color: #fff5f5;
-    color: #023636;
+.descriptionRow {
+    background-color: #f8f9fa;
+    font-size: 0.9em;
+    color: #6c757d;
+    border-bottom: 1px solid #dee2e6;
 }
 
-.deductionRow td:last-child {
+.description {
+    padding: 8px 16px;
+    font-style: italic;
+    line-height: 1.4;
+}
+
+.deductionRow {
+    background-color: #fff3f3;
+}
+
+.deductionRow td {
+    padding: 12px 16px;
     color: #dc3545;
 }
 

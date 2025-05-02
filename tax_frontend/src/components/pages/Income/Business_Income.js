@@ -3,22 +3,70 @@ import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
+import { useFormPersist } from './Data_Persistence';
 
 const BusinessIncome = () => {
-    const [selectedTypes, setSelectedTypes] = useState([]);
     const [openDescription, setOpenDescription] = useState(null);
-    const [soleProprietorshipEntries, setSoleProprietorshipEntries] = useState([{ name: 'Income', amount: '' }]);
-    const [partnershipEntries, setPartnershipEntries] = useState([{ name: 'Income', amount: '' }]);
-    const [trustEntries, setTrustEntries] = useState([{ name: 'Income', amount: '' }]);
-    const [bettingEntries, setBettingEntries] = useState([{ name: 'Income', amount: '' }]);
-    const [otherEntries, setOtherEntries] = useState([{ name: 'Income', amount: '' }]);
-    const [showDeductions, setShowDeductions] = useState(false);
     const [selectedDeductions, setSelectedDeductions] = useState([]);
-    const [deductionEntries, setDeductionEntries] = useState({});
-    const [totalBusinessIncome, setTotalBusinessIncome] = useState(0);
-    const [totalDeductions, setTotalDeductions] = useState(0);
+
+    // Initialize form data with persistence
+    const [formData, setFormData] = useFormPersist('businessIncomeData', {
+        selectedTypes: [],
+        soleProprietorshipEntries: [{ name: 'Business Income', amount: '' }],
+        partnershipEntries: [{ name: 'Partnership Income', amount: '' }],
+        trustEntries: [{ name: 'Trust Income', amount: '' }],
+        bettingEntries: [{ name: 'Betting Income', amount: '' }],
+        otherEntries: [{ name: 'Other Business Income', amount: '' }],
+        deductionEntries: {},
+        totalBusinessIncome: 0,
+        totalDeductions: 0
+    });
+
+    // Destructure values and add setters from formData
+    const {
+        selectedTypes,
+        soleProprietorshipEntries,
+        partnershipEntries,
+        trustEntries,
+        bettingEntries,
+        otherEntries,
+        deductionEntries,
+        totalBusinessIncome,
+        totalDeductions
+    } = formData;
+
     const navigate = useNavigate();
 
+    // Update form data helper function
+    const updateFormData = (updates) => {
+        setFormData(prev => ({
+            ...prev,
+            ...updates
+        }));
+    };
+
+    // Entry setters
+    const setSoleProprietorshipEntries = (entries) => {
+        updateFormData({ soleProprietorshipEntries: Array.isArray(entries) ? entries : entries(formData.soleProprietorshipEntries) });
+    };
+
+    const setPartnershipEntries = (entries) => {
+        updateFormData({ partnershipEntries: Array.isArray(entries) ? entries : entries(formData.partnershipEntries) });
+    };
+
+    const setTrustEntries = (entries) => {
+        updateFormData({ trustEntries: Array.isArray(entries) ? entries : entries(formData.trustEntries) });
+    };
+
+    const setBettingEntries = (entries) => {
+        updateFormData({ bettingEntries: Array.isArray(entries) ? entries : entries(formData.bettingEntries) });
+    };
+
+    const setOtherEntries = (entries) => {
+        updateFormData({ otherEntries: Array.isArray(entries) ? entries : entries(formData.otherEntries) });
+    };
+
+    // Navigation check
     useEffect(() => {
         const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
         const currentCategory = sessionStorage.getItem('currentCategory');
@@ -28,28 +76,69 @@ const BusinessIncome = () => {
         }
     }, [navigate]);
 
+    // Calculate totals
     useEffect(() => {
-        // Calculate total business income
-        const soleProprietorshipTotal = soleProprietorshipEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const partnershipTotal = partnershipEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const trustTotal = trustEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const bettingTotal = bettingEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const otherTotal = otherEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        const calculateTotal = entries => entries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        
+        const total = calculateTotal(soleProprietorshipEntries) +
+            calculateTotal(partnershipEntries) +
+            calculateTotal(trustEntries) +
+            calculateTotal(bettingEntries) +
+            calculateTotal(otherEntries);
 
-        setTotalBusinessIncome(
-            soleProprietorshipTotal + 
-            partnershipTotal + 
-            trustTotal + 
-            bettingTotal + 
-            otherTotal
-        );
+        updateFormData({ totalBusinessIncome: total });
+    }, [soleProprietorshipEntries, partnershipEntries, trustEntries, bettingEntries, otherEntries]);
 
-        // Calculate total deductions
-        const deductionsTotal = Object.values(deductionEntries)
-            .reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        setTotalDeductions(deductionsTotal);
+    // Handle form submission
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        
+        // Save form data
+        const formData = {
+            selectedTypes,
+            soleProprietorshipEntries,
+            partnershipEntries,
+            trustEntries,
+            bettingEntries,
+            otherEntries,
+            deductionEntries,
+            totalBusinessIncome
+        };
+        sessionStorage.setItem('businessIncomeData', JSON.stringify(formData));
 
-    }, [soleProprietorshipEntries, partnershipEntries, trustEntries, bettingEntries, otherEntries, deductionEntries]);
+        // Get next form to navigate to
+        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+        const currentIndex = selectedCategories.indexOf('business');
+        const nextCategory = selectedCategories[currentIndex + 1];
+
+        // Update current category in session storage
+        if (nextCategory) {
+            sessionStorage.setItem('currentCategory', nextCategory);
+        }
+
+        // Navigate to appropriate form
+        if (nextCategory) {
+            const routes = {
+                employment: '/employment_income',
+                investment: '/investment_income',
+                other: '/other_income',
+                terminal: '/terminal_benefits',
+                qualifying: '/qualifying_payments'
+            };
+
+            const nextRoute = routes[nextCategory];
+            if (nextRoute) {
+                navigate(nextRoute);
+            } else {
+                navigate('/preview');
+            }
+        } else {
+            navigate('/preview');
+        }
+
+        // Trigger preview update
+        window.dispatchEvent(new Event('incomeDataUpdated'));
+    };
 
     const businessTypes = [
         {
@@ -107,70 +196,73 @@ const BusinessIncome = () => {
         }
     ];
 
+    // Update handleTypeToggle to use updateFormData
     const handleTypeToggle = (typeId) => {
-        setSelectedTypes(prev => {
-            const newTypes = prev.includes(typeId) 
-                ? prev.filter(id => id !== typeId)
-                : [...prev, typeId];
-            
-            // Handle entries with business type specific names
-            switch(typeId) {
-                case 'sole-proprietorship':
-                    !prev.includes(typeId) 
-                        ? setSoleProprietorshipEntries([{ name: 'Sole Proprietorship Income', amount: '' }]) 
-                        : setSoleProprietorshipEntries([]);
-                    break;
-                case 'partnership':
-                    !prev.includes(typeId) 
-                        ? setPartnershipEntries([{ name: 'Partnership Business Income', amount: '' }]) 
-                        : setPartnershipEntries([]);
-                    break;
-                case 'trust-beneficiary':
-                    !prev.includes(typeId) 
-                        ? setTrustEntries([{ name: 'Trust Beneficiary Business Income', amount: '' }]) 
-                        : setTrustEntries([]);
-                    break;
-                case 'betting-gaming':
-                    !prev.includes(typeId) 
-                        ? setBettingEntries([{ name: 'Betting, Gaming, Liquor & Tobacco Income', amount: '' }]) 
-                        : setBettingEntries([]);
-                    break;
-                case 'other-business':
-                    !prev.includes(typeId) 
-                        ? setOtherEntries([{ name: 'Other Business Income', amount: '' }]) 
-                        : setOtherEntries([]);
-                    break;
-            }
-            return newTypes;
-        });
+        const newTypes = selectedTypes.includes(typeId) 
+            ? selectedTypes.filter(id => id !== typeId)
+            : [...selectedTypes, typeId];
+        
+        updateFormData({ selectedTypes: newTypes });
+
+        // Handle entries with business type specific names
+        switch(typeId) {
+            case 'sole-proprietorship':
+                !selectedTypes.includes(typeId) 
+                    ? updateFormData({ soleProprietorshipEntries: [{ name: 'Sole Proprietorship Income', amount: '' }] })
+                    : updateFormData({ soleProprietorshipEntries: [] });
+                break;
+            case 'partnership':
+                !selectedTypes.includes(typeId) 
+                    ? updateFormData({ partnershipEntries: [{ name: 'Partnership Business Income', amount: '' }] })
+                    : updateFormData({ partnershipEntries: [] });
+                break;
+            case 'trust-beneficiary':
+                !selectedTypes.includes(typeId) 
+                    ? updateFormData({ trustEntries: [{ name: 'Trust Beneficiary Business Income', amount: '' }] })
+                    : updateFormData({ trustEntries: [] });
+                break;
+            case 'betting-gaming':
+                !selectedTypes.includes(typeId) 
+                    ? updateFormData({ bettingEntries: [{ name: 'Betting, Gaming, Liquor & Tobacco Income', amount: '' }] })
+                    : updateFormData({ bettingEntries: [] });
+                break;
+            case 'other-business':
+                !selectedTypes.includes(typeId) 
+                    ? updateFormData({ otherEntries: [{ name: 'Other Business Income', amount: '' }] })
+                    : updateFormData({ otherEntries: [] });
+                break;
+        }
     };
 
+    // Update handleDeductionToggle to use updateFormData
     const handleDeductionToggle = (deductionId) => {
-        setSelectedDeductions(prev => {
-            if (prev.includes(deductionId)) {
-                // Remove deduction and its entries when unchecked
-                const newDeductions = prev.filter(id => id !== deductionId);
-                setDeductionEntries(current => {
-                    const { [deductionId]: removed, ...rest } = current;
-                    return rest;
-                });
-                return newDeductions;
-            } else {
-                // Add deduction with empty amount when checked
-                setDeductionEntries(current => ({
-                    ...current,
+        const newDeductions = selectedDeductions.includes(deductionId)
+            ? selectedDeductions.filter(id => id !== deductionId)
+            : [...selectedDeductions, deductionId];
+        
+        setSelectedDeductions(newDeductions);
+
+        if (!selectedDeductions.includes(deductionId)) {
+            updateFormData({
+                deductionEntries: {
+                    ...deductionEntries,
                     [deductionId]: { amount: '' }
-                }));
-                return [...prev, deductionId];
-            }
-        });
+                }
+            });
+        } else {
+            const { [deductionId]: removed, ...rest } = deductionEntries;
+            updateFormData({ deductionEntries: rest });
+        }
     };
 
+    // Update handleDeductionAmountChange to use updateFormData
     const handleDeductionAmountChange = (deductionId, amount) => {
-        setDeductionEntries(prev => ({
-            ...prev,
-            [deductionId]: { ...prev[deductionId], amount }
-        }));
+        updateFormData({
+            deductionEntries: {
+                ...deductionEntries,
+                [deductionId]: { ...deductionEntries[deductionId], amount }
+            }
+        });
     };
 
     const handleEntryChange = (index, field, value, type) => {
@@ -210,58 +302,6 @@ const BusinessIncome = () => {
         }[type];
 
         setEntries(prev => prev.filter((_, i) => i !== index));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        
-        // Save form data
-        const formData = {
-            soleProprietorshipEntries,
-            partnershipEntries,
-            trustEntries,
-            bettingEntries,
-            otherEntries,
-            deductionEntries
-        };
-        sessionStorage.setItem('businessIncomeData', JSON.stringify(formData));
-
-        // Get next category to navigate to
-        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-        const currentIndex = selectedCategories.indexOf('business');
-        const nextCategory = selectedCategories[currentIndex + 1];
-
-        // Update current category in session
-        sessionStorage.setItem('currentCategory', nextCategory || 'preview');
-
-        // Navigate to next form
-        const routes = {
-            employment: '/employment_income',
-            investment: '/investment_income',
-            other: '/other_income',
-            terminal: '/terminal_benefits',
-            qualifying: '/qualifying_payments'
-        };
-
-        if (nextCategory && routes[nextCategory]) {
-            navigate(routes[nextCategory]);
-        } else {
-            navigate('/preview');
-        }
-    };
-
-    const navigateToNextForm = (categoryId) => {
-        switch(categoryId) {
-            case 'business':
-                navigate('/business_income');
-                break;
-            case 'investment':
-                navigate('/investment_income');
-                break;
-            // Add other cases
-            default:
-                navigate('/preview');
-        }
     };
 
     return (

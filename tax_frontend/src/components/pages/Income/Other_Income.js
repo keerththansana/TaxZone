@@ -179,17 +179,36 @@ const OtherIncome = () => {
         setEntries(entries.filter((_, i) => i !== index));
     };
 
+    // Add this useEffect for data persistence
+    useEffect(() => {
+        const savedData = sessionStorage.getItem('otherIncomeData');
+        if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            setServiceEntries(parsedData.serviceEntries || [{ name: 'Service Income', amount: '' }]);
+            setRoyaltyEntries(parsedData.royaltyEntries || [{ name: 'Royalty Income', amount: '' }]);
+            setResourceEntries(parsedData.resourceEntries || [{ name: 'Natural Resource Payment', amount: '' }]);
+            setGemEntries(parsedData.gemEntries || [{ name: 'Auctioned Gem Sale', amount: '' }]);
+            setOtherEntries(parsedData.otherEntries || [{ name: 'Other Income', amount: '' }]);
+            setWhtEntries(parsedData.whtEntries || []);
+            setSelectedTypes(parsedData.selectedTypes || []);
+        }
+    }, []);
+
+    // Modify the handleSubmit function to save all state
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        // Save form data
+        // Save form data with all states
         const formData = {
             serviceEntries,
             royaltyEntries,
             resourceEntries,
             gemEntries,
             otherEntries,
-            whtEntries
+            whtEntries,
+            selectedTypes,
+            totalOtherIncome,
+            totalWhtDeductions
         };
         sessionStorage.setItem('otherIncomeData', JSON.stringify(formData));
 

@@ -4,20 +4,37 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 
-// Remove tax-related state
 const InvestmentIncome = () => {
-    const [selectedTypes, setSelectedTypes] = useState([]);
+    // Add this state for form data
+    const [formData, setFormData] = useState({
+        interestEntries: [{ name: 'Interest Income', amount: '' }],
+        rentEntries: [{ name: 'Rental Income', amount: '' }],
+        capitalGainEntries: [{ name: 'Capital Gain', amount: '' }],
+        dividendEntries: [{ name: 'Dividend Income', amount: '' }],
+        otherEntries: [{ name: 'Other Investment', amount: '' }],
+        aitEntries: [{ source: '', amount: '' }],
+        taxDeductions: [],
+        selectedTypes: [],
+        totalInvestmentIncome: 0,
+        totalTaxDeductions: 0
+    });
+
+    // Remove individual states and use formData instead
+    const {
+        interestEntries,
+        rentEntries,
+        capitalGainEntries,
+        dividendEntries,
+        otherEntries,
+        aitEntries,
+        taxDeductions,
+        selectedTypes,
+        totalInvestmentIncome,
+        totalTaxDeductions
+    } = formData;
+
     const [openDescription, setOpenDescription] = useState(null);
-    const [interestEntries, setInterestEntries] = useState([{ name: 'Interest Income', amount: '' }]);
-    const [rentEntries, setRentEntries] = useState([{ name: 'Rental Income', amount: '' }]);
-    const [capitalGainEntries, setCapitalGainEntries] = useState([{ name: 'Capital Gain', amount: '' }]);
-    const [dividendEntries, setDividendEntries] = useState([{ name: 'Dividend Income', amount: '' }]);
-    const [otherEntries, setOtherEntries] = useState([{ name: 'Other Investment', amount: '' }]);
-    const [aitEntries, setAitEntries] = useState([{ source: '', amount: '' }]);
-    const [taxDeductions, setTaxDeductions] = useState([]);
     const [selectedTaxType, setSelectedTaxType] = useState('ait'); // 'ait' or 'paidTax'
-    const [totalInvestmentIncome, setTotalInvestmentIncome] = useState(0);
-    const [totalTaxDeductions, setTotalTaxDeductions] = useState(0);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -27,26 +44,152 @@ const InvestmentIncome = () => {
         }
     }, [navigate]);
 
+    // Add this useEffect for data persistence
     useEffect(() => {
-        // Calculate total investment income
-        const interestTotal = interestEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const dividendTotal = dividendEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const rentTotal = rentEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const capitalGainTotal = capitalGainEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        const otherTotal = otherEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        const savedData = sessionStorage.getItem('investmentIncomeData');
+        if (savedData) {
+            const parsedData = JSON.parse(savedData);
+            setFormData(prevData => ({
+                ...prevData,
+                ...parsedData
+            }));
+        }
+    }, []);
 
-        setTotalInvestmentIncome(
-            interestTotal + 
-            dividendTotal + 
-            rentTotal + 
-            capitalGainTotal + 
-            otherTotal
-        );
+    // Update handleEntryChange to work with formData
+    const handleEntryChange = (index, field, value, entryType) => {
+        setFormData(prevData => {
+            const entries = [...prevData[entryType]];
+            entries[index] = {
+                ...entries[index],
+                [field]: value
+            };
+            return {
+                ...prevData,
+                [entryType]: entries
+            };
+        });
+    };
 
-        // Calculate total tax deductions
-        const taxTotal = taxDeductions.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        setTotalTaxDeductions(taxTotal);
+    // Update handleAddEntry
+    const handleAddEntry = (entryType) => {
+        setFormData(prevData => ({
+            ...prevData,
+            [entryType]: [...prevData[entryType], { name: '', amount: '' }]
+        }));
+    };
 
+    // Update handleRemoveEntry
+    const handleRemoveEntry = (index, entryType) => {
+        setFormData(prevData => ({
+            ...prevData,
+            [entryType]: prevData[entryType].filter((_, i) => i !== index)
+        }));
+    };
+
+    // Update handleTypeToggle
+    const handleTypeToggle = (typeId) => {
+        setFormData(prevData => {
+            const newTypes = prevData.selectedTypes.includes(typeId)
+                ? prevData.selectedTypes.filter(id => id !== typeId)
+                : [...prevData.selectedTypes, typeId];
+
+            let newTaxDeductions = [...prevData.taxDeductions];
+            if (typeId === 'ait') {
+                newTaxDeductions = [];
+                if (newTypes.includes('interest')) {
+                    newTaxDeductions.push({ source: 'Interest Income AIT', amount: '' });
+                }
+                if (newTypes.includes('rental')) {
+                    newTaxDeductions.push({ source: 'Rental Income AIT', amount: '' });
+                }
+                if (newTypes.includes('capital-gain')) {
+                    newTaxDeductions.push({ source: 'Capital Gain Paid Tax', amount: '' });
+                }
+            }
+
+            return {
+                ...prevData,
+                selectedTypes: newTypes,
+                taxDeductions: newTaxDeductions
+            };
+        });
+    };
+
+    // Add this function after handleTypeToggle and before handleSubmit
+    const handleAddTaxDeduction = () => {
+        setFormData(prevData => ({
+            ...prevData,
+            taxDeductions: [
+                ...prevData.taxDeductions,
+                { source: '', amount: '' }
+            ]
+        }));
+    };
+
+    // Update handleSubmit
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        // Save investment income data
+        sessionStorage.setItem('investmentIncomeData', JSON.stringify(formData));
+
+        // Update selected categories if needed
+        const currentCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+        if (!currentCategories.includes('investment')) {
+            sessionStorage.setItem('selectedCategories', 
+                JSON.stringify([...currentCategories, 'investment']));
+        }
+
+        // Trigger preview update
+        window.dispatchEvent(new Event('incomeDataUpdated'));
+
+        // Get next form to navigate to
+        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+        const currentIndex = selectedCategories.indexOf('investment');
+        const nextCategory = selectedCategories[currentIndex + 1];
+
+        // Navigate to appropriate form
+        if (nextCategory) {
+            const routes = {
+                employment: '/employment_income',
+                business: '/business_income',
+                other: '/other_income',
+                terminal: '/terminal_benefits',
+                qualifying: '/qualifying_payments'
+            };
+
+            const nextRoute = routes[nextCategory];
+            if (nextRoute) {
+                navigate(nextRoute);
+            } else {
+                navigate('/preview');
+            }
+        } else {
+            navigate('/preview');
+        }
+    };
+
+    // Update useEffect for calculations
+    useEffect(() => {
+        const calculateTotal = (entries) => {
+            return (entries || []).reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        };
+
+        const newTotalIncome = 
+            calculateTotal(interestEntries) +
+            calculateTotal(dividendEntries) +
+            calculateTotal(rentEntries) +
+            calculateTotal(capitalGainEntries) +
+            calculateTotal(otherEntries);
+
+        const newTotalDeductions = calculateTotal(taxDeductions);
+
+        setFormData(prevData => ({
+            ...prevData,
+            totalInvestmentIncome: newTotalIncome,
+            totalTaxDeductions: newTotalDeductions
+        }));
     }, [interestEntries, dividendEntries, rentEntries, capitalGainEntries, otherEntries, taxDeductions]);
 
     // Update investment types without tax references
@@ -82,141 +225,6 @@ const InvestmentIncome = () => {
             description: 'Advance Income Tax deducted from investment income sources'
         }
     ];
-
-    const handleTypeToggle = (typeId) => {
-        setSelectedTypes(prev => {
-            const newTypes = prev.includes(typeId) 
-                ? prev.filter(id => id !== typeId)
-                : [...prev, typeId];
-            
-            // Handle automatic tax deduction entries
-            if (typeId === 'ait') {
-                let newDeductions = [];
-                if (newTypes.includes('interest')) {
-                    newDeductions.push({ source: 'Interest Income AIT', amount: '' });
-                }
-                if (newTypes.includes('rental')) {
-                    newDeductions.push({ source: 'Rental Income AIT', amount: '' });
-                }
-                if (newTypes.includes('capital-gain')) {
-                    newDeductions.push({ source: 'Capital Gain Paid Tax', amount: '' });
-                }
-                setTaxDeductions(newDeductions);
-            } else if (prev.includes('ait')) {
-                // Update existing tax deductions when income types change
-                setTaxDeductions(current => {
-                    let updated = [...current];
-                    if (typeId === 'interest') {
-                        updated = updated.filter(d => !d.source.includes('Interest'));
-                        if (!prev.includes(typeId)) {
-                            updated.push({ source: 'Interest Income AIT', amount: '' });
-                        }
-                    }
-                    if (typeId === 'rental') {
-                        updated = updated.filter(d => !d.source.includes('Rental'));
-                        if (!prev.includes(typeId)) {
-                            updated.push({ source: 'Rental Income AIT', amount: '' });
-                        }
-                    }
-                    if (typeId === 'capital-gain') {
-                        updated = updated.filter(d => !d.source.includes('Capital'));
-                        if (!prev.includes(typeId)) {
-                            updated.push({ source: 'Capital Gain Paid Tax', amount: '' });
-                        }
-                    }
-                    return updated;
-                });
-            }
-            return newTypes;
-        });
-    };
-
-    // Simplify handleAddEntry
-    const handleAddEntry = (entries, setEntries) => {
-        const newEntry = { name: '', amount: '' };
-        setEntries([...entries, newEntry]);
-    };
-
-    const handleEntryChange = (index, field, value, entries, setEntries) => {
-        const newEntries = [...entries];
-        newEntries[index][field] = value;
-        setEntries(newEntries);
-    };
-
-    const handleRemoveEntry = (index, entries, setEntries) => {
-        setEntries(entries.filter((_, i) => i !== index));
-    };
-
-    const handleAddAIT = () => {
-        setAitEntries([...aitEntries, { source: '', amount: '' }]);
-    };
-
-    const handleAitChange = (index, field, value) => {
-        const newEntries = [...aitEntries];
-        newEntries[index][field] = value;
-        setAitEntries(newEntries);
-    };
-
-    const handleRemoveAIT = (index) => {
-        setAitEntries(aitEntries.filter((_, i) => i !== index));
-    };
-
-    const handleTaxDeductionChange = (index, field, value) => {
-        const newDeductions = [...taxDeductions];
-        newDeductions[index][field] = value;
-        setTaxDeductions(newDeductions);
-    };
-
-    const handleAddTaxDeduction = () => {
-        setTaxDeductions([...taxDeductions, { source: '', amount: '' }]);
-    };
-
-    const handleRemoveTaxDeduction = (index) => {
-        setTaxDeductions(taxDeductions.filter((_, i) => i !== index));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        
-        const formData = {
-            interestEntries,
-            dividendEntries,
-            rentEntries,
-            capitalGainEntries,
-            otherEntries,
-            aitEntries
-        };
-        sessionStorage.setItem('investmentIncomeData', JSON.stringify(formData));
-
-        // Get all selected categories and navigate to next
-        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-        const currentIndex = selectedCategories.indexOf('investment');
-        const nextCategory = selectedCategories[currentIndex + 1];
-
-        if (nextCategory) {
-            switch(nextCategory) {
-                case 'employment':
-                    navigate('/employment_income');
-                    break;
-                case 'business':
-                    navigate('/business_income');
-                    break;
-                case 'other':
-                    navigate('/other_income');
-                    break;
-                case 'terminal':
-                    navigate('/terminal_benefits');
-                    break;
-                case 'qualifying':
-                    navigate('/qualifying_payments');
-                    break;
-                default:
-                    navigate('/summary');
-            }
-        } else {
-            navigate('/summary'); // Navigate to summary if this is the last form
-        }
-    };
 
     return (
         <>
@@ -266,20 +274,20 @@ const InvestmentIncome = () => {
                                     <input
                                         type="text"
                                         value={entry.name}
-                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, interestEntries, setInterestEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, 'interestEntries')}
                                         placeholder="Description"
                                         className={styles.inputField}
                                     />
                                     <input
                                         type="number"
                                         value={entry.amount}
-                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, interestEntries, setInterestEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'interestEntries')}
                                         placeholder="Amount"
                                         className={styles.inputField}
                                     />
                                     <button 
                                         type="button" 
-                                        onClick={() => handleRemoveEntry(index, interestEntries, setInterestEntries)}
+                                        onClick={() => handleRemoveEntry(index, 'interestEntries')}
                                         className={styles.removeButton}
                                     >
                                         <Trash2 size={16} />
@@ -288,7 +296,7 @@ const InvestmentIncome = () => {
                             ))}
                             <button 
                                 type="button" 
-                                onClick={() => handleAddEntry(interestEntries, setInterestEntries)} 
+                                onClick={() => handleAddEntry('interestEntries')} 
                                 className={styles.addButton}
                             >
                                 <Plus size={16} />
@@ -304,20 +312,20 @@ const InvestmentIncome = () => {
                                     <input
                                         type="text"
                                         value={entry.name}
-                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, dividendEntries, setDividendEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, 'dividendEntries')}
                                         placeholder="Description"
                                         className={styles.inputField}
                                     />
                                     <input
                                         type="number"
                                         value={entry.amount}
-                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, dividendEntries, setDividendEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'dividendEntries')}
                                         placeholder="Amount"
                                         className={styles.inputField}
                                     />
                                     <button 
                                         type="button" 
-                                        onClick={() => handleRemoveEntry(index, dividendEntries, setDividendEntries)}
+                                        onClick={() => handleRemoveEntry(index, 'dividendEntries')}
                                         className={styles.removeButton}
                                     >
                                         <Trash2 size={16} />
@@ -326,7 +334,7 @@ const InvestmentIncome = () => {
                             ))}
                             <button 
                                 type="button" 
-                                onClick={() => handleAddEntry(dividendEntries, setDividendEntries)} 
+                                onClick={() => handleAddEntry('dividendEntries')} 
                                 className={styles.addButton}
                             >
                                 <Plus size={16} />
@@ -342,20 +350,20 @@ const InvestmentIncome = () => {
                                     <input
                                         type="text"
                                         value={entry.name}
-                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, rentEntries, setRentEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, 'rentEntries')}
                                         placeholder="Description"
                                         className={styles.inputField}
                                     />
                                     <input
                                         type="number"
                                         value={entry.amount}
-                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, rentEntries, setRentEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'rentEntries')}
                                         placeholder="Amount"
                                         className={styles.inputField}
                                     />
                                     <button 
                                         type="button" 
-                                        onClick={() => handleRemoveEntry(index, rentEntries, setRentEntries)}
+                                        onClick={() => handleRemoveEntry(index, 'rentEntries')}
                                         className={styles.removeButton}
                                     >
                                         <Trash2 size={16} />
@@ -364,7 +372,7 @@ const InvestmentIncome = () => {
                             ))}
                             <button 
                                 type="button" 
-                                onClick={() => handleAddEntry(rentEntries, setRentEntries)} 
+                                onClick={() => handleAddEntry('rentEntries')} 
                                 className={styles.addButton}
                             >
                                 <Plus size={16} />
@@ -380,20 +388,20 @@ const InvestmentIncome = () => {
                                     <input
                                         type="text"
                                         value={entry.name}
-                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, capitalGainEntries, setCapitalGainEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, 'capitalGainEntries')}
                                         placeholder="Description"
                                         className={styles.inputField}
                                     />
                                     <input
                                         type="number"
                                         value={entry.amount}
-                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, capitalGainEntries, setCapitalGainEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'capitalGainEntries')}
                                         placeholder="Amount"
                                         className={styles.inputField}
                                     />
                                     <button 
                                         type="button" 
-                                        onClick={() => handleRemoveEntry(index, capitalGainEntries, setCapitalGainEntries)}
+                                        onClick={() => handleRemoveEntry(index, 'capitalGainEntries')}
                                         className={styles.removeButton}
                                     >
                                         <Trash2 size={16} />
@@ -402,7 +410,7 @@ const InvestmentIncome = () => {
                             ))}
                             <button 
                                 type="button" 
-                                onClick={() => handleAddEntry(capitalGainEntries, setCapitalGainEntries)} 
+                                onClick={() => handleAddEntry('capitalGainEntries')} 
                                 className={styles.addButton}
                             >
                                 <Plus size={16} />
@@ -418,20 +426,20 @@ const InvestmentIncome = () => {
                                     <input
                                         type="text"
                                         value={entry.name}
-                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, otherEntries, setOtherEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, 'otherEntries')}
                                         placeholder="Description"
                                         className={styles.inputField}
                                     />
                                     <input
                                         type="number"
                                         value={entry.amount}
-                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, otherEntries, setOtherEntries)}
+                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'otherEntries')}
                                         placeholder="Amount"
                                         className={styles.inputField}
                                     />
                                     <button 
                                         type="button" 
-                                        onClick={() => handleRemoveEntry(index, otherEntries, setOtherEntries)}
+                                        onClick={() => handleRemoveEntry(index, 'otherEntries')}
                                         className={styles.removeButton}
                                     >
                                         <Trash2 size={16} />
@@ -440,7 +448,7 @@ const InvestmentIncome = () => {
                             ))}
                             <button 
                                 type="button" 
-                                onClick={() => handleAddEntry(otherEntries, setOtherEntries)} 
+                                onClick={() => handleAddEntry('otherEntries')} 
                                 className={styles.addButton}
                             >
                                 <Plus size={16} />
@@ -457,20 +465,20 @@ const InvestmentIncome = () => {
                                         <input
                                             type="text"
                                             value={entry.source}
-                                            onChange={(e) => handleTaxDeductionChange(index, 'source', e.target.value)}
+                                            onChange={(e) => handleEntryChange(index, 'source', e.target.value, 'taxDeductions')}
                                             placeholder="Income Source"
                                             className={styles.inputField}
                                         />
                                         <input
                                             type="number"
                                             value={entry.amount}
-                                            onChange={(e) => handleTaxDeductionChange(index, 'amount', e.target.value)}
+                                            onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'taxDeductions')}
                                             placeholder="Tax Amount"
                                             className={styles.inputField}
                                         />
                                         <button 
                                             type="button" 
-                                            onClick={() => handleRemoveTaxDeduction(index)}
+                                            onClick={() => handleRemoveEntry(index, 'taxDeductions')}
                                             className={styles.removeButton}
                                         >
                                             <Trash2 size={16} />

@@ -9,21 +9,21 @@ class Command(BaseCommand):
         try:
             with connection.cursor() as cursor:
                 # Drop existing tables if they exist
-                cursor.execute("DROP TABLE IF EXISTS employment_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS professional_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS business_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS foreign_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS rental_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS rental_tax_parameters")
-                cursor.execute("DROP TABLE IF EXISTS dividend_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS interest_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS royalty_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS pension_tax_rates")
-                cursor.execute("DROP TABLE IF EXISTS capital_gain_tax_rates")
+                cursor.execute("DROP TABLE IF EXISTS employment_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS professional_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS business_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS foreign_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS rental_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS rental_tax_parameters_2025")
+                cursor.execute("DROP TABLE IF EXISTS dividend_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS interest_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS royalty_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS pension_tax_rates_2025")
+                cursor.execute("DROP TABLE IF EXISTS capital_gain_tax_rates_2025")
 
                 # Create employment tax rates table
                 cursor.execute("""
-                    CREATE TABLE employment_tax_rates (
+                    CREATE TABLE employment_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         bracket_order INT NOT NULL,
@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
                 # Insert employment tax rates with correct brackets
                 cursor.execute("""
-                    INSERT INTO employment_tax_rates 
+                    INSERT INTO employment_tax_rates_2025
                     (period_type, bracket_order, rate, bracket_limit, relief_amount)
                     VALUES 
                     -- Monthly rates
@@ -67,7 +67,7 @@ class Command(BaseCommand):
 
                 # Create professional tax rates table with same structure
                 cursor.execute("""
-                    CREATE TABLE professional_tax_rates (
+                    CREATE TABLE professional_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         bracket_order INT NOT NULL,
@@ -84,7 +84,7 @@ class Command(BaseCommand):
 
                 # Create business tax rates table
                 cursor.execute("""
-                    CREATE TABLE business_tax_rates (
+                    CREATE TABLE business_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         bracket_order INT NOT NULL,
@@ -127,11 +127,11 @@ class Command(BaseCommand):
                     ('annually', 4, 30.00, 500000.00, NULL, 1),
                     ('annually', 5, 36.00, 99999999.99, NULL, 1)
                 """
-                cursor.execute(tax_rates_sql.format(table_name='professional_tax_rates'))
+                cursor.execute(tax_rates_sql.format(table_name='professional_tax_rates_2025'))
 
                 # Insert business tax rates
                 cursor.execute("""
-                    INSERT INTO business_tax_rates 
+                    INSERT INTO business_tax_rates_2025
                     (period_type, bracket_order, rate, bracket_limit, relief_amount, business_type, is_flat_rate)
                     VALUES 
                     -- Regular business rates (monthly)
@@ -166,9 +166,9 @@ class Command(BaseCommand):
                 """)
 
                 # Drop and create foreign tax rates table
-                cursor.execute("DROP TABLE IF EXISTS foreign_tax_rates")
+                cursor.execute("DROP TABLE IF EXISTS foreign_tax_rates_2025")
                 cursor.execute("""
-                    CREATE TABLE foreign_tax_rates (
+                    CREATE TABLE foreign_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         bracket_order INT NOT NULL,
@@ -184,39 +184,39 @@ class Command(BaseCommand):
 
                 # Insert data for both types of foreign income
                 cursor.execute("""
-                    INSERT INTO foreign_tax_rates 
+                    INSERT INTO foreign_tax_rates_2025 
                     (period_type, bracket_order, rate, bracket_limit, relief_amount, foreign_type, is_flat_rate)
                     VALUES 
-                    -- Remitted foreign income (15% flat rate)
-                    ('monthly', 1, 15.00, 99999999.99, 0.00, 'remitted', 1),
-                    ('quarterly', 1, 15.00, 99999999.99, 0.00, 'remitted', 1),
-                    ('annually', 1, 15.00, 99999999.99, 0.00, 'remitted', 1),
+                    -- Bank remitted foreign income (15% flat rate)
+                    ('monthly', 1, 15.00, 99999999.99, 0.00, 'remitted', TRUE),
+                    ('quarterly', 1, 15.00, 99999999.99, 0.00, 'remitted', TRUE),
+                    ('annually', 1, 15.00, 99999999.99, 0.00, 'remitted', TRUE),
 
-                    -- Other foreign income (progressive rates - matching employment income)
-                    ('monthly', 1, 6.00, 83333.33, 150000.00, 'other', 0),
-                    ('monthly', 2, 18.00, 41666.67, NULL, 'other', 0),
-                    ('monthly', 3, 24.00, 41666.67, NULL, 'other', 0),
-                    ('monthly', 4, 30.00, 41666.67, NULL, 'other', 0),
-                    ('monthly', 5, 36.00, 99999999.99, NULL, 'other', 0),
+                    -- Other foreign income (same as employment income)
+                    ('monthly', 1, 6.00, 83333.33, 150000.00, 'other', FALSE),
+                    ('monthly', 2, 18.00, 41666.67, NULL, 'other', FALSE),
+                    ('monthly', 3, 24.00, 41666.67, NULL, 'other', FALSE),
+                    ('monthly', 4, 30.00, 41666.67, NULL, 'other', FALSE),
+                    ('monthly', 5, 36.00, 99999999.99, NULL, 'other', FALSE),
                     
                     -- Quarterly rates for other foreign income
-                    ('quarterly', 1, 6.00, 250000.00, 450000.00, 'other', 0),
-                    ('quarterly', 2, 18.00, 125000.00, NULL, 'other', 0),
-                    ('quarterly', 3, 24.00, 125000.00, NULL, 'other', 0),
-                    ('quarterly', 4, 30.00, 125000.00, NULL, 'other', 0),
-                    ('quarterly', 5, 36.00, 99999999.99, NULL, 'other', 0),
+                    ('quarterly', 1, 6.00, 250000.00, 450000.00, 'other', FALSE),
+                    ('quarterly', 2, 18.00, 125000.00, NULL, 'other', FALSE),
+                    ('quarterly', 3, 24.00, 125000.00, NULL, 'other', FALSE),
+                    ('quarterly', 4, 30.00, 125000.00, NULL, 'other', FALSE),
+                    ('quarterly', 5, 36.00, 99999999.99, NULL, 'other', FALSE),
                     
                     -- Annual rates for other foreign income
-                    ('annually', 1, 6.00, 1000000.00, 1800000.00, 'other', 0),
-                    ('annually', 2, 18.00, 500000.00, NULL, 'other', 0),
-                    ('annually', 3, 24.00, 500000.00, NULL, 'other', 0),
-                    ('annually', 4, 30.00, 500000.00, NULL, 'other', 0),
-                    ('annually', 5, 36.00, 99999999.99, NULL, 'other', 0)
+                    ('annually', 1, 6.00, 1000000.00, 1800000.00, 'other', FALSE),
+                    ('annually', 2, 18.00, 500000.00, NULL, 'other', FALSE),
+                    ('annually', 3, 24.00, 500000.00, NULL, 'other', FALSE),
+                    ('annually', 4, 30.00, 500000.00, NULL, 'other', FALSE),
+                    ('annually', 5, 36.00, 99999999.99, NULL, 'other', FALSE)
                 """)
 
-                # Create rental tax rates table
+                # Create rental tax rates table with proper structure
                 cursor.execute("""
-                    CREATE TABLE rental_tax_rates (
+                    CREATE TABLE rental_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         bracket_order INT NOT NULL,
@@ -224,6 +224,8 @@ class Command(BaseCommand):
                         bracket_limit DECIMAL(12,2) NOT NULL,
                         relief_amount DECIMAL(12,2),
                         is_active BOOLEAN DEFAULT TRUE,
+                        is_flat_rate BOOLEAN DEFAULT FALSE,
+                        effective_from DATE DEFAULT '2025-04-01',
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         UNIQUE KEY period_bracket (period_type, bracket_order)
@@ -232,7 +234,7 @@ class Command(BaseCommand):
 
                 # Insert rental tax rates
                 cursor.execute("""
-                    INSERT INTO rental_tax_rates 
+                    INSERT INTO rental_tax_rates_2025 
                     (period_type, bracket_order, rate, bracket_limit, relief_amount)
                     VALUES 
                     -- Monthly rates
@@ -259,7 +261,7 @@ class Command(BaseCommand):
 
                 # Create rental tax parameters table
                 cursor.execute("""
-                    CREATE TABLE rental_tax_parameters (
+                    CREATE TABLE rental_tax_parameters_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         rental_relief_percentage DECIMAL(5,2) DEFAULT 25.00,
@@ -276,7 +278,7 @@ class Command(BaseCommand):
 
                 # Create dividend tax rates table
                 cursor.execute("""
-                    CREATE TABLE dividend_tax_rates (
+                    CREATE TABLE dividend_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         rate DECIMAL(5,2) NOT NULL,
                         is_active BOOLEAN DEFAULT TRUE,
@@ -289,7 +291,7 @@ class Command(BaseCommand):
 
                 # Insert dividend tax rate (15%)
                 cursor.execute("""
-                    INSERT INTO dividend_tax_rates 
+                    INSERT INTO dividend_tax_rates_2025 
                     (rate, is_active, effective_from)
                     VALUES 
                     (15.00, 1, '2025-04-01')
@@ -297,7 +299,7 @@ class Command(BaseCommand):
 
                 # Create interest tax rates table
                 cursor.execute("""
-                    CREATE TABLE interest_tax_rates (
+                    CREATE TABLE interest_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         rate DECIMAL(5,2) NOT NULL,
@@ -315,7 +317,7 @@ class Command(BaseCommand):
 
                 # Insert interest tax parameters (effective April 1, 2025)
                 cursor.execute("""
-                    INSERT INTO interest_tax_rates 
+                    INSERT INTO interest_tax_rates_2025
                     (period_type, rate, bracket_limit, relief_amount, wht_rate, exemption_limit, effective_from)
                     VALUES 
                     -- Monthly rates
@@ -330,7 +332,7 @@ class Command(BaseCommand):
 
                 # Create royalty tax rates table
                 cursor.execute("""
-                    CREATE TABLE royalty_tax_rates (
+                    CREATE TABLE royalty_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         bracket_order INT NOT NULL,
@@ -347,7 +349,7 @@ class Command(BaseCommand):
 
                 # Insert progressive tax rates for royalty income
                 cursor.execute("""
-                    INSERT INTO royalty_tax_rates 
+                    INSERT INTO royalty_tax_rates_2025 
                     (period_type, bracket_order, rate, bracket_limit, relief_amount)
                     VALUES
                     ('monthly', 1, 0, 100000, 100000),
@@ -372,7 +374,7 @@ class Command(BaseCommand):
 
                 # Create pension tax rates table
                 cursor.execute("""
-                    CREATE TABLE pension_tax_rates (
+                    CREATE TABLE pension_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         bracket_order INT NOT NULL,
@@ -389,7 +391,7 @@ class Command(BaseCommand):
 
                 # Insert progressive tax rates for pension income
                 cursor.execute("""
-                    INSERT INTO pension_tax_rates 
+                    INSERT INTO pension_tax_rates_2025 
                     (period_type, bracket_order, rate, bracket_limit, relief_amount)
                     VALUES
                     ('monthly', 1, 0, 100000, 100000),
@@ -414,7 +416,7 @@ class Command(BaseCommand):
 
                 # Insert rental parameters
                 cursor.execute("""
-                    INSERT INTO rental_tax_parameters 
+                    INSERT INTO rental_tax_parameters_2025
                     (period_type, rental_relief_percentage, wht_threshold, wht_rate, relief_amount)
                     VALUES 
                     ('monthly', 25.00, 100000.00, 10.00, 150000.00),
@@ -424,7 +426,7 @@ class Command(BaseCommand):
 
                 # Create capital gain tax rates table
                 cursor.execute("""
-                    CREATE TABLE capital_gain_tax_rates (
+                    CREATE TABLE capital_gain_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
                         rate DECIMAL(5,2) NOT NULL,
@@ -441,7 +443,7 @@ class Command(BaseCommand):
 
                 # Insert capital gains tax rates (15% flat rate for all periods)
                 cursor.execute("""
-                    INSERT INTO capital_gain_tax_rates 
+                    INSERT INTO capital_gain_tax_rates_2025 
                     (period_type, rate, bracket_limit, relief_amount, is_flat_rate, effective_from)
                     VALUES 
                     -- Monthly rates

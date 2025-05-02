@@ -3,15 +3,60 @@ import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
+import { useFormPersist } from './Data_Persistence';
 
 const EmploymentIncome = () => {
-    const [selectedTypes, setSelectedTypes] = useState([]);
+    // Add openDescription state
     const [openDescription, setOpenDescription] = useState(null);
-    const [primaryEntries, setPrimaryEntries] = useState([{ name: 'Salary', amount: '' }]);
-    const [secondaryEntries, setSecondaryEntries] = useState([{ name: 'Salary', amount: '' }]);
-    const [apitEntries, setApitEntries] = useState([{ month: '', amount: '' }]);
-    const [totalEmploymentIncome, setTotalEmploymentIncome] = useState(0);
-    const [totalApitDeduction, setTotalApitDeduction] = useState(0);
+
+    // Update the formData structure with more detailed APIT entries
+    const [formData, setFormData] = useFormPersist('employmentIncomeData', {
+        selectedTypes: [],
+        primaryEntries: [{ name: 'Salary', amount: '' }],
+        secondaryEntries: [{ name: 'Salary', amount: '' }],
+        apitEntries: [{
+            source: '',
+            name: '',
+            amount: '',
+            description: ''
+        }],
+        totalEmploymentIncome: 0,
+        totalApitDeduction: 0
+    });
+
+    // Destructure values from formData
+    const {
+        selectedTypes,
+        primaryEntries,
+        secondaryEntries,
+        apitEntries,
+        totalEmploymentIncome,
+        totalApitDeduction
+    } = formData;
+
+    // Update form data helper function
+    const updateFormData = (updates) => {
+        setFormData(prev => ({
+            ...prev,
+            ...updates
+        }));
+    };
+
+    // Replace all setPrimaryEntries calls
+    const setPrimaryEntries = (entries) => {
+        updateFormData({ primaryEntries: Array.isArray(entries) ? entries : entries(formData.primaryEntries) });
+    };
+
+    // Replace all setSecondaryEntries calls
+    const setSecondaryEntries = (entries) => {
+        updateFormData({ secondaryEntries: Array.isArray(entries) ? entries : entries(formData.secondaryEntries) });
+    };
+
+    // Replace all setApitEntries calls
+    const setApitEntries = (entries) => {
+        updateFormData({ apitEntries: Array.isArray(entries) ? entries : entries(formData.apitEntries) });
+    };
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -27,11 +72,11 @@ const EmploymentIncome = () => {
         // Calculate total employment income
         const primaryTotal = primaryEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
         const secondaryTotal = secondaryEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        setTotalEmploymentIncome(primaryTotal + secondaryTotal);
+        updateFormData({ totalEmploymentIncome: primaryTotal + secondaryTotal });
 
         // Calculate total APIT deduction
         const apitTotal = apitEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-        setTotalApitDeduction(apitTotal);
+        updateFormData({ totalApitDeduction: apitTotal });
     }, [primaryEntries, secondaryEntries, apitEntries]);
 
     const employmentTypes = [
@@ -53,64 +98,73 @@ const EmploymentIncome = () => {
     ];
 
     const handleTypeToggle = (typeId) => {
-        setSelectedTypes(prev => {
-            const newTypes = prev.includes(typeId) 
-                ? prev.filter(id => id !== typeId)
-                : [...prev, typeId];
-            
-            // Handle automatic entry creation
-            if (typeId === 'primary' && !prev.includes('primary')) {
-                setPrimaryEntries([{ name: 'Primary Salary', amount: '' }]);
-                if (newTypes.includes('apit')) {
-                    setApitEntries(current => [
-                        ...current,
-                        { month: 'Primary Salary APIT', amount: '' }
-                    ]);
-                }
-            }
-            
-            if (typeId === 'secondary' && !prev.includes('secondary')) {
-                setSecondaryEntries([{ name: 'Secondary Salary', amount: '' }]);
-                if (newTypes.includes('apit')) {
-                    setApitEntries(current => [
-                        ...current,
-                        { month: 'Secondary Salary APIT', amount: '' }
-                    ]);
-                }
-            }
+        const newTypes = selectedTypes.includes(typeId) 
+            ? selectedTypes.filter(id => id !== typeId)
+            : [...selectedTypes, typeId];
+        updateFormData({ selectedTypes: newTypes });
 
-            if (typeId === 'apit' && !prev.includes('apit')) {
+        // Handle automatic entry creation
+        if (typeId === 'primary' && !selectedTypes.includes('primary')) {
+            setPrimaryEntries([{ name: 'Primary Salary', amount: '' }]);
+            if (newTypes.includes('apit')) {
+                setApitEntries(current => [
+                    ...current,
+                    { month: 'Primary Salary APIT', amount: '' }
+                ]);
+            }
+        }
+        
+        if (typeId === 'secondary' && !selectedTypes.includes('secondary')) {
+            setSecondaryEntries([{ name: 'Secondary Salary', amount: '' }]);
+            if (newTypes.includes('apit')) {
+                setApitEntries(current => [
+                    ...current,
+                    { month: 'Secondary Salary APIT', amount: '' }
+                ]);
+            }
+        }
+
+        if (typeId === 'apit') {
+            if (!selectedTypes.includes('apit')) {
                 let newApitEntries = [];
                 if (newTypes.includes('primary')) {
-                    newApitEntries.push({ month: 'Primary Salary APIT', amount: '' });
+                    newApitEntries.push({
+                        source: 'Primary Employment',
+                        name: 'Primary Salary APIT',
+                        amount: '',
+                        description: 'APIT deducted from primary employment monthly salary'
+                    });
                 }
                 if (newTypes.includes('secondary')) {
-                    newApitEntries.push({ month: 'Secondary Salary APIT', amount: '' });
+                    newApitEntries.push({
+                        source: 'Secondary Employment',
+                        name: 'Secondary Salary APIT',
+                        amount: '',
+                        description: 'APIT deducted from secondary employment monthly salary'
+                    });
                 }
                 setApitEntries(newApitEntries);
             }
+        }
 
-            // Handle removal
-            if (typeId === 'primary' && prev.includes('primary')) {
-                setPrimaryEntries([]);
-                setApitEntries(current => 
-                    current.filter(entry => !entry.month.includes('Primary'))
-                );
-            }
-            
-            if (typeId === 'secondary' && prev.includes('secondary')) {
-                setSecondaryEntries([]);
-                setApitEntries(current => 
-                    current.filter(entry => !entry.month.includes('Secondary'))
-                );
-            }
+        // Handle removal
+        if (typeId === 'primary' && selectedTypes.includes('primary')) {
+            setPrimaryEntries([]);
+            setApitEntries(current => 
+                current.filter(entry => !entry.month.includes('Primary'))
+            );
+        }
+        
+        if (typeId === 'secondary' && selectedTypes.includes('secondary')) {
+            setSecondaryEntries([]);
+            setApitEntries(current => 
+                current.filter(entry => !entry.month.includes('Secondary'))
+            );
+        }
 
-            if (typeId === 'apit' && prev.includes('apit')) {
-                setApitEntries([]);
-            }
-
-            return newTypes;
-        });
+        if (typeId === 'apit' && selectedTypes.includes('apit')) {
+            setApitEntries([]);
+        }
     };
 
     const handleAddPrimaryEntry = () => {
@@ -308,33 +362,64 @@ const EmploymentIncome = () => {
                     {(selectedTypes.includes('apit')) && (
                         <div className={styles.apitSection}>
                             <h3>APIT Deductions</h3>
+                            <div className={styles.deductionDescription}>
+                                Advance Personal Income Tax deducted from your employment income
+                            </div>
                             {apitEntries.map((entry, index) => (
-                                <div key={index} className={styles.entryRow}>
-                                    <input
-                                        type="text"
-                                        value={entry.month}
-                                        onChange={(e) => handleApitChange(index, 'month', e.target.value)}
-                                        placeholder="Month"
-                                        className={styles.inputField}
-                                    />
-                                    <input
-                                        type="number"
-                                        value={entry.amount}
-                                        onChange={(e) => handleApitChange(index, 'amount', e.target.value)}
-                                        placeholder="Amount"
-                                        className={styles.inputField}
-                                    />
-                                    <button 
-                                        type="button" 
-                                        onClick={() => handleRemoveAPIT(index)}
-                                        className={styles.removeButton}
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
+                                <div key={index} className={styles.deductionEntry}>
+                                    <div className={styles.entryRow}>
+                                        <div className={styles.inputGroup}>
+                                            <label>Source</label>
+                                            <input
+                                                type="text"
+                                                value={entry.source}
+                                                onChange={(e) => handleApitChange(index, 'source', e.target.value)}
+                                                placeholder="Employment Source"
+                                                className={styles.inputField}
+                                            />
+                                        </div>
+                                        <div className={styles.inputGroup}>
+                                            <label>Description</label>
+                                            <input
+                                                type="text"
+                                                value={entry.name}
+                                                onChange={(e) => handleApitChange(index, 'name', e.target.value)}
+                                                placeholder="APIT Description"
+                                                className={styles.inputField}
+                                            />
+                                        </div>
+                                        <div className={styles.inputGroup}>
+                                            <label>Amount</label>
+                                            <input
+                                                type="number"
+                                                value={entry.amount}
+                                                onChange={(e) => handleApitChange(index, 'amount', e.target.value)}
+                                                placeholder="APIT Amount"
+                                                className={styles.inputField}
+                                            />
+                                        </div>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => handleRemoveAPIT(index)}
+                                            className={styles.removeButton}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                    <div className={styles.entryDescription}>
+                                        <input
+                                            type="text"
+                                            value={entry.description}
+                                            onChange={(e) => handleApitChange(index, 'description', e.target.value)}
+                                            placeholder="Add description for this APIT deduction"
+                                            className={styles.descriptionField}
+                                        />
+                                    </div>
                                 </div>
                             ))}
                             <button type="button" onClick={handleAddAPIT} className={styles.addButton}>
                                 <Plus size={16} />
+                                Add APIT Entry
                             </button>
                         </div>
                     )}

@@ -104,6 +104,18 @@ const Login = () => {
         }
     };
 
+    const handleLogout = () => {
+        // Clear all saved form data
+        localStorage.removeItem('businessIncomeData');
+        localStorage.removeItem('employmentIncomeData');
+        localStorage.removeItem('investmentIncomeData');
+        // ...clear other form data...
+        
+        // Clear session
+        sessionStorage.clear();
+        // ...rest of logout logic...
+    };
+
     return (
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
             <div className="login-container">

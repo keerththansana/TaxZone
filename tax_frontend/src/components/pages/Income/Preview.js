@@ -8,370 +8,558 @@ const Preview = () => {
     const [summaryData, setSummaryData] = useState([]);
     const [assessableIncome, setAssessableIncome] = useState(0);
     const [taxableIncome, setTaxableIncome] = useState(0);
-    const [taxLiability, setTaxLiability] = useState(0);
     const [totalTaxPayable, setTotalTaxPayable] = useState(0);
-    const [reliefs, setReliefs] = useState({});
-    const [qualifyingPayments, setQualifyingPayments] = useState({});
-    const [creditsAvailable, setCreditsAvailable] = useState({});
-    const [selectedCategories, setSelectedCategories] = useState([]);
-    const [categoryData, setCategoryData] = useState({});
-    const [employmentDetails, setEmploymentDetails] = useState({
-        totalIncome: 0,
-        apitDeductions: 0,
-    });
-    const navigate = useNavigate();
 
-    // Add event listener for storage changes
+    // Single useEffect to load all data
     useEffect(() => {
-        const handleStorageChange = (e) => {
-            if (e.key && e.key.includes('IncomeData')) {
-                const categories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-                loadCategoryData(categories);
-            }
-        };
+        const loadAllData = () => {
+            const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+            let newSummaryData = [];
+            let totalIncome = 0;
 
-        // Listen for storage changes
-        window.addEventListener('storage', handleStorageChange);
+            // Enhanced Employment Income handling
+            if (selectedCategories.includes('employment')) {
+                const employmentData = JSON.parse(sessionStorage.getItem('employmentIncomeData'));
+                if (employmentData) {
+                    let employmentSummary = {
+                        category: 'Employment Income',
+                        amount: 0,
+                        entries: []
+                    };
 
-        // Initial load
-        const categories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-        loadCategoryData(categories);
+                    // Process primary employment entries
+                    if (employmentData.primaryEntries?.length > 0) {
+                        employmentData.primaryEntries.forEach(entry => {
+                            employmentSummary.entries.push({
+                                type: 'Primary Employment',
+                                name: entry.name,
+                                amount: Number(entry.amount)
+                            });
+                            employmentSummary.amount += Number(entry.amount);
+                        });
+                    }
 
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
+                    // Process secondary employment entries
+                    if (employmentData.secondaryEntries?.length > 0) {
+                        employmentData.secondaryEntries.forEach(entry => {
+                            employmentSummary.entries.push({
+                                type: 'Secondary Employment',
+                                name: entry.name,
+                                amount: Number(entry.amount)
+                            });
+                            employmentSummary.amount += Number(entry.amount);
+                        });
+                    }
 
-    // Update the useEffect for employment data sync
-    useEffect(() => {
-        const handleEmploymentDataUpdate = () => {
-            try {
-                const empData = JSON.parse(sessionStorage.getItem('employmentIncomeData'));
-                if (empData) {
-                    // Calculate total from primary employment
-                    const primaryTotal = (empData.primaryEntries || []).reduce(
-                        (sum, entry) => sum + (Number(entry.amount) || 0),
-                        0
-                    );
+                    // Process APIT entries if any
+                    if (employmentData.apitEntries?.length > 0) {
+                        employmentSummary.deductions = employmentData.apitEntries.map(entry => ({
+                            name: entry.name || 'APIT Deduction',
+                            amount: Number(entry.amount)
+                        }));
+                    }
 
-                    // Calculate total from secondary employment
-                    const secondaryTotal = (empData.secondaryEntries || []).reduce(
-                        (sum, entry) => sum + (Number(entry.amount) || 0),
-                        0
-                    );
-
-                    // Set total employment income
-                    const totalEmploymentIncome = primaryTotal + secondaryTotal;
-
-                    // Calculate APIT if present
-                    const apitTotal = (empData.apitEntries || []).reduce(
-                        (sum, entry) => sum + (Number(entry.amount) || 0),
-                        0
-                    );
-
-                    setEmploymentDetails({
-                        totalIncome: totalEmploymentIncome,
-                        apitDeductions: apitTotal,
-                    });
-
-                    // Update summary data
-                    updateSummaryData(totalEmploymentIncome, apitTotal);
+                    if (employmentSummary.amount > 0) {
+                        newSummaryData.push(employmentSummary);
+                        totalIncome += employmentSummary.amount;
+                    }
                 }
-            } catch (error) {
-                console.error('Error processing employment data:', error);
             }
-        };
 
-        // Add event listener for storage changes
-        window.addEventListener('storage', handleEmploymentDataUpdate);
-        // Initial load
-        handleEmploymentDataUpdate();
+            // Add Business Income handling
+            if (selectedCategories.includes('business')) {
+                const businessData = JSON.parse(sessionStorage.getItem('businessIncomeData'));
+                if (businessData) {
+                    let businessSummary = {
+                        category: 'Business Income',
+                        amount: 0,
+                        entries: []
+                    };
 
-        return () => window.removeEventListener('storage', handleEmploymentDataUpdate);
-    }, []);
-
-    // Update the useEffect for data sync
-    useEffect(() => {
-        const handleDataChange = () => {
-            try {
-                // Get selected categories
-                const categories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-                let totalIncome = 0;
-                let newSummaryData = [];
-
-                // Process each selected category
-                categories.forEach((category) => {
-                    const data = JSON.parse(sessionStorage.getItem(`${category}IncomeData`) || '{}');
-
-                    switch (category) {
-                        case 'employment':
-                            if (data) {
-                                const primaryTotal = (data.primaryEntries || []).reduce(
-                                    (sum, entry) => sum + (Number(entry.amount) || 0),
-                                    0
-                                );
-                                const secondaryTotal = (data.secondaryEntries || []).reduce(
-                                    (sum, entry) => sum + (Number(entry.amount) || 0),
-                                    0
-                                );
-                                const empTotal = primaryTotal + secondaryTotal;
-
-                                if (empTotal > 0) {
-                                    newSummaryData.push({
-                                        category: 'Employment Income',
-                                        amount: empTotal,
-                                    });
-                                    totalIncome += empTotal;
-
-                                    // Handle APIT if present
-                                    const apitTotal = (data.apitEntries || []).reduce(
-                                        (sum, entry) => sum + (Number(entry.amount) || 0),
-                                        0
-                                    );
-                                    if (apitTotal > 0) {
-                                        setCreditsAvailable((prev) => ({
-                                            ...prev,
-                                            APIT: apitTotal,
-                                        }));
-                                    }
-                                }
-                            }
-                            break;
-
-                        case 'business':
-                            if (data) {
-                                const busTotal = Object.values(data).reduce((sum, entries) => {
-                                    if (Array.isArray(entries)) {
-                                        return sum + entries.reduce(
-                                            (entrySum, entry) => entrySum + (Number(entry.amount) || 0),
-                                            0
-                                        );
-                                    }
-                                    return sum;
-                                }, 0);
-
-                                if (busTotal > 0) {
-                                    newSummaryData.push({
-                                        category: 'Business Income',
-                                        amount: busTotal,
-                                    });
-                                    totalIncome += busTotal;
-                                }
-                            }
-                            break;
-
-                        // Add similar cases for other income types
+                    // Process sole proprietorship entries
+                    if (businessData.soleProprietorshipEntries?.length) {
+                        businessData.soleProprietorshipEntries.forEach(entry => {
+                            businessSummary.entries.push({
+                                type: 'Sole Proprietorship',
+                                name: entry.name,
+                                amount: Number(entry.amount)
+                            });
+                            businessSummary.amount += Number(entry.amount);
+                        });
                     }
-                });
 
-                // Update state with new data
-                setSummaryData(newSummaryData);
-                setAssessableIncome(totalIncome);
-
-                // Calculate deductions and tax
-                const reliefTotal = Object.values(reliefs).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                const qualifyingTotal = Object.values(qualifyingPayments).reduce((sum, entries) => {
-                    if (Array.isArray(entries)) {
-                        return sum + entries.reduce((entrySum, entry) => entrySum + (Number(entry.amount) || 0), 0);
+                    // Process partnership entries
+                    if (businessData.partnershipEntries?.length) {
+                        businessData.partnershipEntries.forEach(entry => {
+                            businessSummary.entries.push({
+                                type: 'Partnership Business',
+                                name: entry.name,
+                                amount: Number(entry.amount)
+                            });
+                            businessSummary.amount += Number(entry.amount);
+                        });
                     }
-                    return sum;
-                }, 0);
 
-                // Calculate taxable income
-                const taxableAmount = Math.max(0, totalIncome - reliefTotal - qualifyingTotal);
-                setTaxableIncome(taxableAmount);
+                    // Process trust entries
+                    if (businessData.trustEntries?.length) {
+                        businessData.trustEntries.forEach(entry => {
+                            businessSummary.entries.push({
+                                type: 'Trust Beneficiary',
+                                name: entry.name,
+                                amount: Number(entry.amount)
+                            });
+                            businessSummary.amount += Number(entry.amount);
+                        });
+                    }
 
-                // Calculate tax liability
-                const liability = calculateTaxLiability(taxableAmount);
-                setTaxLiability(liability);
+                    // Process betting entries
+                    if (businessData.bettingEntries?.length) {
+                        businessData.bettingEntries.forEach(entry => {
+                            businessSummary.entries.push({
+                                type: 'Betting & Gaming',
+                                name: entry.name,
+                                amount: Number(entry.amount)
+                            });
+                            businessSummary.amount += Number(entry.amount);
+                        });
+                    }
 
-                // Calculate final tax payable
-                const creditsTotal = Object.values(creditsAvailable).reduce((sum, val) => sum + (Number(val) || 0), 0);
-                setTotalTaxPayable(Math.max(0, liability - creditsTotal));
-            } catch (error) {
-                console.error('Error updating preview:', error);
+                    // Process other business entries
+                    if (businessData.otherEntries?.length) {
+                        businessData.otherEntries.forEach(entry => {
+                            businessSummary.entries.push({
+                                type: 'Other Business',
+                                name: entry.name,
+                                amount: Number(entry.amount)
+                            });
+                            businessSummary.amount += Number(entry.amount);
+                        });
+                    }
+
+                    // Process deductions if any
+                    if (businessData.deductionEntries) {
+                        businessSummary.deductions = Object.values(businessData.deductionEntries)
+                            .map(entry => ({
+                                name: entry.name || 'Business Deduction',
+                                amount: Number(entry.amount)
+                            }))
+                            .filter(entry => entry.amount > 0);
+                    }
+
+                    if (businessSummary.amount > 0) {
+                        newSummaryData.push(businessSummary);
+                        totalIncome += businessSummary.amount;
+                    }
+                }
             }
-        };
 
-        // Add event listeners
-        window.addEventListener('storage', handleDataChange);
-        document.addEventListener('visibilitychange', handleDataChange);
+            // Handle Investment Income
+            if (selectedCategories.includes('investment')) {
+                const investmentData = JSON.parse(sessionStorage.getItem('investmentIncomeData'));
+                if (investmentData) {
+                    let investmentSummary = {
+                        category: 'Investment Income',
+                        amount: 0,
+                        entries: [],
+                        deductions: []
+                    };
 
-        // Initial load
-        handleDataChange();
-
-        return () => {
-            window.removeEventListener('storage', handleDataChange);
-            document.removeEventListener('visibilitychange', handleDataChange);
-        };
-    }, [reliefs, qualifyingPayments, creditsAvailable]);
-
-    const loadCategoryData = (categories) => {
-        const data = {};
-        let summaryItems = [];
-        let totalIncome = 0;
-        let creditsData = {};
-
-        // Process each selected category
-        categories.forEach((category) => {
-            const storageKey = `${category}IncomeData`;
-            const rawData = sessionStorage.getItem(storageKey);
-
-            if (rawData) {
-                const categoryData = JSON.parse(rawData);
-
-                switch (category) {
-                    case 'employment':
-                        if (hasValidEntries(categoryData)) {
-                            const empTotal = calculateEmploymentTotal(categoryData);
-                            if (empTotal > 0) {
-                                summaryItems.push({
-                                    category: 'Employment Income',
-                                    amount: empTotal,
+                    // Process interest income
+                    if (investmentData.interestEntries?.length) {
+                        investmentData.interestEntries.forEach(entry => {
+                            if (entry.amount) {
+                                investmentSummary.entries.push({
+                                    type: 'Interest Income',
+                                    name: entry.name,
+                                    amount: Number(entry.amount)
                                 });
-                                totalIncome += empTotal;
-
-                                // Add APIT if present
-                                if (categoryData.apitEntries?.length > 0) {
-                                    const apitTotal = calculateTotal(categoryData.apitEntries);
-                                    if (apitTotal > 0) {
-                                        creditsData['APIT'] = apitTotal;
-                                    }
-                                }
+                                investmentSummary.amount += Number(entry.amount);
                             }
-                            data[category] = categoryData;
-                        }
-                        break;
+                        });
+                    }
 
-                    // Similar cases for other income types
-                    // ...existing switch cases...
+                    // Process dividend income
+                    if (investmentData.dividendEntries?.length) {
+                        investmentData.dividendEntries.forEach(entry => {
+                            if (entry.amount) {
+                                investmentSummary.entries.push({
+                                    type: 'Dividend Income',
+                                    name: entry.name,
+                                    amount: Number(entry.amount)
+                                });
+                                investmentSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process rental income
+                    if (investmentData.rentEntries?.length) {
+                        investmentData.rentEntries.forEach(entry => {
+                            if (entry.amount) {
+                                investmentSummary.entries.push({
+                                    type: 'Rental Income',
+                                    name: entry.name,
+                                    amount: Number(entry.amount)
+                                });
+                                investmentSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process capital gains
+                    if (investmentData.capitalGainEntries?.length) {
+                        investmentData.capitalGainEntries.forEach(entry => {
+                            if (entry.amount) {
+                                investmentSummary.entries.push({
+                                    type: 'Capital Gains',
+                                    name: entry.name,
+                                    amount: Number(entry.amount)
+                                });
+                                investmentSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process AIT deductions
+                    if (investmentData.taxDeductions?.length) {
+                        investmentSummary.deductions = investmentData.taxDeductions.map(entry => ({
+                            name: entry.source || 'AIT Deduction',
+                            amount: Number(entry.amount)
+                        })).filter(deduction => deduction.amount > 0);
+                    }
+
+                    if (investmentSummary.amount > 0) {
+                        newSummaryData.push(investmentSummary);
+                        totalIncome += investmentSummary.amount;
+                    }
                 }
             }
-        });
 
-        // Update state with new data
-        setCategoryData(data);
-        setSummaryData(summaryItems);
-        setAssessableIncome(totalIncome);
-        setCreditsAvailable(creditsData);
+            // Handle Other Income
+            if (selectedCategories.includes('other')) {
+                const otherData = JSON.parse(sessionStorage.getItem('otherIncomeData'));
+                if (otherData) {
+                    let otherSummary = {
+                        category: 'Other Income',
+                        amount: 0,
+                        entries: [],
+                        deductions: [],
+                        description: 'Income from various other sources including services, royalties, and more'
+                    };
 
-        // Recalculate tax
-        updateTaxCalculations(totalIncome, creditsData);
-    };
-
-    const getCategoryLabel = (category) => {
-        const labels = {
-            employment: 'Employment Income',
-            business: 'Business Income',
-            investment: 'Investment Income',
-            other: 'Other Income',
-            terminal: 'Terminal Benefits',
-            qualifying: 'Qualifying Payments',
-        };
-        return labels[category] || category;
-    };
-
-    const hasValidEntries = (data) => {
-        if (!data) return false;
-        return Object.values(data).some((entries) => {
-            if (Array.isArray(entries)) {
-                return entries.some((entry) => Number(entry.amount) > 0);
-            }
-            return false;
-        });
-    };
-
-    useEffect(() => {
-        let summaryItems = [];
-        let totalIncome = 0;
-
-        Object.entries(categoryData).forEach(([category, data]) => {
-            switch (category) {
-                case 'employment':
-                    const empData = JSON.parse(sessionStorage.getItem('employmentIncomeData'));
-                    if (empData) {
-                        const empTotal = calculateEmploymentTotal(empData);
-                        if (empTotal > 0) {
-                            summaryItems.push({
-                                category: 'Employment Income',
-                                amount: empTotal,
-                            });
-                            totalIncome += empTotal;
-
-                            // Add APIT deductions if present
-                            if (empData.apitEntries?.length > 0) {
-                                const apitTotal = calculateTotal(empData.apitEntries);
-                                if (apitTotal > 0) {
-                                    setCreditsAvailable((prev) => ({
-                                        ...prev,
-                                        APIT: apitTotal,
-                                    }));
-                                }
+                    // Process service income with descriptions
+                    if (otherData.serviceEntries?.length) {
+                        otherData.serviceEntries.forEach(entry => {
+                            if (entry.amount) {
+                                otherSummary.entries.push({
+                                    type: 'Service Income',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Professional or service-based income subject to WHT'
+                                });
+                                otherSummary.amount += Number(entry.amount);
                             }
-                        }
+                        });
                     }
-                    break;
 
-                case 'business':
-                    const busData = JSON.parse(sessionStorage.getItem('businessIncomeData'));
-                    if (busData) {
-                        const busTotal = calculateBusinessTotal(busData);
-                        if (busTotal > 0) {
-                            summaryItems.push({
-                                category: 'Business Income',
-                                amount: busTotal,
-                            });
-                            totalIncome += busTotal;
-                        }
+                    // Process royalty income with descriptions
+                    if (otherData.royaltyEntries?.length) {
+                        otherData.royaltyEntries.forEach(entry => {
+                            if (entry.amount) {
+                                otherSummary.entries.push({
+                                    type: 'Royalty Income',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Income from intellectual property rights and patents'
+                                });
+                                otherSummary.amount += Number(entry.amount);
+                            }
+                        });
                     }
-                    break;
 
-                case 'investment':
-                    const invData = JSON.parse(sessionStorage.getItem('investmentIncomeData'));
-                    if (invData) {
-                        const invTotal = calculateInvestmentTotal(invData);
-                        if (invTotal > 0) {
-                            summaryItems.push({
-                                category: 'Investment Income',
-                                amount: invTotal,
-                            });
-                            totalIncome += invTotal;
-                        }
+                    // Process resource payments with descriptions
+                    if (otherData.resourceEntries?.length) {
+                        otherData.resourceEntries.forEach(entry => {
+                            if (entry.amount) {
+                                otherSummary.entries.push({
+                                    type: 'Natural Resource Payment',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Income from exploitation of natural resources'
+                                });
+                                otherSummary.amount += Number(entry.amount);
+                            }
+                        });
                     }
-                    break;
 
-                // Add other cases for remaining income types
+                    // Process gem sales with descriptions
+                    if (otherData.gemEntries?.length) {
+                        otherData.gemEntries.forEach(entry => {
+                            if (entry.amount) {
+                                otherSummary.entries.push({
+                                    type: 'Gem Sale Income',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Income from sale of gems at National Gem & Jewellery Authority auctions'
+                                });
+                                otherSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process other entries with descriptions
+                    if (otherData.otherEntries?.length) {
+                        otherData.otherEntries.forEach(entry => {
+                            if (entry.amount) {
+                                otherSummary.entries.push({
+                                    type: 'Other Miscellaneous Income',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Other taxable income not falling under specific categories'
+                                });
+                                otherSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process WHT deductions with descriptions
+                    if (otherData.whtEntries?.length) {
+                        otherSummary.deductions = otherData.whtEntries
+                            .filter(entry => entry.amount)
+                            .map(entry => ({
+                                name: entry.name || 'WHT Deduction',
+                                amount: Number(entry.amount),
+                                description: 'Withholding Tax deducted at source as per Section 84 of the Inland Revenue Act'
+                            }));
+                    }
+
+                    if (otherSummary.amount > 0) {
+                        newSummaryData.push(otherSummary);
+                        totalIncome += otherSummary.amount;
+                    }
+                }
             }
-        });
 
-        setSummaryData(summaryItems);
-        setAssessableIncome(totalIncome);
+            // Handle Qualifying Payments
+            if (selectedCategories.includes('qualifying')) {
+                const qualifyingData = JSON.parse(sessionStorage.getItem('qualifyingPaymentsData'));
+                if (qualifyingData) {
+                    let qualifyingSummary = {
+                        category: 'Qualifying Payments & Relief',
+                        amount: 0,
+                        entries: [],
+                        deductions: [],
+                        description: 'Tax deductible payments and qualifying relief'
+                    };
 
-        // Calculate taxable income after deductions
-        const reliefTotal = Object.values(reliefs).reduce((sum, val) => sum + Number(val), 0);
-        const qualifyingTotal = Object.values(qualifyingPayments).reduce((sum, entries) => {
-            if (Array.isArray(entries)) {
-                return sum + entries.reduce((entrySum, entry) => entrySum + Number(entry.amount || 0), 0);
+                    // Process donation entries
+                    if (qualifyingData.donationEntries?.length) {
+                        qualifyingData.donationEntries.forEach(entry => {
+                            if (entry.amount) {
+                                qualifyingSummary.entries.push({
+                                    type: 'Donations',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Approved charitable donations (up to 1/3 of taxable income or Rs. 75,000)'
+                                });
+                                qualifyingSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process Samurdhi entries
+                    if (qualifyingData.samurdhiEntries?.length) {
+                        qualifyingData.samurdhiEntries.forEach(entry => {
+                            if (entry.amount) {
+                                qualifyingSummary.entries.push({
+                                    type: 'Samurdhi Shop Setup',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Shop setup expenses for Samurdhi beneficiary families'
+                                });
+                                qualifyingSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process solar installation entries
+                    if (qualifyingData.solarEntries?.length) {
+                        qualifyingData.solarEntries.forEach(entry => {
+                            if (entry.amount) {
+                                qualifyingSummary.entries.push({
+                                    type: 'Solar Installation',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Solar power system installation expenses (max Rs. 600,000)'
+                                });
+                                qualifyingSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process cinema industry entries
+                    if (qualifyingData.cinemaEntries?.length) {
+                        qualifyingData.cinemaEntries.forEach(entry => {
+                            if (entry.amount) {
+                                qualifyingSummary.entries.push({
+                                    type: 'Cinema Industry Investment',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Investment in film production or cinema development'
+                                });
+                                qualifyingSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process housing construction entries
+                    if (qualifyingData.housingEntries?.length) {
+                        qualifyingData.housingEntries.forEach(entry => {
+                            if (entry.amount) {
+                                qualifyingSummary.entries.push({
+                                    type: 'Low-Income Housing',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Construction of houses for low-income families'
+                                });
+                                qualifyingSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process other qualifying payment entries
+                    if (qualifyingData.otherEntries?.length) {
+                        qualifyingData.otherEntries.forEach(entry => {
+                            if (entry.amount) {
+                                qualifyingSummary.entries.push({
+                                    type: 'Other Qualifying Payment',
+                                    name: entry.name,
+                                    amount: Number(entry.amount),
+                                    description: 'Other approved tax-deductible payments'
+                                });
+                                qualifyingSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    if (qualifyingSummary.amount > 0) {
+                        newSummaryData.push(qualifyingSummary);
+                        // Update taxable income by subtracting qualifying payments
+                        totalIncome = Math.max(0, totalIncome - qualifyingSummary.amount);
+                    }
+                }
             }
-            return sum;
-        }, 0);
 
-        const taxableAmount = Math.max(0, totalIncome - reliefTotal - qualifyingTotal);
-        setTaxableIncome(taxableAmount);
+            // New Terminal Benefits section
+            if (selectedCategories.includes('terminal')) {
+                const terminalData = JSON.parse(sessionStorage.getItem('terminalBenefitsData'));
+                if (terminalData) {
+                    let terminalSummary = {
+                        category: 'Terminal Benefits',
+                        amount: 0,
+                        entries: [],
+                        description: 'End of service and retirement benefits'
+                    };
 
-        // Calculate tax liability
-        const liability = calculateTaxLiability(taxableAmount);
-        setTaxLiability(liability);
+                    // Process commuted pension entries
+                    if (terminalData.commutedEntries?.length) {
+                        terminalData.commutedEntries.forEach(entry => {
+                            if (entry.amount) {
+                                terminalSummary.entries.push({
+                                    type: 'Commuted Pension',
+                                    name: entry.name || 'Commuted Pension',
+                                    amount: Number(entry.amount),
+                                    description: 'Lump sum received instead of regular pension payments'
+                                });
+                                terminalSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
 
-        // Calculate final tax payable
-        const creditsTotal = Object.values(creditsAvailable).reduce((sum, val) => sum + Number(val), 0);
-        setTotalTaxPayable(Math.max(0, liability - creditsTotal));
-    }, [categoryData, reliefs, qualifyingPayments, creditsAvailable]);
+                    // Process gratuity entries
+                    if (terminalData.gratuityEntries?.length) {
+                        terminalData.gratuityEntries.forEach(entry => {
+                            if (entry.amount) {
+                                terminalSummary.entries.push({
+                                    type: 'Retiring Gratuity',
+                                    name: entry.name || 'Retiring Gratuity',
+                                    amount: Number(entry.amount),
+                                    description: 'One-time payment received upon retirement'
+                                });
+                                terminalSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
 
-    const calculateTotal = (entries) => {
-        return entries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-    };
+                    // Process compensation entries
+                    if (terminalData.compensationEntries?.length) {
+                        terminalData.compensationEntries.forEach(entry => {
+                            if (entry.amount) {
+                                terminalSummary.entries.push({
+                                    type: 'Compensation for Loss of Office',
+                                    name: entry.name || 'Compensation',
+                                    amount: Number(entry.amount),
+                                    description: 'Payment received for loss of employment under a uniform scheme'
+                                });
+                                terminalSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
 
+                    // Process ETF entries
+                    if (terminalData.etfEntries?.length) {
+                        terminalData.etfEntries.forEach(entry => {
+                            if (entry.amount) {
+                                terminalSummary.entries.push({
+                                    type: 'ETF Payment',
+                                    name: entry.name || 'ETF Payment',
+                                    amount: Number(entry.amount),
+                                    description: 'Amount received from the Employees Trust Fund'
+                                });
+                                terminalSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    // Process other terminal benefit entries
+                    if (terminalData.otherEntries?.length) {
+                        terminalData.otherEntries.forEach(entry => {
+                            if (entry.amount) {
+                                terminalSummary.entries.push({
+                                    type: 'Other Terminal Benefits',
+                                    name: entry.name || 'Other Benefits',
+                                    amount: Number(entry.amount),
+                                    description: 'Other retirement or end of service benefits'
+                                });
+                                terminalSummary.amount += Number(entry.amount);
+                            }
+                        });
+                    }
+
+                    if (terminalSummary.amount > 0) {
+                        // Add terminal benefits after employment income
+                        const empIndex = newSummaryData.findIndex(item => item.category === 'Employment Income');
+                        if (empIndex !== -1) {
+                            newSummaryData.splice(empIndex + 1, 0, terminalSummary);
+                        } else {
+                            newSummaryData.push(terminalSummary);
+                        }
+                        totalIncome += terminalSummary.amount;
+                    }
+                }
+            }
+
+            // Update state with calculated values
+            setSummaryData(newSummaryData);
+            setAssessableIncome(totalIncome);
+            setTaxableIncome(totalIncome);
+            setTotalTaxPayable(calculateTaxLiability(totalIncome));
+        };
+
+        loadAllData();
+    }, []);
+
+    // Tax calculation helper function
     const calculateTaxLiability = (income) => {
         if (income <= 1200000) return income * 0.06;
         if (income <= 2400000) return 72000 + (income - 1200000) * 0.12;
@@ -381,90 +569,24 @@ const Preview = () => {
         return 1080000 + (income - 6000000) * 0.36;
     };
 
-    // Helper functions for calculating totals
-    const calculateEmploymentTotal = (data) => {
-        const primary = data.primaryEntries?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
-        const secondary = data.secondaryEntries?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
-        return primary + secondary;
+    // Rest of your component remains the same...
+    const handleDownload = () => {
+        const docContent = {
+            assessableIncome,
+            taxableIncome,
+            totalTaxPayable,
+            summaryData
+        };
+        
+        // Create PDF or Excel download
+        // Implementation depends on your preferred format
     };
 
-    const calculateBusinessTotal = (data) => {
-        return Object.values(data).reduce((sum, entries) => {
-            if (Array.isArray(entries)) {
-                return sum + entries.reduce((entrySum, entry) => entrySum + (Number(entry.amount) || 0), 0);
-            }
-            return sum;
-        }, 0);
+    const handlePrint = () => {
+        window.print();
     };
 
-    const calculateDeductions = (data) => {
-        if (!data) return 0;
-        return Object.values(data).reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
-    };
-
-    // Add this helper function for investment total
-    const calculateInvestmentTotal = (data) => {
-        const interestTotal = data.interestEntries?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
-        const dividendTotal = data.dividendEntries?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
-        const rentTotal = data.rentEntries?.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) || 0;
-
-        return interestTotal + dividendTotal + rentTotal;
-    };
-
-    const updateTaxCalculations = () => {
-        // Get current data from state
-        const totalIncome = employmentDetails.totalIncome || 0;
-
-        // Calculate tax credits
-        const apitDeductions = employmentDetails.apitDeductions || 0;
-        const totalCredits = apitDeductions;
-
-        // Calculate taxable income
-        const taxableAmount = Math.max(0, totalIncome);
-        setTaxableIncome(taxableAmount);
-
-        // Calculate tax liability
-        const liability = calculateTaxLiability(taxableAmount);
-        setTaxLiability(liability);
-
-        // Calculate final tax payable
-        const finalTax = Math.max(0, liability - totalCredits);
-        setTotalTaxPayable(finalTax);
-    };
-
-    // Update the summary data update function
-    const updateSummaryData = (income, deductions) => {
-        setSummaryData((prev) => {
-            const newData = prev.filter((item) => item.category !== 'Employment Income');
-            if (income > 0) {
-                newData.push({
-                    category: 'Employment Income',
-                    amount: income,
-                });
-            }
-            return newData;
-        });
-
-        // Update tax credits if APIT exists
-        if (deductions > 0) {
-            setCreditsAvailable((prev) => ({
-                ...prev,
-                APIT: deductions,
-            }));
-        }
-
-        // Update assessable income
-        setAssessableIncome(income);
-
-        // Recalculate tax
-        const taxableAmount = Math.max(0, income);
-        setTaxableIncome(taxableAmount);
-        const liability = calculateTaxLiability(taxableAmount);
-        setTaxLiability(liability);
-        setTotalTaxPayable(Math.max(0, liability - deductions));
-    };
-
-    // Update the render section to show real-time status
+    // Update the render section to show detailed breakdown
     return (
         <div className={styles.previewContainer}>
             <TaxationMenu />
@@ -472,7 +594,7 @@ const Preview = () => {
                 <div className={styles.header}>
                     <h1>Tax Return Summary</h1>
                     <div className={styles.actions}>
-                        <button className={styles.actionButton}>
+                        <button className={styles.actionButton} onClick={handleDownload}>
                             <Download size={16} />
                             Download PDF
                         </button>
@@ -490,71 +612,60 @@ const Preview = () => {
                             <thead>
                                 <tr>
                                     <th>Category</th>
+                                    <th>Description</th>
                                     <th>Rs.</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr className={styles.deductionRow}>
-                                    <td>Less: Personal Relief (annually)</td>
-                                    <td className={styles.negative}>
-                                        (Rs. 1,800,000.00)
-                                    </td>
-                                </tr>
-                                {selectedCategories.includes('employment') && (
-                                    <>
-                                        <tr className={employmentDetails.totalIncome > 0 ? styles.completedRow : styles.pendingRow}>
-                                            <td>Employment Income</td>
-                                            <td>
-                                                {employmentDetails.totalIncome > 0 ? `Rs. ${employmentDetails.totalIncome.toLocaleString()}` : <span className={styles.pending}>Complete employment form...</span>}
-                                            </td>
+                                {summaryData.map((category, index) => (
+                                    <React.Fragment key={`category-${index}`}>
+                                        {/* Category Header */}
+                                        <tr className={styles.categoryRow}>
+                                            <td colSpan="2">{category.category}</td>
+                                            <td>Rs. {Number(category.amount).toLocaleString()}</td>
                                         </tr>
-                                        {employmentDetails.apitDeductions > 0 && (
-                                            <tr className={styles.deductionRow}>
-                                                <td>APIT Deductions</td>
-                                                <td className={styles.negative}>
-                                                    (Rs. {employmentDetails.apitDeductions.toLocaleString()})
-                                                </td>
+                                        
+                                        {/* Income Entries */}
+                                        {category.entries?.map((entry, i) => (
+                                            <tr key={`entry-${i}`} className={styles.detailRow}>
+                                                <td>{entry.type}</td>
+                                                <td>{entry.name}</td>
+                                                <td>Rs. {Number(entry.amount).toLocaleString()}</td>
                                             </tr>
-                                        )}
-                                    </>
-                                )}
-                                {selectedCategories.map((category) => {
-                                    const data = categoryData[category];
-                                    const isPending = !data;
-                                    const label = getCategoryLabel(category);
+                                        ))}
 
-                                    if (isPending) {
-                                        return (
-                                            <tr key={category} className={styles.pendingRow}>
-                                                <td>{label}</td>
-                                                <td className={styles.pending}>Pending completion...</td>
-                                            </tr>
-                                        );
-                                    }
-                                    return null;
-                                })}
-                                {summaryData.map((item, index) => (
-                                    <tr key={`summary-${index}`} className={styles.completedRow}>
-                                        <td>{item.category}</td>
-                                        <td>Rs. {item.amount.toLocaleString()}</td>
-                                    </tr>
+                                        {/* Deductions if any */}
+                                        {category.deductions?.length > 0 && (
+                                            <>
+                                                <tr className={styles.subheaderRow}>
+                                                    <td colSpan="2">Tax Deductions (APIT)</td>
+                                                    <td></td>
+                                                </tr>
+                                                {category.deductions.map((deduction, i) => (
+                                                    <tr key={`deduction-${i}`} className={styles.deductionRow}>
+                                                        <td></td>
+                                                        <td>{deduction.name}</td>
+                                                        <td>Rs. {Number(deduction.amount).toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                            </>
+                                        )}
+                                    </React.Fragment>
                                 ))}
-                                {assessableIncome > 0 && (
-                                    <>
-                                        <tr className={styles.totalRow}>
-                                            <td>Total Assessable Income</td>
-                                            <td>Rs. {assessableIncome.toLocaleString()}</td>
-                                        </tr>
-                                        <tr className={styles.totalRow}>
-                                            <td>Taxable Income</td>
-                                            <td>Rs. {taxableIncome.toLocaleString()}</td>
-                                        </tr>
-                                        <tr className={styles.totalRow}>
-                                            <td>Tax Payable</td>
-                                            <td>Rs. {totalTaxPayable.toLocaleString()}</td>
-                                        </tr>
-                                    </>
-                                )}
+
+                                {/* Totals Section */}
+                                <tr className={styles.totalRow}>
+                                    <td colSpan="2">Total Assessable Income</td>
+                                    <td>Rs. {Number(assessableIncome).toLocaleString()}</td>
+                                </tr>
+                                <tr className={styles.totalRow}>
+                                    <td colSpan="2">Taxable Income</td>
+                                    <td>Rs. {Number(taxableIncome).toLocaleString()}</td>
+                                </tr>
+                                <tr className={styles.totalRow}>
+                                    <td colSpan="2">Tax Payable</td>
+                                    <td>Rs. {Number(totalTaxPayable).toLocaleString()}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
