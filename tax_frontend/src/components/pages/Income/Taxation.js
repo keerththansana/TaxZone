@@ -9,6 +9,7 @@ const Taxation = () => {
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
+    const [selectedYear, setSelectedYear] = useState('2024/2025'); // Default year
     const navigate = useNavigate();
 
     const handleArrowClick = (e, categoryId) => {
@@ -123,6 +124,14 @@ const Taxation = () => {
         }
     };
 
+    const handleYearChange = (e) => {
+        const newYear = e.target.value;
+        setSelectedYear(newYear);
+        sessionStorage.setItem('taxationYear', newYear);
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('taxationYearChanged', { detail: newYear }));
+    };
+
     const categories = [
         {
             id: 'employment',
@@ -156,6 +165,11 @@ const Taxation = () => {
         }
     ];
 
+    const taxYears = [
+        { value: '2024/2025', label: '2024/2025' },
+        { value: '2025/2026', label: '2025/2026' }
+    ];
+
     return (
         <div className={styles.container}>
             <div className={styles.header}>
@@ -174,6 +188,20 @@ const Taxation = () => {
                         />
                         <span>Select All Categories</span>
                     </label>
+                    <div className={styles.yearSelectContainer}>
+                        <label className={styles.yearSelectLabel}>Taxation Year:</label>
+                        <select 
+                            className={styles.yearSelect}
+                            value={selectedYear}
+                            onChange={handleYearChange}
+                        >
+                            {taxYears.map(year => (
+                                <option key={year.value} value={year.value}>
+                                    {year.label}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 <div className={styles.categoryList}>

@@ -10,6 +10,14 @@ const Preview = () => {
     const [taxableIncome, setTaxableIncome] = useState(0);
     const [totalTaxPayable, setTotalTaxPayable] = useState(0);
 
+    // Add state for relief entries
+    const [reliefEntries, setReliefEntries] = useState([
+        { name: 'Expenditure Relief', amount: 0 },
+        { name: 'Rent Relief', amount: 225000 },
+        { name: 'Personal Relief', amount: 1200000 },
+        { name: 'Solar Panel', amount: 200000 }
+    ]);
+
     // Single useEffect to load all data
     useEffect(() => {
         const loadAllData = () => {
@@ -559,6 +567,55 @@ const Preview = () => {
         loadAllData();
     }, []);
 
+    // Update the loadReliefData function in useEffect
+    useEffect(() => {
+        const loadReliefData = () => {
+            const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+            let reliefArray = [];
+
+            // Only add personal relief if employment income is selected
+            if (selectedCategories.includes('employment')) {
+                const employmentData = JSON.parse(sessionStorage.getItem('employmentIncomeData') || '{}');
+                const selectedYear = sessionStorage.getItem('taxationYear') || '2024/2025';
+                const personalReliefAmount = selectedYear === '2024/2025' ? 1200000 : 1800000;
+                
+                const personalRelief = employmentData.totalEmploymentIncome <= personalReliefAmount 
+                    ? employmentData.totalEmploymentIncome || 0 
+                    : personalReliefAmount;
+
+                if (personalRelief > 0) {
+                    reliefArray.push({ name: 'Personal Relief', amount: personalRelief });
+                }
+            }
+
+            // Only add rental relief if investment income is selected and has rental entries
+            if (selectedCategories.includes('investment')) {
+                const investmentData = JSON.parse(sessionStorage.getItem('investmentIncomeData') || '{}');
+                const rentalIncome = investmentData?.rentEntries?.reduce((sum, entry) => 
+                    sum + (Number(entry.amount) || 0), 0) || 0;
+                
+                if (rentalIncome > 0) {
+                    const rentalRelief = Math.min(rentalIncome * 0.25, 225000);
+                    reliefArray.push({ name: 'Rental Relief (25%)', amount: rentalRelief });
+                }
+            }
+
+            // Only add solar panel relief if qualifying payments are selected and has solar entries
+            if (selectedCategories.includes('qualifying')) {
+                const qualifyingData = JSON.parse(sessionStorage.getItem('qualifyingPaymentsData') || '{}');
+                const solarPanelAmount = qualifyingData?.solarEntries?.[0]?.amount || 0;
+                
+                if (solarPanelAmount > 0) {
+                    reliefArray.push({ name: 'Solar Panel Installation', amount: Number(solarPanelAmount) });
+                }
+            }
+
+            setReliefEntries(reliefArray);
+        };
+
+        loadReliefData();
+    }, []);
+
     // Tax calculation helper function
     const calculateTaxLiability = (income) => {
         if (income <= 1200000) return income * 0.06;
@@ -592,7 +649,7 @@ const Preview = () => {
             <TaxationMenu />
             <div className={styles.contentWrapper}>
                 <div className={styles.header}>
-                    <h1>Tax Return Summary</h1>
+                    <h1>Calculation of Income Tax Liability</h1>
                     <div className={styles.actions}>
                         <button className={styles.actionButton} onClick={handleDownload}>
                             <Download size={16} />
@@ -602,73 +659,92 @@ const Preview = () => {
                 </div>
 
                 <div className={styles.documentContainer}>
-                    <div className={styles.document}>
-                        <div className={styles.documentHeader}>
-                            <FileText size={24} />
-                            <h2>Calculation of Income Tax Liability</h2>
-                        </div>
-
-                        <table className={styles.taxTable}>
-                            <thead>
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Description</th>
-                                    <th>Rs.</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {summaryData.map((category, index) => (
-                                    <React.Fragment key={`category-${index}`}>
-                                        {/* Category Header */}
-                                        <tr className={styles.categoryRow}>
-                                            <td colSpan="2">{category.category}</td>
-                                            <td>Rs. {Number(category.amount).toLocaleString()}</td>
+                    <h1 className={styles.mainHeading}>Calculation of Income Tax Liability</h1>
+                    <table className={styles.taxTable}>
+                        <thead>
+                            <tr>
+                                <th colSpan="2">Income Types and Deductions </th>
+                                <th>Amount (Rs.)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {summaryData.map((category, index) => (
+                                <React.Fragment key={`category-${index}`}>
+                                    {/* Main category row */}
+                                    <tr className={styles.categoryRow}>
+                                        <td colSpan="2">{category.category}</td>
+                                        <td className={styles.amountColumn}>
+                                            {category.amount > 0 && `Rs. ${Number(category.amount).toLocaleString()}`}
+                                        </td>
+                                    </tr>
+                                    
+                                    {/* Bullet point entries */}
+                                    {category.entries?.map((entry, i) => (
+                                        <tr key={`entry-${i}`} className={styles.bulletRow}>
+                                            <td className={styles.bulletCell}>•</td>
+                                            <td>{entry.name}</td>
+                                            <td className={styles.amountColumn}>
+                                                {Number(entry.amount).toLocaleString()}
+                                            </td>
                                         </tr>
-                                        
-                                        {/* Income Entries */}
-                                        {category.entries?.map((entry, i) => (
-                                            <tr key={`entry-${i}`} className={styles.detailRow}>
-                                                <td>{entry.type}</td>
-                                                <td>{entry.name}</td>
-                                                <td>Rs. {Number(entry.amount).toLocaleString()}</td>
-                                            </tr>
-                                        ))}
+                                    ))}
+                                </React.Fragment>
+                            ))}
 
-                                        {/* Deductions if any */}
-                                        {category.deductions?.length > 0 && (
-                                            <>
-                                                <tr className={styles.subheaderRow}>
-                                                    <td colSpan="2">Tax Deductions (APIT)</td>
-                                                    <td></td>
-                                                </tr>
-                                                {category.deductions.map((deduction, i) => (
-                                                    <tr key={`deduction-${i}`} className={styles.deductionRow}>
-                                                        <td></td>
-                                                        <td>{deduction.name}</td>
-                                                        <td>Rs. {Number(deduction.amount).toLocaleString()}</td>
-                                                    </tr>
-                                                ))}
-                                            </>
-                                        )}
-                                    </React.Fragment>
-                                ))}
+                            {/* Assessable Income */}
+                            <tr className={styles.totalRow}>
+                                <td colSpan="2">Assessable Income</td>
+                                <td className={styles.amountColumn}>
+                                    Rs. {Number(assessableIncome).toLocaleString()}
+                                </td>
+                            </tr>
 
-                                {/* Totals Section */}
-                                <tr className={styles.totalRow}>
-                                    <td colSpan="2">Total Assessable Income</td>
-                                    <td>Rs. {Number(assessableIncome).toLocaleString()}</td>
-                                </tr>
-                                <tr className={styles.totalRow}>
-                                    <td colSpan="2">Taxable Income</td>
-                                    <td>Rs. {Number(taxableIncome).toLocaleString()}</td>
-                                </tr>
-                                <tr className={styles.totalRow}>
-                                    <td colSpan="2">Tax Payable</td>
-                                    <td>Rs. {Number(totalTaxPayable).toLocaleString()}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                            {/* Add Less - Relief Section */}
+                            {reliefEntries.length > 0 && (
+                                <>
+                                    <tr className={styles.sectionHeader}>
+                                        <td colSpan="3">Less - Relief</td>
+                                    </tr>
+                                    {reliefEntries.map((entry, index) => (
+                                        <tr key={`relief-${index}`} className={styles.bulletRow}>
+                                            <td className={styles.bulletCell}>•</td>
+                                            <td>{entry.name}</td>
+                                            <td className={styles.amountColumn}>
+                                                ({Number(entry.amount).toLocaleString()})
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </>
+                            )}
+
+                            {/* Less - Reliefs Section */}
+                            <tr className={styles.sectionHeader}>
+                                <td colSpan="3">Less - Reliefs</td>
+                            </tr>
+                            {summaryData.map(category => {
+                                if (category.category === 'Qualifying Payments & Relief') {
+                                    return category.entries.map((entry, i) => (
+                                        <tr key={`relief-${i}`} className={styles.bulletRow}>
+                                            <td className={styles.bulletCell}>•</td>
+                                            <td>{entry.name}</td>
+                                            <td className={styles.amountColumn}>
+                                                ({Number(entry.amount).toLocaleString()})
+                                            </td>
+                                        </tr>
+                                    ));
+                                }
+                                return null;
+                            })}
+
+                            {/* Taxable Income */}
+                            <tr className={styles.totalRow}>
+                                <td colSpan="2">Taxable Income</td>
+                                <td className={styles.amountColumn}>
+                                    Rs. {Number(taxableIncome).toLocaleString()}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

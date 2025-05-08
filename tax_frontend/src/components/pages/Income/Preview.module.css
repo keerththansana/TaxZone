@@ -8,18 +8,21 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    width: 100%;
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 0;
 }
 
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
+    display: none; /* Hide the original header */
 }
 
 .header h1 {
+    text-align: center;
     color: #023636;
-    font-size: 1.8rem;
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
     font-weight: 600;
 }
 
@@ -39,6 +42,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    margin-left: 1.5rem; /* Move buttons right */
 }
 
 .actionButton:hover {
@@ -50,6 +54,15 @@
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 2rem;
+    margin-top: 1rem;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    margin: 20px auto;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
 }
 
 .document {
@@ -80,6 +93,45 @@
     border: 2px solid #023636; /* Add outer border */
 }
 
+/* Table header styling */
+.taxTable th {
+    background-color: #023636;
+    color: white;
+    font-weight: 600;
+    padding: 1rem 2rem;
+    text-align: center;
+    border-bottom: 2px solid #023636;
+}
+
+/* Add vertical separator in header */
+.taxTable th:last-child {
+    border-left: 2px solid white;
+}
+
+/* Update header styling for Category */
+.taxTable th:first-child {
+    text-align: center !important;
+    font-weight: 600;
+    background-color: #023636;
+    color: white;
+    padding: 1rem 2rem;
+}
+
+/* Update header styling for Amount */
+.taxTable th:last-child {
+    text-align: center !important;
+    font-weight: 600;
+    background-color: #023636;
+    color: white;
+    padding: 1rem 2rem;
+}
+
+/* Amount header alignment */
+.taxTable th:last-child {
+    text-align: center;
+    padding-right: 1.5rem;
+}
+
 .taxTable th,
 .taxTable td {
     padding: 0.75rem;
@@ -87,14 +139,11 @@
     border: 1px solid #e0e0e0; /* Add cell borders */
 }
 
-.taxTable th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-    color: #023636;
-    border-bottom: 2px solid #023636; /* Thicker border below headers */
+/* Keep data cell alignments as they were */
+.taxTable td {
+    text-align: left;
 }
 
-/* Add styles for specific rows */
 .taxTable tr.totalRow td {
     border-top: 2px solid #023636; /* Thicker border above total rows */
     font-weight: 600;
@@ -131,12 +180,13 @@
 }
 
 .totalRow {
-    background-color: #e3f2fd;
+    background-color: #e8f8f8 !important;
     font-weight: 600;
 }
 
 .totalRow td {
-    border-top: 2px solid #90caf9;
+    border-top: 2px solid #023636;
+    border-bottom: 2px solid #023636;
 }
 
 .noData {
@@ -183,6 +233,47 @@
     font-style: italic;
 }
 
+.categoryRow {
+    background-color: #fff;
+    font-weight: 600;
+}
+
+.bulletRow {
+    background-color: #fff;
+}
+
+.bulletCell {
+    width: 30px;
+    text-align: center;
+    color: #023636;
+    font-weight: bold;
+    padding-left: 3rem !important; /* Move bullets right */
+}
+
+/* Amount column styling */
+.amountColumn {
+    text-align: right;
+    width: 200px;
+    font-family: 'Courier New', monospace;
+    border-left: 2px solid #023636 !important;  /* Add vertical separator */
+    padding-right: 1.5rem !important;
+}
+
+/* Keep data cell alignments as they were */
+.amountColumn {
+    text-align: right !important;
+}
+
+.sectionHeader {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #023636;
+}
+
+.reliefRow td:last-child {
+    color: #dc3545;
+}
+
 @media (max-width: 768px) {
     .contentWrapper {
         padding: 1rem;
@@ -197,4 +288,153 @@
         gap: 1rem;
         align-items: flex-start;
     }
+}
+
+.taxTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+    border: 2px solid #023636;
+}
+
+.taxTable td {
+    padding: 0.75rem 0.75rem 0.75rem 2rem; /* Increased left padding */
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Category row styling */
+.categoryRow td {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    border-top: 2px solid #023636;
+    border-bottom: none;
+    padding-left: 1.5rem;
+    color: #023636;
+}
+
+/* Bullet row styling */
+.bulletRow td {
+    background-color: #fff;
+    border: none;  /* Remove all borders from bullet rows */
+}
+
+/* Last bullet in category - keep only bottom border */
+.bulletRow:last-of-type td {
+    border-bottom: 2px solid #023636;
+}
+
+/* Amount column styling */
+.amountColumn {
+    text-align: right;
+    width: 200px;
+    font-family: 'Courier New', monospace;
+    padding-right: 1.5rem !important;
+    border-left: 2px solid #e0e0e0 !important;  /* Vertical separator for data rows */
+}
+
+/* Category row amount column */
+.categoryRow td:last-child {
+    border-left: 2px solid #023636;
+}
+
+/* Total row amount column */
+.totalRow td:last-child {
+    border-left: 2px solid #023636;
+}
+
+/* Section headers */
+.sectionHeader td {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #023636;
+    padding: 1.5rem 0.75rem 0.75rem 1.5rem;
+    border-top: 2px solid #023636;
+    border-bottom: none;
+}
+
+/* Total rows */
+.totalRow td {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    border-top: 2px solid #023636;
+    border-bottom: 2px solid #023636;
+}
+
+/* Remove borders between bullet items but keep bottom line */
+.bulletRow td:not(.amountColumn) {
+    border-right: none;
+}
+
+/* Last row in each category */
+.bulletRow:last-of-type td {
+    border-bottom: 2px solid #e0e0e0;
+}
+
+/* Remove borders between bullet items */
+.bulletRow td:not(.amountColumn) {
+    border: none;
+}
+
+/* Add print media query for proper A4 printing */
+@media print {
+    .documentContainer {
+        width: 210mm;
+        height: 297mm;
+        padding: 20mm;
+        margin: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    .contentWrapper {
+        padding: 0;
+    }
+
+    /* Hide elements not needed in print */
+    .actions {
+        display: none;
+    }
+}
+
+/* Update mobile responsiveness */
+@media (max-width: 210mm) {
+    .documentContainer {
+        width: 100%;
+        min-height: auto;
+        padding: 10mm;
+        margin: 10px;
+    }
+
+    .contentWrapper {
+        padding: 0;
+    }
+}
+
+.mainHeading {
+    text-align: center;
+    color: #023636;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #023636;
+    width: 100%;
+}
+
+/* Add styles for relief section */
+.sectionHeader td {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #023636;
+    padding: 1.5rem 0.75rem 0.75rem 1.5rem;
+}
+
+/* Style for relief entries */
+.bulletRow.reliefEntry td {
+    color: #dc3545;
+}
+
+/* Negative amounts in parentheses */
+.amountColumn.negative {
+    color: #dc3545;
 }

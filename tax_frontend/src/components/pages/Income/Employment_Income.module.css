@@ -297,25 +297,21 @@
 }
 
 .totalSection {
-    margin: 2rem 0;
+    margin-top: 2rem;
     padding: 1rem;
     background-color: #f8f9fa;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .totalRow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.5rem 1rem;
-    font-size: 1.1rem;
+    padding: 0.5rem 0;
 }
 
-.totalRow + .totalRow {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid #dee2e6;
+.totalRow:not(:last-child) {
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .totalLabel {
@@ -324,6 +320,10 @@
 }
 
 .totalAmount {
+    font-family: 'Courier New', monospace;
     font-weight: 600;
-    color: #023636;
+}
+
+.totalAmount.negative {
+    color: #dc3545;
 }

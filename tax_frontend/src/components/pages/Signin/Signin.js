@@ -31,36 +31,34 @@ const Signin = () => {
         setError('');
         setStatusMessage('');
         setLoading(true);
+        
         if (password !== confirmPassword) {
             setStatusMessage('Passwords do not match.');
             setLoading(false);
             return;
         }
+
         try {
-            const response = await axios.post('http://localhost:8000/api/signin/', {
+            const response = await axios.post('http://localhost:8000/api/users/signin/', {
                 username,
                 email,
                 password,
-                confirmPassword
+                password2: confirmPassword
             });
             setStatusMessage('Registration successful!');
             setTimeout(() => {
-                navigate('/login'); // Redirect to login page after successful registration
+                navigate('/login');
             }, 2000);
         } catch (error) {
+            setLoading(false);
             let errorMessage = 'Registration failed. Please try again.';
-            if (error.response && error.response.data && error.response.data.error) {
+            if (error.response?.data?.error) {
                 errorMessage = error.response.data.error;
             } else if (error.message) {
                 errorMessage = `Registration failed: ${error.message}`;
             }
             setStatusMessage(errorMessage);
-            console.error('Registration failed:', error);
-            setTimeout(() => {
-                setStatusMessage('');
-            }, 3000);
-        } finally {
-            setLoading(false);
+            console.error('Registration error:', error);
         }
     };
 

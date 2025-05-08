@@ -311,10 +311,11 @@
 }
 
 .selectAllContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 1rem;
-    margin-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-    
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .selectAllLabel {
@@ -330,4 +331,36 @@
     width: 18px;
     height: 18px;
     cursor: pointer;
+}
+
+.yearSelectContainer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.yearSelectLabel {
+    color: #023636;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.yearSelect {
+    padding: 0.5rem;
+    border: 1px solid #023636;
+    border-radius: 4px;
+    background-color: white;
+    color: #023636;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+}
+
+.yearSelect:hover {
+    border-color: #045454;
+}
+
+.yearSelect:focus {
+    border-color: #023636;
+    box-shadow: 0 0 0 2px rgba(2, 54, 54, 0.1);
 }

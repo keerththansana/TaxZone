@@ -1,10 +1,9 @@
-from django.urls import path # type: ignore
-from rest_framework_simplejwt.views import TokenRefreshView # type: ignore
-from .views import LoginView,  GoogleLoginView, SigninView
+from django.urls import path
+from .views import SigninView, LoginView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [
+    path('signin/', SigninView.as_view(), name='signin'),
     path('login/', LoginView.as_view(), name='login'),
-    path('login/google/', GoogleLoginView.as_view(), name='google-login'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
-    path('signin/', SigninView.as_view(), name='signin'), # type: ignore
-] 
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+]

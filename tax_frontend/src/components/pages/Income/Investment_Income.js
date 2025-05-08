@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 
+const RENTAL_RELIEF_AMOUNT = 225000; // Rs. 225,000
+
 const InvestmentIncome = () => {
     // Add this state for form data
     const [formData, setFormData] = useState({
@@ -501,6 +503,18 @@ const InvestmentIncome = () => {
                             <span className={styles.totalLabel}>Total Investment Income:</span>
                             <span className={styles.totalAmount}>Rs. {totalInvestmentIncome.toLocaleString()}</span>
                         </div>
+                        {selectedTypes.includes('rental') && (
+                            <div className={styles.totalRow}>
+                                <span className={styles.totalLabel}>Rental Relief (25%):</span>
+                                <span className={`${styles.totalAmount} ${styles.negative}`}>
+                                    {(() => {
+                                        const rentalIncome = rentEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+                                        const reliefAmount = rentalIncome * 0.25; // Calculate 25% of rental income
+                                        return `(Rs. ${reliefAmount.toLocaleString()})`;
+                                    })()}
+                                </span>
+                            </div>
+                        )}
                         {selectedTypes.includes('ait') && (
                             <div className={styles.totalRow}>
                                 <span className={styles.totalLabel}>Total Tax Deductions:</span>

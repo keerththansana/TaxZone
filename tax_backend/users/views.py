@@ -7,6 +7,7 @@ from django.contrib.auth.models import User # type: ignore
 from django.db import IntegrityError # type: ignore
 from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication # type: ignore
+from .serializers import UserSerializer
 
 class SigninView(APIView):
     """
@@ -16,63 +17,13 @@ class SigninView(APIView):
     permission_classes = []
 
     def post(self, request):
-        username = request.data.get('username')
-        email = request.data.get('email')
-        password = request.data.get('password')
-        confirm_password = request.data.get('confirmPassword')
-
-        if not username or not email or not password or not confirm_password:
-            return Response(
-                {"error": "Username, email, password, and confirm password are required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if password != confirm_password:
-            return Response(
-                {"error": "Passwords do not match."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        # Basic email format validation
-        if '@' not in email or '.' not in email:
-            return Response(
-                {"error": "Invalid email format."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        if len(password) < 8:
-            return Response(
-                {"error": "Password must be at least 8 characters long."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            User.objects.create_user(username=username, email=email, password=password)
-            return Response(
-                {"message": "Registration successful!"},
-                status=status.HTTP_201_CREATED
-            )
-        except IntegrityError as e:
-            if 'unique constraint' in str(e).lower():
-                if 'username' in str(e).lower():
-                    return Response(
-                        {"error": "Username already exists."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                elif 'email' in str(e).lower():
-                    return Response(
-                        {"error": "Email address already exists."},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-            return Response(
-                {"error": f"Registration failed due to a database error: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        except Exception as e:
-            return Response(
-                {"error": f"Registration failed: {str(e)}"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            return Response({
+                'message': 'Registration successful!'
+            }, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
     """
@@ -85,27 +36,24 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
-
+        
         if not username or not password:
-            return Response(
-                {"error": "Please provide both username and password."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
+            return Response({
+                'error': 'Please provide both username and password'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        user = authenticate(username=username, password=password)
+        
+        if user:
             refresh = RefreshToken.for_user(user)
-            access_token = str(refresh.access_token)
-            return Response(
-                {"access": access_token, "refresh": str(refresh)},
-                status=status.HTTP_200_OK
-            )
-        else:
-            return Response(
-                {"error": "Invalid login credentials."},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+            return Response({
+                'access': str(refresh.access_token),
+                'refresh': str(refresh)
+            })
+        
+        return Response({
+            'error': 'Invalid credentials'
+        }, status=status.HTTP_401_UNAUTHORIZED)
 
 class GoogleLoginView(APIView):
     """

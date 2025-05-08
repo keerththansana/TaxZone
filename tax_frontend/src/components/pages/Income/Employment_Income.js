@@ -5,31 +5,40 @@ import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { useFormPersist } from './Data_Persistence';
 
+// Replace the constant declaration at the top with this
+const PERSONAL_RELIEF_AMOUNTS = {
+    '2024/2025': 1200000,
+    '2025/2026': 1800000
+};
+
 const EmploymentIncome = () => {
+    // Add selected year state (get from sessionStorage)
+    const [selectedYear, setSelectedYear] = useState(() => 
+        sessionStorage.getItem('taxationYear') || '2024/2025'
+    );
+
+    // Get the appropriate relief amount based on selected year
+    const PERSONAL_RELIEF_AMOUNT = PERSONAL_RELIEF_AMOUNTS[selectedYear];
+
     // Add openDescription state
     const [openDescription, setOpenDescription] = useState(null);
 
-    // Update the formData structure with more detailed APIT entries
+    // Update formData structure to match investment income format
     const [formData, setFormData] = useFormPersist('employmentIncomeData', {
+        primaryEntries: [{ name: 'Primary Salary', amount: '' }],
+        secondaryEntries: [{ name: 'Secondary Salary', amount: '' }],
+        apitEntries: [{ source: '', name: '', amount: '' }],
         selectedTypes: [],
-        primaryEntries: [{ name: 'Salary', amount: '' }],
-        secondaryEntries: [{ name: 'Salary', amount: '' }],
-        apitEntries: [{
-            source: '',
-            name: '',
-            amount: '',
-            description: ''
-        }],
         totalEmploymentIncome: 0,
         totalApitDeduction: 0
     });
 
     // Destructure values from formData
     const {
-        selectedTypes,
         primaryEntries,
         secondaryEntries,
         apitEntries,
+        selectedTypes,
         totalEmploymentIncome,
         totalApitDeduction
     } = formData;
@@ -79,11 +88,48 @@ const EmploymentIncome = () => {
         updateFormData({ totalApitDeduction: apitTotal });
     }, [primaryEntries, secondaryEntries, apitEntries]);
 
+    // Update the useEffect that handles year changes
+    useEffect(() => {
+        const handleYearChange = (event) => {
+            // Check if event exists before accessing detail
+            const newYear = event?.detail || sessionStorage.getItem('taxationYear') || '2024/2025';
+            setSelectedYear(newYear);
+        };
+
+        // Initial check without event parameter
+        handleYearChange();
+
+        // Listen for year changes
+        window.addEventListener('taxationYearChanged', handleYearChange);
+        
+        return () => {
+            window.removeEventListener('taxationYearChanged', handleYearChange);
+        };
+    }, []);
+
+    // Add a new useEffect to update form data when year changes
+    useEffect(() => {
+        const currentReliefAmount = PERSONAL_RELIEF_AMOUNTS[selectedYear];
+        
+        // Update personal relief calculation in total section
+        const handlePersonalRelief = () => {
+            const reliefAmount = totalEmploymentIncome <= currentReliefAmount 
+                ? totalEmploymentIncome 
+                : currentReliefAmount;
+            return reliefAmount;
+        };
+
+        updateFormData({
+            personalRelief: handlePersonalRelief()
+        });
+    }, [selectedYear, totalEmploymentIncome]);
+
+    // Update employmentTypes array
     const employmentTypes = [
         {
             id: 'primary',
             label: 'Primary Employment',
-            description: 'Income from your main employment where you spend most of your working time and receive regular salary payments.'
+            description: 'Income from your main employment where you spend most of your working time.'
         },
         {
             id: 'secondary',
@@ -93,7 +139,7 @@ const EmploymentIncome = () => {
         {
             id: 'apit',
             label: 'APIT Deduction',
-            description: 'Advance Personal Income Tax deducted by your employer from your monthly salary.'
+            description: 'Monthly APIT deductions from your employment income.'
         }
     ];
 
@@ -360,66 +406,35 @@ const EmploymentIncome = () => {
                     )}
 
                     {(selectedTypes.includes('apit')) && (
-                        <div className={styles.apitSection}>
+                        <div className={styles.section}>
                             <h3>APIT Deductions</h3>
-                            <div className={styles.deductionDescription}>
-                                Advance Personal Income Tax deducted from your employment income
-                            </div>
                             {apitEntries.map((entry, index) => (
-                                <div key={index} className={styles.deductionEntry}>
-                                    <div className={styles.entryRow}>
-                                        <div className={styles.inputGroup}>
-                                            <label>Source</label>
-                                            <input
-                                                type="text"
-                                                value={entry.source}
-                                                onChange={(e) => handleApitChange(index, 'source', e.target.value)}
-                                                placeholder="Employment Source"
-                                                className={styles.inputField}
-                                            />
-                                        </div>
-                                        <div className={styles.inputGroup}>
-                                            <label>Description</label>
-                                            <input
-                                                type="text"
-                                                value={entry.name}
-                                                onChange={(e) => handleApitChange(index, 'name', e.target.value)}
-                                                placeholder="APIT Description"
-                                                className={styles.inputField}
-                                            />
-                                        </div>
-                                        <div className={styles.inputGroup}>
-                                            <label>Amount</label>
-                                            <input
-                                                type="number"
-                                                value={entry.amount}
-                                                onChange={(e) => handleApitChange(index, 'amount', e.target.value)}
-                                                placeholder="APIT Amount"
-                                                className={styles.inputField}
-                                            />
-                                        </div>
-                                        <button 
-                                            type="button" 
-                                            onClick={() => handleRemoveAPIT(index)}
-                                            className={styles.removeButton}
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
-                                    <div className={styles.entryDescription}>
-                                        <input
-                                            type="text"
-                                            value={entry.description}
-                                            onChange={(e) => handleApitChange(index, 'description', e.target.value)}
-                                            placeholder="Add description for this APIT deduction"
-                                            className={styles.descriptionField}
-                                        />
-                                    </div>
+                                <div key={index} className={styles.entryRow}>
+                                    <input
+                                        type="text"
+                                        value={entry.name}
+                                        onChange={(e) => handleApitChange(index, 'name', e.target.value)}
+                                        placeholder="APIT Description"
+                                        className={styles.inputField}
+                                    />
+                                    <input
+                                        type="number"
+                                        value={entry.amount}
+                                        onChange={(e) => handleApitChange(index, 'amount', e.target.value)}
+                                        placeholder="Amount"
+                                        className={styles.inputField}
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={() => handleRemoveAPIT(index)}
+                                        className={styles.removeButton}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
                                 </div>
                             ))}
-                            <button type="button" onClick={handleAddAPIT} className={styles.addButton}>
+                            <button type="button" onClick={handleAddSecondaryEntry} className={styles.addButton}>
                                 <Plus size={16} />
-                                Add APIT Entry
                             </button>
                         </div>
                     )}
@@ -429,6 +444,19 @@ const EmploymentIncome = () => {
                             <span className={styles.totalLabel}>Total Employment Income:</span>
                             <span className={styles.totalAmount}>Rs. {totalEmploymentIncome.toLocaleString()}</span>
                         </div>
+                        {(selectedTypes.includes('primary') || selectedTypes.includes('secondary')) && (
+                            <div className={styles.totalRow}>
+                                <span className={styles.totalLabel}>Personal Relief:</span>
+                                <span className={`${styles.totalAmount} ${styles.negative}`}>
+                                    {(() => {
+                                        const reliefAmount = totalEmploymentIncome <= PERSONAL_RELIEF_AMOUNTS[selectedYear] 
+                                            ? totalEmploymentIncome 
+                                            : PERSONAL_RELIEF_AMOUNTS[selectedYear];
+                                        return `(Rs. ${reliefAmount.toLocaleString()})`;
+                                    })()}
+                                </span>
+                            </div>
+                        )}
                         {selectedTypes.includes('apit') && (
                             <div className={styles.totalRow}>
                                 <span className={styles.totalLabel}>Total APIT Deduction:</span>

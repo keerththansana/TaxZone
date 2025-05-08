@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'tax_calculator',
     'chatbot',
     'django.contrib.admin',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -138,8 +139,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Add REST framework settings
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES':
+    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [],
     'UNAUTHENTICATED_USER': None
 }
