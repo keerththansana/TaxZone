@@ -23,3 +23,12 @@ class UserSerializer(serializers.ModelSerializer):
         validated_data.pop('password2')
         user = User.objects.create_user(**validated_data)
         return user
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True, write_only=True)
+
+    def validate(self, attrs):
+        if not attrs.get('username') or not attrs.get('password'):
+            raise serializers.ValidationError('Both username and password are required')
+        return attrs

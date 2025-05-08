@@ -44,27 +44,41 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:8000/api/login/', {
-                username,
-                password
-            });
-            localStorage.setItem('token', response.data.access);
-            setStatusMessage('Login successful! Redirecting...');
-            setTimeout(() => {
-                navigate('/taxation');
-            }, 1500); // Slightly shorter redirect time
-        } catch (err) {
-            let errorMessage = 'Login failed. Please check your credentials.';
-            if (err.response && err.response.data && err.response.data.error) {
-                errorMessage = err.response.data.error;
-            } else if (err.message) {
-                errorMessage = `Login failed: ${err.message}`;
+            // Ensure the username is trimmed and password is not empty
+            if (!username.trim() || !password) {
+                setError('Please enter both username and password');
+                setLoading(false);
+                return;
             }
-            setStatusMessage(errorMessage);
-            console.error('Login failed:', err);
-            setTimeout(() => {
-                setStatusMessage('');
-            }, 3000);
+
+            const response = await axios.post('http://localhost:8000/api/users/login/', {
+                username: username.trim(),
+                password: password
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.data.status === 'success') {
+                // Store tokens
+                localStorage.setItem('accessToken', response.data.tokens.access);
+                localStorage.setItem('refreshToken', response.data.tokens.refresh);
+                localStorage.setItem('user', JSON.stringify(response.data.user));
+                
+                setStatusMessage('Login successful! Redirecting to Home...');
+                
+                // Navigate to home page instead of dashboard
+                setTimeout(() => {
+                    navigate('/');  // Changed from '/dashboard' to '/'
+                }, 1500);
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            setError(
+                error.response?.data?.message || 
+                'Invalid username or password'
+            );
         } finally {
             setLoading(false);
         }
@@ -82,10 +96,10 @@ const Login = () => {
 
             if (response.data.access) {
                 localStorage.setItem('token', response.data.access);
-                setStatusMessage('Google login successful! Redirecting...');
+                setStatusMessage('Google login successful! Redirecting to Home...');
                 setTimeout(() => {
-                    navigate('/taxation');
-                }, 1500); // Slightly shorter redirect time
+                    navigate('/');  // Changed from '/taxation' to '/'
+                }, 1500);
             } else {
                 throw new Error('No access token received from Google login.');
             }

@@ -8,6 +8,9 @@ from django.db import IntegrityError # type: ignore
 from rest_framework_simplejwt.tokens import RefreshToken # type: ignore
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication # type: ignore
 from .serializers import UserSerializer
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 
 class SigninView(APIView):
     """
@@ -34,26 +37,50 @@ class LoginView(APIView):
     permission_classes = []
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        
-        if not username or not password:
+        try:
+            username = request.data.get('username')
+            password = request.data.get('password')
+
+            # Print for debugging (remove in production)
+            print(f"Login attempt for username: {username}")
+
+            # First try exact username match
+            user = authenticate(username=username, password=password)
+
+            # If username authentication fails, try email
+            if not user:
+                try:
+                    user_obj = User.objects.filter(email=username).first()
+                    if user_obj:
+                        user = authenticate(username=user_obj.username, password=password)
+                except User.DoesNotExist:
+                    pass
+
+            if user:
+                refresh = RefreshToken.for_user(user)
+                return Response({
+                    'status': 'success',
+                    'tokens': {
+                        'access': str(refresh.access_token),
+                        'refresh': str(refresh)
+                    },
+                    'user': {
+                        'username': user.username,
+                        'email': user.email
+                    }
+                })
+
             return Response({
-                'error': 'Please provide both username and password'
-            }, status=status.HTTP_400_BAD_REQUEST)
-            
-        user = authenticate(username=username, password=password)
-        
-        if user:
-            refresh = RefreshToken.for_user(user)
+                'status': 'error',
+                'message': 'Invalid credentials'
+            }, status=status.HTTP_401_UNAUTHORIZED)
+
+        except Exception as e:
+            print(f"Login error: {str(e)}")  # For debugging
             return Response({
-                'access': str(refresh.access_token),
-                'refresh': str(refresh)
-            })
-        
-        return Response({
-            'error': 'Invalid credentials'
-        }, status=status.HTTP_401_UNAUTHORIZED)
+                'status': 'error',
+                'message': 'Login failed'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class GoogleLoginView(APIView):
     """
