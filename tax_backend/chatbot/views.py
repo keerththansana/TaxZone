@@ -86,12 +86,12 @@ def initialize_vector_store():
             metadatas=metadatas
         )
         
-        # Save with allow_dangerous_deserialization
-        vector_store.save_local(
-            folder_path=FAISS_INDEX_PATH,
-            allow_dangerous_deserialization=True
-        )
-        logger.info(f"Vector store initialized with {len(texts)} chunks from {len(documents)} documents")
+        # Save vector store without problematic parameter
+        try:
+            vector_store.save_local(FAISS_INDEX_PATH)
+            logger.info(f"Vector store initialized with {len(texts)} chunks from {len(documents)} documents")
+        except Exception as save_error:
+            logger.warning(f"Could not save vector store: {save_error}")
         
         return vector_store
 
@@ -105,8 +105,7 @@ def get_relevant_context(query):
         if os.path.exists(os.path.join(FAISS_INDEX_PATH, "index.faiss")):
             vector_store = FAISS.load_local(
                 folder_path=FAISS_INDEX_PATH,
-                embeddings=embedding_model,
-                allow_dangerous_deserialization=True
+                embeddings=embedding_model
             )
         else:
             vector_store = initialize_vector_store()
@@ -194,96 +193,137 @@ def format_response(response):
     return response
 
 @api_view(['POST'])
-@authentication_classes([])
-@permission_classes([])
+@parser_classes([MultiPartParser, FormParser])
+def upload_document(request):
+    try:
+        if 'file' not in request.FILES:
+            return Response({
+                'error': 'No file provided',
+                'success': False
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        file = request.FILES['file']
+        title = request.POST.get('title', file.name)
+
+        # Extract text from PDF
+        pdf_content = ''
+        pdf_reader = PyPDF2.PdfReader(io.BytesIO(file.read()))
+        for page in pdf_reader.pages:
+            pdf_content += page.extract_text() + '\n'
+
+        # Save to database
+        document = TaxDocument.objects.create(
+            title=title,
+            pdf_file=pdf_content
+        )
+
+        # Reinitialize vector store
+        initialize_vector_store()
+
+        return Response({
+            'message': 'Document uploaded successfully',
+            'id': document.id,
+            'title': document.title,
+            'success': True
+        })
+
+    except Exception as e:
+        return Response({
+            'error': str(e),
+            'success': False
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def format_tax_response(doc_content, gemini_response=None):
+    """Format the combined response from documents and Gemini"""
+    try:
+        formatted_response = ""
+        
+        if doc_content:
+            formatted_response += "### Tax Information from Documents:\n\n"
+            formatted_response += doc_content + "\n\n"
+            
+        if gemini_response:
+            formatted_response += "### AI Assistant's Analysis:\n\n"
+            formatted_response += gemini_response
+            
+        return formatted_response
+    except Exception as e:
+        logger.error(f"Error formatting response: {e}")
+        return doc_content or gemini_response
+
+def get_gemini_response(query, context):
+    """Get enhanced response from Gemini API"""
+    try:
+        api_key = os.getenv('GEMINI_API_KEY')
+        if not api_key:
+            logger.error("Gemini API key not found")
+            return None
+            
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-pro')
+        
+        prompt = f"""Analyze and explain the following tax information:
+
+Question: {query}
+
+Context from tax documents:
+{context}
+
+Please:
+1. Summarize the key tax rates
+2. Explain any conditions or thresholds
+3. Highlight important notes or exceptions
+4. Format the response in a clear, readable way using markdown
+
+Focus on accuracy and clarity."""
+        
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        logger.error(f"Gemini API error: {e}")
+        return None
+
+@api_view(['POST'])
 def chat(request):
-    """Handle chat requests with document content"""
     try:
         query = request.data.get('query')
         if not query:
             return Response({
                 'error': 'Query is required',
                 'success': False
-            }, status=status.HTTP_400_BAD_REQUEST)
+            }, status=400)
 
-        # Get relevant context using vector store
-        context = get_relevant_context(query)
+        # Get document response
+        vector_store = initialize_vector_store()
+        doc_response = None
+        if vector_store:
+            doc_response = get_response_from_documents(query, vector_store)
         
-        if not context:
-            logger.warning("No relevant context found for query")
-            # Fallback to direct database query
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    SELECT id, title, pdf_file 
-                    FROM tax_documents 
-                    WHERE pdf_file IS NOT NULL AND pdf_file != ''
-                """)
-                documents = cursor.fetchall()
-
-                if not documents:
-                    return Response({
-                        'error': 'No document content available',
-                        'success': False
-                    }, status=status.HTTP_404_NOT_FOUND)
-
-                context = ""
-                for doc_id, title, content in documents:
-                    if content:
-                        # Clean and format the content
-                        clean_content = content.replace('\x00', '').strip()
-                        if clean_content:
-                            context += f"\nDocument {title or f'Doc{doc_id}'}:\n{clean_content}\n"
-
-        if not context.strip():
+        # Get Gemini response
+        gemini_response = get_gemini_response(query, doc_response) if doc_response else None
+        
+        # Format final response
+        final_response = format_tax_response(doc_response, gemini_response)
+        
+        if not final_response:
             return Response({
-                'error': 'No readable content found in documents',
+                'error': 'No response available',
                 'success': False
-            }, status=status.HTTP_404_NOT_FOUND)
-
-        # Configure Gemini
-        api_key = os.getenv('GEMINI_API_KEY')  # Updated to match your env variable
-        if not api_key:
-            return Response({
-                'error': 'API key not configured',
-                'success': False
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
-
-        # Create prompt with context
-        prompt = f"""{SYSTEM_PROMPT}
-
-        Context from tax documents:
-        {context}
-
-        Question: {query}
-
-        Please provide a detailed answer using only the information from these tax documents.
-        If specific rates, amounts, or rules are mentioned, include them.
-        If the information isn't in the documents, clearly state that.
-        """
-
-        # Generate response
-        response = model.generate_content(prompt)
-        formatted_response = format_response(response.text)
+            }, status=500)
 
         return Response({
-            'response': formatted_response,
-            'success': True,
-            'has_context': bool(context)
+            'response': final_response,
+            'has_context': bool(doc_response),
+            'has_gemini': bool(gemini_response),
+            'success': True
         })
 
     except Exception as e:
-        logger.error(f"Chat error: {str(e)}")
+        logger.error(f"Chat endpoint error: {e}")
         return Response({
             'error': str(e),
-            'debug_info': {
-                'exception_type': type(e).__name__,
-                'message': str(e)
-            },
             'success': False
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=500)
 
 @api_view(['GET'])
 @authentication_classes([])  # No authentication required
@@ -342,70 +382,6 @@ def check_documents(request):
         logger.error(f"Document check error: {str(e)}")
         return Response({
             'error': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-@api_view(['POST'])
-@parser_classes([MultiPartParser, FormParser])
-def upload_document(request):
-    try:
-        if 'file' not in request.FILES:
-            return Response({
-                'error': 'No file provided',
-                'success': False
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        file = request.FILES['file']
-        title = request.POST.get('title', file.name)
-
-        # Extract text content from PDF
-        try:
-            # Save file temporarily
-            temp_file = io.BytesIO(file.read())
-            pdf_reader = PyPDF2.PdfReader(temp_file)
-            
-            text_content = []
-            for page in pdf_reader.pages:
-                extracted_text = page.extract_text()
-                if extracted_text:
-                    text_content.append(extracted_text)
-            
-            content = '\n'.join(text_content)
-            
-            if not content.strip():
-                return Response({
-                    'error': 'No text content could be extracted from PDF',
-                    'success': False
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            # Save to database
-            document = TaxDocument.objects.create(
-                title=title,
-                pdf_file=content
-            )
-
-            # Reinitialize vector store
-            initialize_vector_store()
-
-            return Response({
-                'message': 'Document uploaded successfully',
-                'id': document.id,
-                'title': document.title,
-                'content_preview': content[:100] if content else None,
-                'success': True
-            }, status=status.HTTP_201_CREATED)
-
-        except Exception as e:
-            logger.error(f"PDF extraction error: {str(e)}")
-            return Response({
-                'error': f'Failed to extract PDF content: {str(e)}',
-                'success': False
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-    except Exception as e:
-        logger.error(f"Upload error: {str(e)}")
-        return Response({
-            'error': str(e),
-            'success': False
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
@@ -494,3 +470,72 @@ def debug_documents(request):
             'error': str(e),
             'success': False
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def get_response_from_documents(query, vector_store):
+    """Get relevant response from document vector store"""
+    try:
+        results = vector_store.similarity_search_with_score(query, k=3)
+        contexts = []
+        
+        for doc, score in results:
+            if score < 0.8:
+                source = doc.metadata.get("source", "Unknown")
+                context = doc.page_content.strip()
+                contexts.append(f"Source: {source}\n{context}")
+                logger.info(f"Found relevant content in {source} with score {score}")
+        
+        return "\n\n".join(contexts) if contexts else None
+        
+    except Exception as e:
+        logger.error(f"Error searching documents: {e}")
+        return None
+
+@api_view(['POST'])
+def test_chat(request):
+    """Test endpoint to verify Gemini API and document search"""
+    try:
+        query = request.data.get('query')
+        if not query:
+            return Response({
+                'error': 'Query is required',
+                'success': False
+            }, status=400)
+
+        # Test document search
+        vector_store = initialize_vector_store()
+        doc_response = None
+        if vector_store:
+            doc_response = get_response_from_documents(query, vector_store)
+            logger.info(f"Document search result: {'Found' if doc_response else 'Not found'}")
+
+        # Test Gemini API
+        try:
+            genai.configure(api_key=GOOGLE_API_KEY)
+            model = genai.GenerativeModel('gemini-pro')
+            test_prompt = f"Test query: {query}"
+            gemini_response = model.generate_content(test_prompt)
+            gemini_working = bool(gemini_response.text)
+        except Exception as e:
+            logger.error(f"Gemini API test failed: {e}")
+            gemini_working = False
+
+        return Response({
+            'success': True,
+            'query': query,
+            'document_search': {
+                'working': bool(vector_store),
+                'found_content': bool(doc_response),
+                'content': doc_response
+            },
+            'gemini_api': {
+                'working': gemini_working,
+                'test_response': gemini_response.text if gemini_working else None
+            }
+        })
+
+    except Exception as e:
+        logger.error(f"Test endpoint error: {e}")
+        return Response({
+            'error': str(e),
+            'success': False
+        }, status=500)

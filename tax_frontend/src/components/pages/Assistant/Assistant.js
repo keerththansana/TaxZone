@@ -3,6 +3,7 @@ import './Assistant.css';
 import assistantImage from '../../../assets/Assistant.png';
 import userImage from '../../../assets/User.jpg';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 
 // Configure axios with base URL and default headers
 axios.defaults.baseURL = 'http://localhost:8000';
@@ -23,6 +24,18 @@ const CopyIcon = () => (
         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
     </svg>
 );
+
+const ChatMessage = ({ message }) => {
+    return (
+        <div className={`chat-message ${message.type}`}>
+            {message.type === 'user' ? (
+                <p>{message.content}</p>
+            ) : (
+                <ReactMarkdown>{message.content}</ReactMarkdown>
+            )}
+        </div>
+    );
+};
 
 const Assistant = () => {
     const [query, setQuery] = useState('');
@@ -78,37 +91,31 @@ const Assistant = () => {
         if (!query.trim()) return;
 
         try {
+            setMessages([...messages, { 
+                type: 'user', 
+                content: query 
+            }]);
             setLoading(true);
             setError(null);
 
-            const response = await axios({
-                method: 'POST',
-                url: '/api/chatbot/chat/',  // Fixed URL
-                data: { query },
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.data && response.data.success) {
-                setMessages(prevMessages => [
-                    ...prevMessages,
-                    { role: 'user', content: query },
-                    { role: 'assistant', content: response.data.response }
-                ]);
+            const response = await axios.post('/chatbot/chat/', { query });
+            
+            if (response.data.success) {
+                setMessages(prev => [...prev, { 
+                    type: 'bot', 
+                    content: response.data.response,
+                    hasContext: response.data.has_context 
+                }]);
             } else {
-                throw new Error(response.data?.error || 'Failed to get response');
+                setError(response.data.error || 'Failed to get response');
             }
 
-        } catch (error) {
-            console.error('Assistant Error:', error);
-            setError(
-                error.response?.data?.error || 
-                'Failed to connect to the assistant. Please try again.'
-            );
+        } catch (err) {
+            setError(err.message || 'An error occurred');
         } finally {
             setLoading(false);
             setQuery('');
+            scrollToBottom();
         }
     };
 
