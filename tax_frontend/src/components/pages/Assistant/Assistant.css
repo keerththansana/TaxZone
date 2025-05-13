@@ -189,19 +189,137 @@
     margin-left: 0;
 }
 
-/* Chat Bubble */
+/* Chat Bubble Core Styling */
 .chat-bubble {
-    max-width: 60%;
-    padding: 12px 16px;
-    font-size: 14px;
-    line-height: 1.5;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    word-wrap: break-word;       /* Added for word wrapping */
-    overflow-wrap: break-word;   /* Added for better word breaking */
-    white-space: pre-wrap;       /* Preserve line breaks and spaces */
-    min-width: 50px;            /* Minimum width for short messages */
+    padding: 20px;
+    border-radius: 12px;
     position: relative;
-    margin-bottom: 24px;  /* Add space for copy button */
+    font-size: 20px;  /* Larger base font size */
+    line-height: 1.6;
+    max-width: 90%;
+    background-color: #ffffff;
+}
+
+/* Message Content */
+.chat-bubble p {
+    margin: 12px 0;
+    font-size: 18px;
+    line-height: 1.6;
+    text-align: left;
+}
+
+/* Headers */
+.chat-bubble h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 20px 0 12px 0;
+    color: #023636;
+    border-bottom: 2px solid #023636;
+    padding-bottom: 8px;
+}
+
+/* Lists and Important Info */
+.chat-bubble ul {
+    margin: 12px 0;
+    padding-left: 24px;
+    list-style: none;
+}
+
+.chat-bubble li {
+    position: relative;
+    padding: 8px 0;
+    margin: 4px 0;
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.chat-bubble li::before {
+    content: "•";
+    color: #023636;
+    font-weight: bold;
+    position: absolute;
+    left: -20px;
+}
+
+/* Message Content Styling */
+.chat-bubble p {
+    margin: 12px 0;
+    font-size: 18px;
+    line-height: 1.6;
+}
+
+/* Headers in Messages */
+.chat-bubble h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 20px 0 12px 0;
+    color: #023636;
+    border-bottom: 2px solid #023636;
+    padding-bottom: 8px;
+}
+
+/* Bold Text */
+.chat-bubble strong {
+    font-size: 18px;
+    color: #023636;
+    display: block;
+    margin: 16px 0 12px 0;
+    font-weight: 600;
+}
+
+/* Bullet Points */
+.chat-bubble ul {
+    margin: 12px 0;
+    padding-left: 24px;
+    list-style: none;
+}
+
+.chat-bubble li {
+    position: relative;
+    padding: 8px 0;
+    margin: 8px 0;  /* Increased margin for better separation */
+    font-size: 18px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(2, 54, 54, 0.1);  /* Light separator */
+}
+
+.chat-bubble li:last-child {
+    border-bottom: none;  /* Remove border from last item */
+}
+
+.chat-bubble li::before {
+    content: "•";
+    color: #023636;
+    font-weight: bold;
+    position: absolute;
+    left: -20px;
+    top: 8px;  /* Align with text */
+}
+
+/* Numbers and Important Data */
+.chat-bubble code {
+    font-size: 18px;
+    font-weight: 500;
+    background: rgba(2, 54, 54, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #023636;
+}
+
+.chat-message.user .chat-bubble {
+    background-color: #ffffff;
+    color: #000000;
+    margin-right: 10px;
+    border-top-right-radius: 4px;
+    text-align: justify;
+}
+
+.chat-message.bot .chat-bubble {
+    background-color: #ffffff;
+    color: #000000;
+    margin-left: 10px;
+    border-top-left-radius: 4px;
+    text-align: justify;
 }
 
 /* Chat Avatar */
@@ -468,4 +586,106 @@
 
 .copy-button:active {
     transform: scale(0.95);
+}
+
+.message-container {
+    display: flex;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.message-container.user {
+    justify-content: flex-end;
+}
+
+.message-container.bot {
+    justify-content: flex-start;
+}
+
+.chat-message {
+    display: flex;
+    align-items: flex-start;
+    max-width: 80%;
+    gap: 10px;
+}
+
+.chat-message.user {
+    flex-direction: row-reverse;
+}
+
+.chat-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.chat-bubble {
+    padding: 20px;
+    border-radius: 12px;
+    position: relative;
+    font-size: 20px;  /* Larger base font size */
+    line-height: 1.6;
+    max-width: 90%;
+    background-color: #ffffff;
+    text-align: justify;
+}
+
+.chat-message.user .chat-bubble {
+    background-color: #023636;
+    color: #ffffff;
+    margin-right: 10px;
+    border-top-right-radius: 4px;
+    text-align: justify;
+}
+
+.chat-message.bot .chat-bubble {
+    background-color: #f0f7f7;
+    color: #023636;
+    margin-left: 10px;
+    border-top-left-radius: 4px;
+    text-align: justify;
+}
+
+.copy-button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.copy-button:hover {
+    opacity: 1;
+}
+
+/* Ensure markdown content is properly styled */
+.chat-bubble p {
+    margin: 12px 0;
+    padding: 0;
+    line-height: 1.6;
+    font-size: 18px;
+    text-align: justify;
+}
+
+/* Source Citation */
+.chat-bubble .source-title {
+    font-size: 18px;
+    color: #023636;
+    font-weight: 600;
+    margin: 20px 0 12px 0;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #023636;
+}
+
+/* Important Values */
+.chat-bubble .highlight {
+    background-color: rgba(2, 54, 54, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: #023636;
+    font-weight: 500;
 }

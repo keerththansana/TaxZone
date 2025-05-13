@@ -208,6 +208,8 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+CORS_ALLOW_ALL_ORIGINS = False  # More secure
+
 # Add this setting
 APPEND_SLASH = False
 

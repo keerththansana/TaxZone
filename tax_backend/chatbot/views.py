@@ -181,7 +181,7 @@ def format_response(response):
     response = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', response)
     
     response = re.sub(r'\n- (.*?)(?=\n|$)', r'<li>\1</li>', response)
-    response = re.sub(r'<li>(.*?)</li>(?=<li>)', r'</ul>\n<li>\1</li>', response)
+    response = re.sub(r'<li>(.*?)</li>(?=<li>)', r'</ul>\n<li>\1></li>', response)
     response = re.sub(r'<li>(.*?)</li>', r'<ul>\n<li>\1</li></ul>', response)
     
     response = re.sub(r'\[(.*?)\]\((.*?)\)', r'<a href="\2" style="color: #007bff; text-decoration: none;">\1</a>', response)
@@ -252,39 +252,130 @@ def format_tax_response(doc_content, gemini_response=None):
         return doc_content or gemini_response
 
 def get_gemini_response(query, context):
-    """Get enhanced response from Gemini API"""
+    """Get response from Gemini API with improved formatting"""
     try:
-        api_key = os.getenv('GEMINI_API_KEY')
-        if not api_key:
-            logger.error("Gemini API key not found")
+        model = configure_gemini()
+        if not model:
             return None
-            
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
-        
-        prompt = f"""Analyze and explain the following tax information:
+
+        prompt = f"""Act as an expert tax consultant for Sri Lanka. Analyze the query and context provided, then give a clear, well-structured response.
 
 Question: {query}
 
 Context from tax documents:
 {context}
 
-Please:
-1. Summarize the key tax rates
-2. Explain any conditions or thresholds
-3. Highlight important notes or exceptions
-4. Format the response in a clear, readable way using markdown
+Please follow these formatting rules in your response:
+1. Start with a brief, direct answer to the question
+2. Use markdown formatting:
+   - **Bold** for important terms and numbers
+   - Use bullet points (•) for lists
+   - Use ### for section headings
+   - Use numbered lists for steps or procedures
+3. Structure your response with these sections:
+   ### Direct Answer
+   [Provide immediate, concise answer]
 
-Focus on accuracy and clarity."""
-        
+   ### Details
+   [Expand with relevant details]
+
+   ### Additional Information
+   [Include related context, exceptions, or deadlines]
+
+   ### References
+   [Mention specific laws or documents]
+
+Remember to:
+- Be precise with numbers and rates
+- Highlight deadlines and important dates
+- Explain any technical terms
+- Format currency values consistently (e.g., LKR 100,000)
+- Keep paragraphs short and focused
+"""
+
         response = model.generate_content(prompt)
-        return response.text
+        return response.text if response else None
+
     except Exception as e:
         logger.error(f"Gemini API error: {e}")
         return None
 
+def get_gemini_web_response(query):
+    """Get concise, ChatGPT-style response from Gemini API with smart formatting"""
+    try:
+        model = configure_gemini()
+        if not model:
+            return None
+
+        search_prompt = f"""Provide a clear and professionally formatted explanation of the following aspect of Sri Lankan tax regulations:
+
+Query: {query}
+
+Instructions for Response Formatting:
+
+Overall Goal: Structure the response for maximum clarity and easy understanding, as if a professional consultant is explaining this.
+
+Paragraphing:
+- If the information naturally falls into distinct themes or stages, use **separate paragraphs** for each.
+- Keep paragraphs focused on a single main idea.
+
+Titles and Subtitles:
+- If the query is broad and covers multiple sub-topics, use a **clear title** for the overall response.
+- Employ **subtitles** to introduce and organize different sections or aspects of the explanation.
+
+Bullet Points and Numbered Lists:
+- Use **bullet points** to present lists of related items, such as different tax rates, categories, or requirements.
+- Use **numbered lists** if the information involves a sequence or steps.
+
+Tone: Maintain a natural, conversational yet authoritative tone.
+
+Content Integration: Seamlessly weave in specific facts, figures, and relevant legal references.
+
+Source Citation: Conclude with a clear and concise source citation. If the information is structured with titles or bullet points, the citation can appear at the end of the entire response.
+
+Example of Desired Flexibility:
+
+**Scenario 1 (Simple Explanation):**
+"The current **Value Added Tax (VAT) rate** in Sri Lanka is **15%**, effective from **January 1, 2024**. This applies to most goods and services, and businesses with a turnover exceeding a certain threshold are required to register for VAT. (Source: Inland Revenue Department Circular No. X of 2024)"
+
+**Scenario 2 (Explanation with Sub-topics):**
+"**Value Added Tax (VAT) in Sri Lanka**
+
+**Current Rate:**
+The standard **VAT rate** is **15%**, implemented on **January 1, 2024**.
+
+**Registration Threshold:**
+Businesses with an annual taxable turnover exceeding **LKR 12 million** are obligated to register for VAT.
+
+**Filing Frequency:**
+VAT returns are typically required to be filed on a **monthly basis**.
+
+(Source: Inland Revenue Act No. 24 of 2017 and subsequent amendments)"
+
+Now, address the following query about Sri Lankan tax regulations: {query}
+"""
+
+        response = model.generate_content(search_prompt)
+        if response and response.text:
+            cleaned_response = response.text.strip()
+            return cleaned_response
+
+        return None
+
+    except Exception as e:
+        logger.error(f"Gemini web search error: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Gemini web search error: {e}")
+        return None
+
+    except Exception as e:
+        logger.error(f"Gemini web search error: {e}")
+        return None
+
 @api_view(['POST'])
 def chat(request):
+    """Chat endpoint using Gemini web search"""
     try:
         query = request.data.get('query')
         if not query:
@@ -293,28 +384,17 @@ def chat(request):
                 'success': False
             }, status=400)
 
-        # Get document response
-        vector_store = initialize_vector_store()
-        doc_response = None
-        if vector_store:
-            doc_response = get_response_from_documents(query, vector_store)
+        # Get response from Gemini
+        response = get_gemini_web_response(query)
         
-        # Get Gemini response
-        gemini_response = get_gemini_response(query, doc_response) if doc_response else None
-        
-        # Format final response
-        final_response = format_tax_response(doc_response, gemini_response)
-        
-        if not final_response:
+        if not response:
             return Response({
                 'error': 'No response available',
                 'success': False
             }, status=500)
 
         return Response({
-            'response': final_response,
-            'has_context': bool(doc_response),
-            'has_gemini': bool(gemini_response),
+            'response': response,
             'success': True
         })
 
@@ -472,22 +552,36 @@ def debug_documents(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def get_response_from_documents(query, vector_store):
-    """Get relevant response from document vector store"""
+    """Get relevant content with brief summary"""
     try:
         results = vector_store.similarity_search_with_score(query, k=3)
-        contexts = []
-        
-        for doc, score in results:
-            if score < 0.8:
-                source = doc.metadata.get("source", "Unknown")
-                context = doc.page_content.strip()
-                contexts.append(f"Source: {source}\n{context}")
-                logger.info(f"Found relevant content in {source} with score {score}")
-        
-        return "\n\n".join(contexts) if contexts else None
-        
+        if results:
+            relevant_docs = [doc for doc, score in results if score < 0.8]
+            if relevant_docs:
+                model = configure_gemini()
+                if model:
+                    analysis_prompt = f"""Create a brief, focused answer from this tax document content:
+
+Content: {[doc.page_content for doc in relevant_docs]}
+Query: {query}
+
+Requirements:
+1. Give a SINGLE focused paragraph (2-3 lines)
+2. Use **bold** for key terms and numbers
+3. Add source at the end in parentheses
+4. Include ONLY direct facts from documents
+5. Exclude general advice or additional context
+6. Do not include 'Key Tax Information' or 'Additional Information' sections
+7. If no relevant answer found, return None"""
+
+                    response = model.generate_content(analysis_prompt)
+                    if response and "None" not in response.text:
+                        return response.text.strip()
+
+        return None
+
     except Exception as e:
-        logger.error(f"Error searching documents: {e}")
+        logger.error(f"Error in document response: {e}")
         return None
 
 @api_view(['POST'])
@@ -535,6 +629,102 @@ def test_chat(request):
 
     except Exception as e:
         logger.error(f"Test endpoint error: {e}")
+        return Response({
+            'error': str(e),
+            'success': False
+        }, status=500)
+
+import os
+import google.generativeai as genai # type: ignore
+from dotenv import load_dotenv # type: ignore
+import logging
+
+logger = logging.getLogger(__name__)
+load_dotenv()
+
+def configure_gemini():
+    """Configure Gemini API with safety settings"""
+    try:
+        api_key = os.getenv('GEMINI_API_KEY')
+        if not api_key:
+            raise ValueError("Gemini API key not found")
+            
+        genai.configure(api_key=api_key)
+        
+        generation_config = {
+            "temperature": 0.7,
+            "top_p": 0.8,
+            "top_k": 40,
+            "max_output_tokens": 2048,
+        }
+
+        # Using Gemini 1.5 Flash model
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",  # Updated to use 1.5 Flash
+            generation_config=generation_config
+        )
+        
+        # Test the model
+        test_response = model.generate_content("Test")
+        if not test_response:
+            raise ValueError("Model test failed")
+            
+        logger.info("Gemini 1.5 Flash model configured successfully")
+        return model
+
+    except Exception as e:
+        logger.error(f"Gemini configuration error: {e}")
+        return None
+
+@api_view(['POST'])
+def test_gemini(request):
+    """Test endpoint for Gemini API"""
+    try:
+        model = configure_gemini()
+        if not model:
+            return Response({
+                'error': 'Failed to configure Gemini API',
+                'success': False
+            }, status=500)
+
+        query = request.data.get('query', 'Test query')
+        
+        response = model.generate_content(query)
+        
+        if response and hasattr(response, 'text'):
+            return Response({
+                'success': True,
+                'response': response.text
+            })
+        else:
+            return Response({
+                'error': 'No response generated',
+                'success': False
+            }, status=500)
+
+    except Exception as e:
+        logger.error(f"Test endpoint error: {str(e)}")
+        return Response({
+            'error': str(e),
+            'success': False
+        }, status=500)
+
+@api_view(['GET'])
+def debug_gemini(request):
+    """Debug endpoint to check Gemini configuration"""
+    try:
+        api_key = os.getenv('GEMINI_API_KEY')
+        models = genai.list_models()
+        model_names = [m.name for m in models]
+        
+        return Response({
+            'api_key_present': bool(api_key),
+            'api_key_length': len(api_key) if api_key else 0,
+            'available_models': model_names
+        })
+
+    except Exception as e:
+        logger.error(f"Debug Gemini error: {str(e)}")
         return Response({
             'error': str(e),
             'success': False

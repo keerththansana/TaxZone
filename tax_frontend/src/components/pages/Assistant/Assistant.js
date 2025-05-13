@@ -26,13 +26,41 @@ const CopyIcon = () => (
 );
 
 const ChatMessage = ({ message }) => {
+    const handleCopyClick = (text) => {
+        navigator.clipboard.writeText(text).then(
+            () => {
+                // Optional: Add a visual feedback that text was copied
+                console.log('Text copied');
+            },
+            (err) => {
+                console.error('Failed to copy text:', err);
+            }
+        );
+    };
+
     return (
-        <div className={`chat-message ${message.type}`}>
-            {message.type === 'user' ? (
-                <p>{message.content}</p>
-            ) : (
-                <ReactMarkdown>{message.content}</ReactMarkdown>
-            )}
+        <div className={`message-container ${message.type}`}>
+            <div className={`chat-message ${message.type}`}>
+                <img
+                    src={message.type === 'user' ? userImage : assistantImage}
+                    alt={message.type}
+                    className="chat-avatar"
+                />
+                <div className="chat-bubble">
+                    {message.type === 'user' ? (
+                        <p>{message.content}</p>
+                    ) : (
+                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                    )}
+                    <button
+                        className="copy-button"
+                        onClick={() => handleCopyClick(message.content)}
+                        title="Copy to clipboard"
+                    >
+                        <CopyIcon />
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
@@ -91,14 +119,11 @@ const Assistant = () => {
         if (!query.trim()) return;
 
         try {
-            setMessages([...messages, { 
-                type: 'user', 
-                content: query 
-            }]);
+            setMessages(prev => [...prev, { type: 'user', content: query }]);
             setLoading(true);
             setError(null);
 
-            const response = await axios.post('/chatbot/chat/', { query });
+            const response = await axios.post('/api/chatbot/chat', { query });
             
             if (response.data.success) {
                 setMessages(prev => [...prev, { 
@@ -141,18 +166,6 @@ const Assistant = () => {
         setChatHistory([newChat, ...chatHistory]);
         setSelectedChat(newChat.id);
         setMessages([]);
-    };
-
-    const handleCopyClick = (text) => {
-        navigator.clipboard.writeText(text).then(
-            () => {
-                // Optional: Add a visual feedback that text was copied
-                console.log('Text copied');
-            },
-            (err) => {
-                console.error('Failed to copy text:', err);
-            }
-        );
     };
 
     const VoiceIcon = ({ isRecording }) => (
@@ -206,23 +219,7 @@ const Assistant = () => {
                         </div>
                     ) : (
                         messages.map((msg, index) => (
-                            <div key={index} className={`chat-message ${msg.role}`}>
-                                <img
-                                    alt={msg.role}
-                                    src={msg.role === 'user' ? userImage : assistantImage}
-                                    className="chat-avatar"
-                                />
-                                <div className="chat-bubble">
-                                    {msg.content}
-                                    <button
-                                        className="copy-button"
-                                        onClick={() => handleCopyClick(msg.content)}
-                                        title="Copy to clipboard"
-                                    >
-                                        <CopyIcon />
-                                    </button>
-                                </div>
-                            </div>
+                            <ChatMessage key={index} message={msg} />
                         ))
                     )}
                     <div ref={messagesEndRef} />
