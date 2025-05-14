@@ -7,7 +7,7 @@ import TaxationMenu from './Taxation_Menu';
 const RENTAL_RELIEF_AMOUNT = 225000; // Rs. 225,000
 
 const InvestmentIncome = () => {
-    // Add this state for form data
+    // Update the form data structure
     const [formData, setFormData] = useState({
         interestEntries: [{ name: 'Interest Income', amount: '' }],
         rentEntries: [{ name: 'Rental Income', amount: '' }],
@@ -15,7 +15,10 @@ const InvestmentIncome = () => {
         dividendEntries: [{ name: 'Dividend Income', amount: '' }],
         otherEntries: [{ name: 'Other Investment', amount: '' }],
         aitEntries: [{ source: '', amount: '' }],
-        taxDeductions: [],
+        taxDeductions: [
+            { type: 'AIT', source: '', name: 'AIT', amount: '' },
+            { type: 'Paid Tax', source: '', name: 'Paid Tax', amount: '' }
+        ],
         selectedTypes: [],
         totalInvestmentIncome: 0,
         totalTaxDeductions: 0
@@ -57,6 +60,10 @@ const InvestmentIncome = () => {
             }));
         }
     }, []);
+
+    // Investment data is not being fully loaded at the start
+    const investmentData = JSON.parse(sessionStorage.getItem('investmentIncomeData') || '{}');
+    console.log('Investment Data:', investmentData); // Add this to check loaded data
 
     // Update handleEntryChange to work with formData
     const handleEntryChange = (index, field, value, entryType) => {
@@ -118,13 +125,13 @@ const InvestmentIncome = () => {
         });
     };
 
-    // Add this function after handleTypeToggle and before handleSubmit
+    // Update handleAddTaxDeduction
     const handleAddTaxDeduction = () => {
         setFormData(prevData => ({
             ...prevData,
             taxDeductions: [
                 ...prevData.taxDeductions,
-                { source: '', amount: '' }
+                { type: selectedTaxType, source: '', name: `${selectedTaxType.toUpperCase()} Deduction`, amount: '' }
             ]
         }));
     };
@@ -133,8 +140,19 @@ const InvestmentIncome = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Save investment income data
-        sessionStorage.setItem('investmentIncomeData', JSON.stringify(formData));
+        // Format tax deductions before saving
+        const formattedData = {
+            ...formData,
+            taxDeductions: formData.taxDeductions.map(entry => ({
+                type: entry.type,
+                source: entry.source,
+                name: entry.type, // Use type as name for consistency
+                amount: Number(entry.amount) || 0
+            }))
+        };
+
+        // Save to session storage
+        sessionStorage.setItem('investmentIncomeData', JSON.stringify(formattedData));
 
         // Update selected categories if needed
         const currentCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
@@ -227,6 +245,36 @@ const InvestmentIncome = () => {
             description: 'Advance Income Tax deducted from investment income sources'
         }
     ];
+
+    // When saving tax deductions in Investment Income form:
+    const handleSave = () => {
+        const dataToSave = {
+            ...formData,
+            deductions: formData.taxDeductions.map(entry => ({
+                type: entry.type,
+                name: entry.name,
+                amount: Number(entry.amount) || 0
+            }))
+        };
+        sessionStorage.setItem('investmentIncomeData', JSON.stringify(dataToSave));
+    };
+
+    // In Investment Income form, deductions are likely saved as:
+    // {
+    //     type: 'AIT',  // or 'Paid Tax'
+    //     source: string,
+    //     name: string,
+    //     amount: number
+    // }
+
+    // But in loadDeductions, we're accessing them differently:
+    const loadDeductions = (investmentData) => {
+        if (investmentData.taxDeductions?.length) {
+            // Sum up AIT deductions
+            const aitDeductions = investmentData.taxDeductions.filter(d => d.type === 'AIT');
+            // ...
+        }
+    };
 
     return (
         <>

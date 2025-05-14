@@ -4,6 +4,16 @@ import { Download, FileText } from 'lucide-react';
 import styles from './Preview.module.css';
 import TaxationMenu from './Taxation_Menu';
 
+// First, add a constant for category order
+const CATEGORY_ORDER = [
+    'Employment Income',
+    'Business Income',
+    'Investment Income',
+    'Other Income',
+    'Qualifying Payments & Relief',
+    'Terminal Benefits'
+];
+
 const Preview = () => {
     const [summaryData, setSummaryData] = useState([]);
     const [assessableIncome, setAssessableIncome] = useState(0);
@@ -18,11 +28,19 @@ const Preview = () => {
         { name: 'Solar Panel', amount: 200000 }
     ]);
 
+    // Update the deductions state
+    const [deductions, setDeductions] = useState({
+        apit: 0,
+        ait: 0,
+        paidTax: 0,
+        wht: 0
+    });
+
     // Single useEffect to load all data
     useEffect(() => {
         const loadAllData = () => {
             const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-            let newSummaryData = [];
+            let categoryData = new Map(); // Use Map to store category data
             let totalIncome = 0;
 
             // Enhanced Employment Income handling
@@ -68,7 +86,7 @@ const Preview = () => {
                     }
 
                     if (employmentSummary.amount > 0) {
-                        newSummaryData.push(employmentSummary);
+                        categoryData.set('Employment Income', employmentSummary);
                         totalIncome += employmentSummary.amount;
                     }
                 }
@@ -155,7 +173,7 @@ const Preview = () => {
                     }
 
                     if (businessSummary.amount > 0) {
-                        newSummaryData.push(businessSummary);
+                        categoryData.set('Business Income', businessSummary);
                         totalIncome += businessSummary.amount;
                     }
                 }
@@ -237,7 +255,7 @@ const Preview = () => {
                     }
 
                     if (investmentSummary.amount > 0) {
-                        newSummaryData.push(investmentSummary);
+                        categoryData.set('Investment Income', investmentSummary);
                         totalIncome += investmentSummary.amount;
                     }
                 }
@@ -342,7 +360,7 @@ const Preview = () => {
                     }
 
                     if (otherSummary.amount > 0) {
-                        newSummaryData.push(otherSummary);
+                        categoryData.set('Other Income', otherSummary);
                         totalIncome += otherSummary.amount;
                     }
                 }
@@ -359,6 +377,18 @@ const Preview = () => {
                         deductions: [],
                         description: 'Tax deductible payments and qualifying relief'
                     };
+
+                    // Add Personal Relief first
+                    const selectedYear = sessionStorage.getItem('taxationYear') || '2024/2025';
+                    const personalReliefAmount = selectedYear === '2024/2025' ? 1200000 : 1800000;
+                    
+                    qualifyingSummary.entries.push({
+                        type: 'Personal Relief',
+                        name: 'Personal Relief',
+                        amount: personalReliefAmount,
+                        description: 'Standard personal relief for the tax year'
+                    });
+                    qualifyingSummary.amount += personalReliefAmount;
 
                     // Process donation entries
                     if (qualifyingData.donationEntries?.length) {
@@ -451,7 +481,7 @@ const Preview = () => {
                     }
 
                     if (qualifyingSummary.amount > 0) {
-                        newSummaryData.push(qualifyingSummary);
+                        categoryData.set('Qualifying Payments & Relief', qualifyingSummary);
                         // Update taxable income by subtracting qualifying payments
                         totalIncome = Math.max(0, totalIncome - qualifyingSummary.amount);
                     }
@@ -545,27 +575,93 @@ const Preview = () => {
                     }
 
                     if (terminalSummary.amount > 0) {
-                        // Add terminal benefits after employment income
-                        const empIndex = newSummaryData.findIndex(item => item.category === 'Employment Income');
-                        if (empIndex !== -1) {
-                            newSummaryData.splice(empIndex + 1, 0, terminalSummary);
-                        } else {
-                            newSummaryData.push(terminalSummary);
-                        }
+                        categoryData.set('Terminal Benefits', terminalSummary);
                         totalIncome += terminalSummary.amount;
                     }
                 }
             }
 
-            // Update state with calculated values
-            setSummaryData(newSummaryData);
+            // After loading all category data, sort according to defined order
+            const sortedSummaryData = Array.from(categoryData.values())
+                .filter(category => category.amount > 0)
+                .sort((a, b) => {
+                    const orderA = CATEGORY_ORDER.indexOf(a.category);
+                    const orderB = CATEGORY_ORDER.indexOf(b.category);
+                    return orderA - orderB;
+                });
+
+            // Update state with sorted data
+            setSummaryData(sortedSummaryData);
             setAssessableIncome(totalIncome);
             setTaxableIncome(totalIncome);
             setTotalTaxPayable(calculateTaxLiability(totalIncome));
+
+            // Call loadDeductions at the end
+            loadDeductions();
         };
 
         loadAllData();
     }, []);
+
+    // Add a function to load deductions
+    const loadDeductions = () => {
+        let newDeductions = {
+            apit: 0,
+            ait: 0,
+            paidTax: 0,
+            wht: 0
+        };
+
+        try {
+            // Load investment income deductions with better error handling
+            const investmentData = JSON.parse(sessionStorage.getItem('investmentIncomeData') || '{}');
+            console.log('Raw Investment Data:', investmentData); // Debug log
+
+            // Check for deductions in both possible locations
+            const deductions = investmentData.deductions || investmentData.taxDeductions || [];
+            console.log('Found Deductions:', deductions); // Debug log
+
+            if (deductions.length > 0) {
+                // Process AIT deductions
+                const aitDeductions = deductions.filter(d => 
+                    d.type === 'AIT' || d.name?.toLowerCase().includes('ait'));
+                if (aitDeductions.length) {
+                    newDeductions.ait = aitDeductions.reduce((sum, entry) => 
+                        sum + (Number(entry.amount) || 0), 0);
+                }
+
+                // Process Paid Tax deductions
+                const paidTaxDeductions = deductions.filter(d => 
+                    d.type === 'Paid Tax' || d.name?.toLowerCase().includes('paid tax'));
+                if (paidTaxDeductions.length) {
+                    newDeductions.paidTax = paidTaxDeductions.reduce((sum, entry) => 
+                        sum + (Number(entry.amount) || 0), 0);
+                }
+            }
+
+            // Load APIT from Employment Income
+            const employmentData = JSON.parse(sessionStorage.getItem('employmentIncomeData') || '{}');
+            if (employmentData.apitEntries?.length) {
+                newDeductions.apit = employmentData.apitEntries.reduce((sum, entry) => 
+                    sum + (Number(entry.amount) || 0), 0);
+            }
+
+            // Load WHT from Other Income
+            const otherData = JSON.parse(sessionStorage.getItem('otherIncomeData') || '{}');
+            if (otherData.whtEntries?.length) {
+                newDeductions.wht = otherData.whtEntries.reduce((sum, entry) => 
+                    sum + (Number(entry.amount) || 0), 0);
+            }
+
+            console.log('Investment Data:', investmentData); // Debug log
+            console.log('Processed Deductions:', newDeductions); // Debug log
+            
+            setDeductions(newDeductions);
+        } catch (error) {
+            console.error('Error loading deductions:', error);
+            console.error('Error details:', error.message);
+        }
+    };
 
     // Update the loadReliefData function in useEffect
     useEffect(() => {
@@ -668,79 +764,187 @@ const Preview = () => {
                             </tr>
                         </thead>
                         <tbody>
+                            {/* Regular Income Categories */}
                             {summaryData.map((category, index) => (
-                                <React.Fragment key={`category-${index}`}>
-                                    {/* Main category row */}
-                                    <tr className={styles.categoryRow}>
-                                        <td colSpan="2">{category.category}</td>
-                                        <td className={styles.amountColumn}>
-                                            {category.amount > 0 && `Rs. ${Number(category.amount).toLocaleString()}`}
-                                        </td>
-                                    </tr>
-                                    
-                                    {/* Bullet point entries */}
-                                    {category.entries?.map((entry, i) => (
-                                        <tr key={`entry-${i}`} className={styles.bulletRow}>
-                                            <td className={styles.bulletCell}>•</td>
-                                            <td>{entry.name}</td>
+                                category.category !== 'Qualifying Payments & Relief' && 
+                                category.category !== 'Terminal Benefits' && (
+                                    <React.Fragment key={`category-${index}`}>
+                                        <tr className={styles.categoryRow}>
+                                            <td colSpan="2">{category.category}</td>
                                             <td className={styles.amountColumn}>
-                                                {Number(entry.amount).toLocaleString()}
+                                                {category.amount > 0 && `Rs. ${Number(category.amount).toLocaleString()}`}
                                             </td>
                                         </tr>
-                                    ))}
-                                </React.Fragment>
+                                        
+                                        {category.entries?.map((entry, i) => (
+                                            <tr key={`entry-${i}`} className={styles.bulletRow}>
+                                                <td className={styles.bulletCell}>•</td>
+                                                <td>{entry.name}</td>
+                                                <td className={styles.amountColumn}>
+                                                    {Number(entry.amount).toLocaleString()}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </React.Fragment>
+                                )
                             ))}
 
                             {/* Assessable Income */}
-                            <tr className={styles.totalRow}>
+                            <tr className={styles.totalRow} data-type="assessable">
                                 <td colSpan="2">Assessable Income</td>
                                 <td className={styles.amountColumn}>
                                     Rs. {Number(assessableIncome).toLocaleString()}
                                 </td>
                             </tr>
 
-                            {/* Add Less - Relief Section */}
-                            {reliefEntries.length > 0 && (
-                                <>
-                                    <tr className={styles.sectionHeader}>
-                                        <td colSpan="3">Less - Relief</td>
-                                    </tr>
-                                    {reliefEntries.map((entry, index) => (
-                                        <tr key={`relief-${index}`} className={styles.bulletRow}>
+                            {/* Add two spacer rows */}
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+
+                            {/* Less - Terminal Benefits section continues... */}
+                            <tr className={styles.sectionHeader}>
+                                <td colSpan="3">Terminal Benefits (Less)</td>
+                            </tr>
+                            {summaryData.map(category => (
+                                category.category === 'Terminal Benefits' && (
+                                    category.entries?.map((entry, i) => (
+                                        <tr key={`terminal-${i}`} className={styles.bulletRow}>
                                             <td className={styles.bulletCell}>•</td>
                                             <td>{entry.name}</td>
                                             <td className={styles.amountColumn}>
                                                 ({Number(entry.amount).toLocaleString()})
                                             </td>
                                         </tr>
-                                    ))}
-                                </>
+                                    ))
+                                )
+                            ))}
+
+
+                            {/* APIT Deductions */}
+                            {deductions.apit > 0 && (
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>APIT (Advanced Personal Income Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        ({Number(deductions.apit).toLocaleString()})
+                                    </td>
+                                </tr>
                             )}
 
-                            {/* Less - Reliefs Section */}
+                            {/* AIT Deductions */}
+                            {deductions.ait > 0 && (
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>AIT (Advance Income Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        ({Number(deductions.ait).toLocaleString()})
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* WHT Deductions */}
+                            {deductions.wht > 0 && (
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>WHT (Withholding Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        ({Number(deductions.wht).toLocaleString()})
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* Less - Relief & Qualifying Payments */}
                             <tr className={styles.sectionHeader}>
-                                <td colSpan="3">Less - Reliefs</td>
+                                <td colSpan="3">Relief & Qualifying Payments (Less)</td>
                             </tr>
                             {summaryData.map(category => {
                                 if (category.category === 'Qualifying Payments & Relief') {
-                                    return category.entries.map((entry, i) => (
-                                        <tr key={`relief-${i}`} className={styles.bulletRow}>
-                                            <td className={styles.bulletCell}>•</td>
-                                            <td>{entry.name}</td>
-                                            <td className={styles.amountColumn}>
-                                                ({Number(entry.amount).toLocaleString()})
-                                            </td>
-                                        </tr>
-                                    ));
+                                    return category.entries
+                                        .filter(entry => !entry.type.includes('Terminal'))
+                                        .map((entry, i) => (
+                                            <tr key={`relief-${i}`} className={styles.bulletRow}>
+                                                <td className={styles.bulletCell}>•</td>
+                                                <td>{entry.name}</td>
+                                                <td className={styles.amountColumn}>
+                                                    ({Number(entry.amount).toLocaleString()})
+                                                </td>
+                                            </tr>
+                                        ));
                                 }
                                 return null;
                             })}
 
                             {/* Taxable Income */}
-                            <tr className={styles.totalRow}>
+                            <tr className={styles.totalRow} data-type="taxable">
                                 <td colSpan="2">Taxable Income</td>
                                 <td className={styles.amountColumn}>
                                     Rs. {Number(taxableIncome).toLocaleString()}
+                                </td>
+                            </tr>
+
+                            {/* Tax Deductions Section */}
+                            <tr className={styles.sectionHeader}>
+                                <td colSpan="3">Less - Tax Deductions</td>
+                            </tr>
+
+                            {/* APIT Deductions */}
+                            {deductions.apit > 0 && (
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>APIT (Advanced Personal Income Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        ({Number(deductions.apit).toLocaleString()})
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* AIT Deductions */}
+                            {deductions.ait > 0 && (
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>AIT (Advance Income Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        ({Number(deductions.ait).toLocaleString()})
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* Paid Tax Deductions */}
+                            {deductions.paidTax > 0 && (
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>Paid Tax</td>
+                                    <td className={styles.amountColumn}>
+                                        ({Number(deductions.paidTax).toLocaleString()})
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* WHT Deductions */}
+                            {deductions.wht > 0 && (
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>WHT (Withholding Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        ({Number(deductions.wht).toLocaleString()})
+                                    </td>
+                                </tr>
+                            )}
+
+                            {/* Add spacer for visual separation */}
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+
+                            {/* Balance Tax Payable */}
+                            <tr className={styles.totalRow}>
+                                <td colSpan="2">Balance Tax Payable</td>
+                                <td className={styles.amountColumn}>
+                                    Rs. {Number(totalTaxPayable).toLocaleString()}
                                 </td>
                             </tr>
                         </tbody>

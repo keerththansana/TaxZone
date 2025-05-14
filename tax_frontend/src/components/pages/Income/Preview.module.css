@@ -255,7 +255,7 @@
     text-align: right;
     width: 200px;
     font-family: 'Courier New', monospace;
-    border-left: 2px solid #023636 !important;  /* Add vertical separator */
+    border-left: 1px solid #e0e0e0 !important;  /* Add vertical separator */
     padding-right: 1.5rem !important;
 }
 
@@ -268,6 +268,7 @@
     background-color: #f8f9fa;
     font-weight: 600;
     color: #023636;
+    text-align: left;
 }
 
 .reliefRow td:last-child {
@@ -298,15 +299,15 @@
 }
 
 .taxTable td {
+    border: 0.3px solid #e0e0e0;
     padding: 0.75rem 0.75rem 0.75rem 2rem; /* Increased left padding */
-    border-bottom: 1px solid #e0e0e0;
 }
 
 /* Category row styling */
 .categoryRow td {
     background-color: #f8f9fa;
     font-weight: 600;
-    border-top: 2px solid #023636;
+    border-top: 1px solid #023636;
     border-bottom: none;
     padding-left: 1.5rem;
     color: #023636;
@@ -329,7 +330,7 @@
     width: 200px;
     font-family: 'Courier New', monospace;
     padding-right: 1.5rem !important;
-    border-left: 2px solid #e0e0e0 !important;  /* Vertical separator for data rows */
+    border-left: 1px solid #e0e0e0 !important;  /* Vertical separator for data rows */
 }
 
 /* Category row amount column */
@@ -355,7 +356,7 @@
 /* Total rows */
 .totalRow td {
     font-weight: 600;
-    background-color: #f8f9fa;
+    background-color: #e8f8f8;
     border-top: 2px solid #023636;
     border-bottom: 2px solid #023636;
 }
@@ -426,7 +427,8 @@
     background-color: #f8f9fa;
     font-weight: 600;
     color: #023636;
-    padding: 1.5rem 0.75rem 0.75rem 1.5rem;
+    padding: 1.0rem 0.75rem 0.75rem 1.5rem;
+    border-top: 1px solid #023636;
 }
 
 /* Style for relief entries */
@@ -436,5 +438,85 @@
 
 /* Negative amounts in parentheses */
 .amountColumn.negative {
+    color: #dc3545;
+}
+
+.spacerRow {
+    height: 0.1rem;
+    background-color: #023636;
+}
+
+.spacerRow td {
+    border: none;
+    padding: 0;
+    background-color: #023636;
+}
+
+/* Update total row styles for Assessable and Taxable Income */
+.totalRow {
+    background-color: #e8f8f8;
+    font-weight: 600;
+}
+
+/* Add specific style for Assessable Income row */
+.totalRow[data-type="assessable"] td {
+    background-color:  #e8f8f8;  /* Light green background */
+    border-top: 2px solid #023636;
+    border-bottom: 2px solid #023636;
+    font-weight: 600;
+    font-style: bold;
+    color: #023636;
+}
+
+/* Add specific style for Taxable Income row */
+.totalRow[data-type="taxable"] td {
+    background-color:  #e8f8f8;  /* Light blue background */
+    border-top: 2px solid #023636;
+    border-bottom: 2px solid #023636;
+    font-weight: 600;
+    font-style: bold;
+    color: #023636;
+}
+
+/* Update section headers styling */
+.sectionHeader td {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #023636;
+    padding: 1.0rem 0.75rem 0.75rem 1.5rem;
+    border-top: 1px solid #023636;
+    border-bottom: none;
+    text-align: left !important; /* Force left alignment */
+}
+
+/* Remove any inherited text alignment */
+.sectionHeader td[colSpan="3"] {
+    text-align: left !important;
+}
+
+/* Make sure the text alignment is consistent */
+tr.sectionHeader td:first-child,
+tr.sectionHeader td:last-child {
+    text-align: left !important;
+}
+
+/* Add specific style for tax deduction section */
+.taxDeductionSection td {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #023636;
+    padding: 1.0rem 0.75rem 0.75rem 1.5rem;
+    border-top: 2px solid #023636;
+    text-align: left !important;
+}
+
+/* Style for tax deduction entries */
+.taxDeductionRow td {
+    background-color: #fff;
+    border: 0.3px solid #e0e0e0;
+}
+
+/* Update amount styling for tax deductions */
+.taxDeductionRow .amountColumn {
     color: #dc3545;
 }

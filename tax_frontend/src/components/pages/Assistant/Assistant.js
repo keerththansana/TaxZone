@@ -4,6 +4,7 @@ import assistantImage from '../../../assets/Assistant.png';
 import userImage from '../../../assets/User.jpg';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+//import AuthPrompt from '../../common/AuthPrompt/AuthPrompt';
 
 // Configure axios with base URL and default headers
 axios.defaults.baseURL = 'http://localhost:8000';
@@ -66,11 +67,10 @@ const ChatMessage = ({ message }) => {
 };
 
 const Assistant = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState([]);
-    const [chatHistory, setChatHistory] = useState([
-      
-    ]);
+    const [chatHistory, setChatHistory] = useState([]);
     const [selectedChat, setSelectedChat] = useState(null);
     const messagesEndRef = useRef(null);
     const [isRecording, setIsRecording] = useState(false);
@@ -84,7 +84,9 @@ const Assistant = () => {
     };
 
     useEffect(() => {
-        scrollToBottom();
+        if (messages.length > 0) {
+            scrollToBottom();
+        }
     }, [messages]);
 
     useEffect(() => {
@@ -132,6 +134,10 @@ const Assistant = () => {
 
         fetchChatHistory();
     }, []);
+
+    //if (!isAuthenticated) {
+    //    return <AuthPrompt service="AI Tax Assistant" />;
+    //}
 
     const handleSubmit = async (e) => {
         e.preventDefault();

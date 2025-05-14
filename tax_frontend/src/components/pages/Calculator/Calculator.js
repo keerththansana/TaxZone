@@ -2,19 +2,24 @@ import React, { useState } from 'react';
 import { Calculator as CalcIcon } from "lucide-react";
 import styles from './Calculator.module.css';
 import CalculatorResponse from './Calculator_Response.js';
+//import AuthPrompt from '../../common/AuthPrompt/AuthPrompt';
 
 const Calculator = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [formData, setFormData] = useState({
-        taxYear: '2024/2025', // Add default tax year
+        taxYear: '2024/2025',
         taxType: '',
         period: '',
         amount: '',
         businessType: ''
     });
-
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    //if (!isAuthenticated) {
+    //   return <AuthPrompt service="Tax Calculator" />;
+    //}
 
     const taxTypes = [
         { id: 'employment', label: 'Employment Income', hasPeriod: true },

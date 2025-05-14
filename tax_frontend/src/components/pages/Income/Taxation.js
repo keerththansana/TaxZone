@@ -1,16 +1,62 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ChevronDown } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import styles from './Taxation.module.css';
+//import AuthPrompt from '../../common/AuthPrompt/AuthPrompt';
 
 const Taxation = () => {
+    // 1. First define all constants
+    const categories = [
+        {
+            id: 'employment',
+            title: 'Employment Income',
+            options: ['Primary Employment', 'Secondary Employment', 'Other Employment']
+        },
+        {
+            id: 'business',
+            title: 'Business Income',
+            options: ['Sole Proprietorship', 'Partnership', 'Other Business']
+        },
+        {
+            id: 'investment',
+            title: 'Investment Income',
+            options: ['Interest Income', 'Dividend Income', 'Rent Income']
+        },
+        {
+            id: 'other',
+            title: 'Other Income',
+            options: ['Royalties', 'Annuities', 'Miscellaneous']
+        },
+        {
+            id: 'terminal',
+            title: 'Terminal Benefits',
+            options: ['Retirement Benefits', 'Compensation', 'Gratuity']
+        },
+        {
+            id: 'qualifying',
+            title: 'Qualifying Payment',
+            options: ['Donations', 'Investments', 'Other Payments']
+        }
+    ];
+
+    const taxYears = [
+        { value: '2024/2025', label: '2024/2025' },
+        { value: '2025/2026', label: '2025/2026' }
+    ];
+
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [openCategory, setOpenCategory] = useState(null);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedFiles, setSelectedFiles] = useState([]);
     const [isDragging, setIsDragging] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
-    const [selectedYear, setSelectedYear] = useState('2024/2025'); // Default year
+    const [selectedYear, setSelectedYear] = useState('2024/2025');
     const navigate = useNavigate();
+
+    // Place all hooks and effects before any conditional returns
+    useEffect(() => {
+        // Any effects you need
+    }, []);
 
     const handleArrowClick = (e, categoryId) => {
         e.stopPropagation();
@@ -113,7 +159,7 @@ const Taxation = () => {
         }
     };
 
-    const handleSelectAll = () => {
+    const handleSelectAll = useCallback(() => {
         setSelectAll(!selectAll);
         if (!selectAll) {
             // Select all categories
@@ -122,7 +168,7 @@ const Taxation = () => {
             // Deselect all categories
             setSelectedCategories([]);
         }
-    };
+    }, [selectAll, categories]);
 
     const handleYearChange = (e) => {
         const newYear = e.target.value;
@@ -132,43 +178,9 @@ const Taxation = () => {
         window.dispatchEvent(new CustomEvent('taxationYearChanged', { detail: newYear }));
     };
 
-    const categories = [
-        {
-            id: 'employment',
-            title: 'Employment Income',
-            options: ['Primary Employment', 'Secondary Employment', 'Other Employment']
-        },
-        {
-            id: 'business',
-            title: 'Business Income',
-            options: ['Sole Proprietorship', 'Partnership', 'Other Business']
-        },
-        {
-            id: 'investment',
-            title: 'Investment Income',
-            options: ['Interest Income', 'Dividend Income', 'Rent Income']
-        },
-        {
-            id: 'other',
-            title: 'Other Income',
-            options: ['Royalties', 'Annuities', 'Miscellaneous']
-        },
-        {
-            id: 'terminal',
-            title: 'Terminal Benefits',
-            options: ['Retirement Benefits', 'Compensation', 'Gratuity']
-        },
-        {
-            id: 'qualifying',
-            title: 'Qualifying Payment',
-            options: ['Donations', 'Investments', 'Other Payments']
-        }
-    ];
-
-    const taxYears = [
-        { value: '2024/2025', label: '2024/2025' },
-        { value: '2025/2026', label: '2025/2026' }
-    ];
+    //if (!isAuthenticated) {
+    //    return <AuthPrompt service="Tax Declaration" />;
+    //}
 
     return (
         <div className={styles.container}>
