@@ -69,8 +69,7 @@ const Assistant = () => {
     const [query, setQuery] = useState('');
     const [messages, setMessages] = useState([]);
     const [chatHistory, setChatHistory] = useState([
-        { id: 1, title: 'Tax Rate Discussion', date: '2024-04-04' },
-        { id: 2, title: 'Income Tax Calculation', date: '2024-04-04' },
+      
     ]);
     const [selectedChat, setSelectedChat] = useState(null);
     const messagesEndRef = useRef(null);
@@ -78,6 +77,7 @@ const Assistant = () => {
     const [recognition, setRecognition] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [currentConversation, setCurrentConversation] = useState(null);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -114,6 +114,25 @@ const Assistant = () => {
         }
     }, []);
 
+    useEffect(() => {
+        const fetchChatHistory = async () => {
+            try {
+                const response = await axios.get('/api/chatbot/history/');
+                if (response.data.success) {
+                    setChatHistory(response.data.history.map(chat => ({
+                        id: chat.id,
+                        title: chat.title,
+                        date: new Date(chat.created_at).toLocaleDateString()
+                    })));
+                }
+            } catch (err) {
+                console.error('Error fetching chat history:', err);
+            }
+        };
+
+        fetchChatHistory();
+    }, []);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!query.trim()) return;
@@ -123,18 +142,44 @@ const Assistant = () => {
             setLoading(true);
             setError(null);
 
-            const response = await axios.post('/api/chatbot/chat', { query });
+            const response = await axios.post('/api/chatbot/chat', { 
+                query,
+                conversation_id: currentConversation?.id
+            });
             
             if (response.data.success) {
+                // Add bot response to messages
                 setMessages(prev => [...prev, { 
                     type: 'bot', 
                     content: response.data.response,
                     hasContext: response.data.has_context 
                 }]);
+
+                // Update conversation title and history
+                if (response.data.conversation_id && response.data.title) {
+                    const newChat = {
+                        id: response.data.conversation_id,
+                        title: response.data.title,
+                        date: new Date().toISOString().split('T')[0]
+                    };
+
+                    if (!currentConversation) {
+                        // New conversation
+                        setChatHistory(prev => [newChat, ...prev]);
+                        setCurrentConversation(newChat);
+                        setSelectedChat(newChat.id);
+                    } else if (currentConversation.id === response.data.conversation_id) {
+                        // Update existing conversation
+                        setChatHistory(prev => prev.map(chat => 
+                            chat.id === currentConversation.id 
+                                ? { ...chat, title: response.data.title }
+                                : chat
+                        ));
+                    }
+                }
             } else {
                 setError(response.data.error || 'Failed to get response');
             }
-
         } catch (err) {
             setError(err.message || 'An error occurred');
         } finally {
@@ -157,15 +202,77 @@ const Assistant = () => {
     };
 
     const startNewChat = () => {
-        const newChat = {
-            id: Date.now(),
-            title: 'New Chat',
-            date: new Date().toISOString().split('T')[0],
-            messages: [],
-        };
-        setChatHistory([newChat, ...chatHistory]);
-        setSelectedChat(newChat.id);
+        setCurrentConversation(null);
+        setSelectedChat(null);
         setMessages([]);
+    };
+
+    const handleChatSelect = async (chat) => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            // Fetch conversation history from backend
+            const response = await axios.get(`/api/chatbot/history/${chat.id}/`);
+            
+            if (response.data.success) {
+                // Update current conversation
+                setSelectedChat(chat.id);
+                setCurrentConversation(chat);
+                
+                // Create an array to hold the conversation messages
+                let formattedMessages = [];
+                
+                // Process each message pair
+                response.data.messages.forEach(message => {
+                    // Add user message
+                    formattedMessages.push({
+                        type: 'user',
+                        content: message.query
+                    });
+                    
+                    // Add assistant response
+                    formattedMessages.push({
+                        type: 'bot',
+                        content: message.response
+                    });
+                });
+                
+                // Update messages state
+                setMessages(formattedMessages);
+                
+                // Scroll to bottom after messages load
+                setTimeout(scrollToBottom, 100);
+            } else {
+                setError('Failed to load conversation history');
+            }
+        } catch (err) {
+            setError(err.message || 'Failed to load conversation');
+            console.error('Error loading conversation:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDeleteConversation = async (conversationId, e) => {
+        e.stopPropagation(); // Prevent triggering chat selection
+        try {
+            const response = await axios.delete(`/api/chatbot/history/${conversationId}/delete/`);
+            if (response.data.success) {
+                // Remove from chat history
+                setChatHistory(prev => prev.filter(chat => chat.id !== conversationId));
+                
+                // If deleted conversation was selected, clear messages
+                if (selectedChat === conversationId) {
+                    setMessages([]);
+                    setSelectedChat(null);
+                    setCurrentConversation(null);
+                }
+            }
+        } catch (error) {
+            console.error('Error deleting conversation:', error);
+            setError('Failed to delete conversation');
+        }
     };
 
     const VoiceIcon = ({ isRecording }) => (
@@ -196,10 +303,25 @@ const Assistant = () => {
                         <div
                             key={chat.id}
                             className={`chat-history-item ${selectedChat === chat.id ? 'selected' : ''}`}
-                            onClick={() => setSelectedChat(chat.id)}
                         >
-                            <div className="chat-history-title">{chat.title}</div>
-                            <div className="chat-history-date">{chat.date}</div>
+                            <div 
+                                className="chat-history-content"
+                                onClick={() => handleChatSelect(chat)}
+                            >
+                                <div className="chat-history-title">{chat.title}</div>
+                                <div className="chat-history-date">{chat.date}</div>
+                            </div>
+                            <button
+                                className="delete-button"
+                                onClick={(e) => handleDeleteConversation(chat.id, e)}
+                                title="Delete conversation"
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M3 6h18" strokeWidth="2" strokeLinecap="round"/>
+                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" strokeWidth="2"/>
+                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" strokeWidth="2"/>
+                                </svg>
+                            </button>
                         </div>
                     ))}
                 </div>

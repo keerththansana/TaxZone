@@ -1,4 +1,5 @@
 from django.db import models
+import uuid
 
 class TaxDocument(models.Model):
     title = models.CharField(max_length=255, null=True, blank=True)
@@ -11,3 +12,23 @@ class TaxDocument(models.Model):
 
     def __str__(self):
         return self.title or f"Document {self.id}"
+
+class TaxConversation(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
+
+class TaxMessage(models.Model):
+    conversation = models.ForeignKey(TaxConversation, related_name='messages', on_delete=models.CASCADE)
+    query = models.TextField()
+    response = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']

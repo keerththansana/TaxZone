@@ -15,6 +15,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmb
 import logging
 import PyPDF2 # type: ignore
 import io
+from .models import TaxConversation, TaxMessage  # Add this at the top with other imports
 
 logger = logging.getLogger(__name__)
 
@@ -373,16 +374,80 @@ Now, address the following query about Sri Lankan tax regulations: {query}
         logger.error(f"Gemini web search error: {e}")
         return None
 
+def generate_conversation_title(query):
+    """Generate a meaningful title from the query"""
+    try:
+        # Clean and normalize the query
+        clean_query = query.strip().lower()
+        
+        # Tax type specific titles
+        if "vat" in clean_query:
+            if "rate" in clean_query:
+                return "VAT Rate Inquiry"
+            elif "register" in clean_query:
+                return "VAT Registration Query"
+            return "VAT Information"
+            
+        elif any(term in clean_query for term in ["paye", "salary", "wage"]):
+            if "calculate" in clean_query:
+                return "PAYE Tax Calculation"
+            elif "threshold" in clean_query:
+                return "PAYE Threshold Query"
+            return "PAYE Tax Information"
+            
+        elif "income" in clean_query:
+            if "personal" in clean_query:
+                return "Personal Income Tax"
+            elif "business" in clean_query:
+                return "Business Income Tax"
+            return "Income Tax Query"
+            
+        elif any(term in clean_query for term in ["corporate", "company", "business"]):
+            if "rate" in clean_query:
+                return "Corporate Tax Rates"
+            return "Corporate Tax Information"
+            
+        # For other queries, use the first few meaningful words
+        words = [w for w in clean_query.split() if len(w) > 2][:4]
+        if words:
+            title = " ".join(words).title()
+            return f"Tax Query: {title}" if len(title) < 30 else f"Tax Query: {title[:27]}..."
+            
+        return "New Tax Query"
+        
+    except Exception as e:
+        logger.error(f"Title generation error: {e}")
+        return "New Tax Query"
+
 @api_view(['POST'])
 def chat(request):
-    """Chat endpoint using Gemini web search"""
+    """Chat endpoint with conversation tracking"""
     try:
         query = request.data.get('query')
+        conversation_id = request.data.get('conversation_id')
+
         if not query:
             return Response({
                 'error': 'Query is required',
                 'success': False
             }, status=400)
+
+        # Get existing conversation or create new one with title
+        if conversation_id:
+            try:
+                conversation = TaxConversation.objects.get(id=conversation_id)
+            except TaxConversation.DoesNotExist:
+                # Create new conversation with generated title
+                title = generate_conversation_title(query)
+                conversation = TaxConversation.objects.create(title=title)
+        else:
+            # Always generate a new title for new conversations
+            title = generate_conversation_title(query)
+            conversation = TaxConversation.objects.create(title=title)
+            # Update conversation title if it's first message
+            if not conversation.messages.exists():
+                conversation.title = title
+                conversation.save()
 
         # Get response from Gemini
         response = get_gemini_web_response(query)
@@ -393,8 +458,17 @@ def chat(request):
                 'success': False
             }, status=500)
 
+        # Save to history
+        TaxMessage.objects.create(
+            conversation=conversation,
+            query=query,
+            response=response
+        )
+
         return Response({
             'response': response,
+            'conversation_id': str(conversation.id),
+            'title': conversation.title,  # Include title in response
             'success': True
         })
 
@@ -725,6 +799,81 @@ def debug_gemini(request):
 
     except Exception as e:
         logger.error(f"Debug Gemini error: {str(e)}")
+        return Response({
+            'error': str(e),
+            'success': False
+        }, status=500)
+
+from .models import TaxConversation, TaxMessage
+
+@api_view(['GET'])
+def get_tax_history(request):
+    """Get list of tax conversations"""
+    try:
+        conversations = TaxConversation.objects.all().order_by('-created_at')  # Most recent first
+        history = [{
+            'id': str(conv.id),
+            'title': conv.title or "New Tax Query",
+            'created_at': conv.created_at.isoformat(),
+            'last_message': conv.messages.last().created_at.isoformat() if conv.messages.exists() else conv.created_at.isoformat()
+        } for conv in conversations]
+        
+        return Response({
+            'history': history,
+            'success': True
+        })
+    except Exception as e:
+        logger.error(f"History fetch error: {e}")
+        return Response({
+            'error': str(e),
+            'success': False
+        }, status=500)
+
+@api_view(['GET'])
+def get_conversation_history(request, conversation_id):
+    """Get messages for a specific conversation"""
+    try:
+        conversation = TaxConversation.objects.get(id=conversation_id)
+        messages = conversation.messages.all().order_by('created_at')
+        
+        return Response({
+            'success': True,
+            'title': conversation.title,
+            'messages': [{
+                'query': msg.query,
+                'response': msg.response,
+                'created_at': msg.created_at.isoformat()
+            } for msg in messages]
+        })
+    except TaxConversation.DoesNotExist:
+        return Response({
+            'error': 'Conversation not found',
+            'success': False
+        }, status=404)
+    except Exception as e:
+        logger.error(f"Conversation fetch error: {e}")
+        return Response({
+            'error': str(e),
+            'success': False
+        }, status=500)
+
+@api_view(['DELETE'])
+def delete_conversation(request, conversation_id):
+    """Delete a specific conversation and its messages"""
+    try:
+        conversation = TaxConversation.objects.get(id=conversation_id)
+        conversation.delete()
+        return Response({
+            'message': 'Conversation deleted successfully',
+            'success': True
+        })
+    except TaxConversation.DoesNotExist:
+        return Response({
+            'error': 'Conversation not found',
+            'success': False
+        }, status=404)
+    except Exception as e:
+        logger.error(f"Conversation deletion error: {e}")
         return Response({
             'error': str(e),
             'success': False
