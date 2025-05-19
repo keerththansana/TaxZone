@@ -40,6 +40,12 @@ const Calculator = () => {
         { id: 'annually', label: 'Annually' }
     ];
 
+    // Add tax years array
+    const taxYears = [
+        { id: '2024/2025', label: '2024/2025' },
+        { id: '2025/2026', label: '2025/2026' }
+    ];
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -93,28 +99,18 @@ const Calculator = () => {
                     <form className={styles.form} onSubmit={handleSubmit}>
                         <div className={styles.formGroup}>
                             <label>Tax Year</label>
-                            <div className={styles.radioGroup}>
-                                <label className={styles.radioLabel}>
-                                    <input
-                                        type="radio"
-                                        name="taxYear"
-                                        value="2024/2025"
-                                        checked={formData.taxYear === '2024/2025'}
-                                        onChange={handleChange}
-                                    />
-                                    2024/2025
-                                </label>
-                                <label className={styles.radioLabel}>
-                                    <input
-                                        type="radio"
-                                        name="taxYear"
-                                        value="2025/2026"
-                                        checked={formData.taxYear === '2025/2026'}
-                                        onChange={handleChange}
-                                    />
-                                    2025/2026
-                                </label>
-                            </div>
+                            <select
+                                name="taxYear"
+                                value={formData.taxYear}
+                                onChange={handleChange}
+                                required
+                            >
+                                {taxYears.map(year => (
+                                    <option key={year.id} value={year.id}>
+                                        {year.label}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className={styles.formGroup}>

@@ -1,51 +1,89 @@
 .menuContainer {
     width: 100%;
-    padding: 1rem 2rem;
+    padding: 1rem;
     background-color: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
+    overflow-x: auto; /* Enable horizontal scroll if needed */
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #023636 #e8f8f8; /* For Firefox - thumb and track colors */
+    scroll-behavior: smooth; /* Add smooth scrolling */
+    display: flex;
+    justify-content: center;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) scrollbar styling */
+.menuContainer::-webkit-scrollbar {
+    height: 8px; /* Horizontal scrollbar height */
+}
+
+.menuContainer::-webkit-scrollbar-track {
+    background: #e8f8f8;
+    border-radius: 4px;
+}
+
+.menuContainer::-webkit-scrollbar-thumb {
+    background-color: #023636;
+    border-radius: 4px;
+    border: 2px solid #e8f8f8;
+}
+
+.menuContainer::-webkit-scrollbar-thumb:hover {
+    background-color: #034f4f;
 }
 
 .menuWrapper {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
+    justify-content: center; /* Change from flex-start to center */
+    flex-wrap: nowrap; /* Prevent wrapping */
+    gap: 0.3rem;
+    min-width: max-content; /* Ensure all items fit */
+    padding: 0 1rem;
+    max-width: fit-content; /* Ensure wrapper only takes needed space */
 }
 
 .menuItem {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    border-color: #023636;
     cursor: pointer;
     transition: all 0.3s ease;
     background-color: #e8f8f8;
+    width: 180px;
+    height: 50px;
+    flex-shrink: 0; /* Prevent shrinking */
+    border: 0.1px solid #bdf5f5; /* Add border */
 }
 
 .menuItem:hover {
     background-color: #d0f0f0;
+    border-color: #034f4f; /* Darken border on hover */
 }
 
 .menuItem.active {
     background-color: #023636;
     color: white;
+    border-color: #023636; /* Keep border color same as background when active */
 }
 
 .menuNumber {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px;
-    height: 24px;
+    width: 30px; /* Fixed width */
+    height: 30px; /* Fixed height - same as width for perfect circle */
+    min-width: 30px; /* Prevent shrinking */
+    min-height: 30px; /* Prevent shrinking */
     border-radius: 50%;
     background-color: #023636;
     color: white;
     font-size: 0.9rem;
     font-weight: 500;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .active .menuNumber {
@@ -59,24 +97,64 @@
 }
 
 .connector {
-    flex: 0 0 20px;
-    height: 2px;
-    background-color: #023636;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 20px;
 }
+
+.connector::before,
+.connector::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid #023636;
+    border-right: 2px solid #023636;
+    transform: rotate(45deg);
+}
+
+.connector::before {
+    left: 6px;
+}
+
+.connector::after {
+    left: 12px;
+}
+
+
 
 @media (max-width: 768px) {
     .menuWrapper {
-        flex-direction: column;
-        gap: 0.5rem;
+        flex-direction: row; /* Keep row direction */
+        justify-content: center; /* Keep centered on mobile */
+        gap: 1rem;
     }
 
     .connector {
-        width: 2px;
-        height: 10px;
+        width: 20px;
+    }
+    
+    .connector::before {
+        left: 4px;
+    }
+    
+    .connector::after {
+        left: 8px;
     }
 
     .menuItem {
-        width: 100%;
-        justify-content: flex-start;
+        width: 180px;
+        height: 50px;
+        border: 2px solid #023636;
+    }
+
+    .menuNumber {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
     }
 }

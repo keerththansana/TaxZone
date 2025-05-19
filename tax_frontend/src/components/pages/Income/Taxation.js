@@ -78,7 +78,29 @@ const Taxation = () => {
 
     const handleFileChange = (event) => {
         const files = Array.from(event.target.files);
-        setSelectedFiles(prevFiles => [...prevFiles, ...files]);
+        // Validate file types
+        const allowedTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/csv',
+            'text/plain',
+            'image/jpeg',
+            'image/png'
+        ];
+
+        const validFiles = files.filter(file => 
+            allowedTypes.includes(file.type) || 
+            file.name.match(/\.(pdf|doc|docx|xls|xlsx|csv|txt|jpg|jpeg|png)$/i)
+        );
+
+        if (validFiles.length !== files.length) {
+            alert('Some files were not added. Only PDF, Word, Excel, CSV, Text, and Image files are allowed.');
+        }
+
+        setSelectedFiles(prevFiles => [...prevFiles, ...validFiles]);
         event.target.value = ''; // Reset input for next upload
     };
 
@@ -112,7 +134,28 @@ const Taxation = () => {
         setIsDragging(false);
 
         const files = Array.from(e.dataTransfer.files);
-        setSelectedFiles(prevFiles => [...prevFiles, ...files]);
+        const allowedTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'text/csv',
+            'text/plain',
+            'image/jpeg',
+            'image/png'
+        ];
+
+        const validFiles = files.filter(file => 
+            allowedTypes.includes(file.type) || 
+            file.name.match(/\.(pdf|doc|docx|xls|xlsx|csv|txt|jpg|jpeg|png)$/i)
+        );
+
+        if (validFiles.length !== files.length) {
+            alert('Some files were not added. Only PDF, Word, Excel, CSV, Text, and Image files are allowed.');
+        }
+
+        setSelectedFiles(prevFiles => [...prevFiles, ...validFiles]);
     }, []);
 
     const handleSubmit = async (e) => {
@@ -264,11 +307,9 @@ const Taxation = () => {
                                 type="file"
                                 id="fileUpload"
                                 multiple
-                                webkitdirectory=""
-                                directory=""
                                 onChange={handleFileChange}
                                 className={styles.fileInput}
-                                accept="*/*"
+                                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
                             />
                             <label htmlFor="fileUpload" className={styles.uploadButton}>
                                 Upload Documents

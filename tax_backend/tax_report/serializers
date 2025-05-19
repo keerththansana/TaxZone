@@ -1,0 +1,28 @@
+from rest_framework import serializers # type: ignore
+from .models import TaxReport, IncomeCategory, IncomeEntry, TaxDeduction
+
+class IncomeEntrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = IncomeEntry
+        fields = ['name', 'amount', 'description']
+
+class IncomeCategorySerializer(serializers.ModelSerializer):
+    entries = IncomeEntrySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = IncomeCategory
+        fields = ['category_type', 'total_amount', 'entries']
+
+class TaxDeductionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaxDeduction
+        fields = ['deduction_type', 'amount']
+
+class TaxReportSerializer(serializers.ModelSerializer):
+    categories = IncomeCategorySerializer(many=True, read_only=True)
+    deductions = TaxDeductionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = TaxReport
+        fields = ['id', 'tax_year', 'created_at', 'assessable_income', 
+                 'taxable_income', 'total_tax_payable', 'categories', 'deductions']

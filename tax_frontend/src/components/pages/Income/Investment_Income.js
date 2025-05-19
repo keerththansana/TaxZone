@@ -136,58 +136,25 @@ const InvestmentIncome = () => {
         }));
     };
 
-    // Update handleSubmit
+    // Update the handleSubmit function
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Format tax deductions before saving
+        // Format tax deductions to match the expected structure
         const formattedData = {
             ...formData,
-            taxDeductions: formData.taxDeductions.map(entry => ({
-                type: entry.type,
-                source: entry.source,
-                name: entry.type, // Use type as name for consistency
-                amount: Number(entry.amount) || 0
+            taxDeductions: formData.taxDeductions.map(deduction => ({
+                type: deduction.type || 'AIT', // Default to AIT if not specified
+                source: deduction.source,
+                name: deduction.type === 'Paid Tax' ? 'Paid Tax' : 'AIT',
+                amount: Number(deduction.amount) || 0
             }))
         };
 
         // Save to session storage
         sessionStorage.setItem('investmentIncomeData', JSON.stringify(formattedData));
-
-        // Update selected categories if needed
-        const currentCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-        if (!currentCategories.includes('investment')) {
-            sessionStorage.setItem('selectedCategories', 
-                JSON.stringify([...currentCategories, 'investment']));
-        }
-
-        // Trigger preview update
-        window.dispatchEvent(new Event('incomeDataUpdated'));
-
-        // Get next form to navigate to
-        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-        const currentIndex = selectedCategories.indexOf('investment');
-        const nextCategory = selectedCategories[currentIndex + 1];
-
-        // Navigate to appropriate form
-        if (nextCategory) {
-            const routes = {
-                employment: '/employment_income',
-                business: '/business_income',
-                other: '/other_income',
-                terminal: '/terminal_benefits',
-                qualifying: '/qualifying_payments'
-            };
-
-            const nextRoute = routes[nextCategory];
-            if (nextRoute) {
-                navigate(nextRoute);
-            } else {
-                navigate('/preview');
-            }
-        } else {
-            navigate('/preview');
-        }
+        
+        // ... rest of your submit logic ...
     };
 
     // Update useEffect for calculations

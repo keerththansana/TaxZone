@@ -50,19 +50,14 @@
 }
 
 .documentContainer {
+    width: 210mm; /* A4 width */
+    min-height: 297mm; /* A4 height */
+    padding: 20mm; /* Standard margins */
     background-color: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
-    margin-top: 1rem;
-    width: 210mm;
-    min-height: 297mm;
-    padding: 20mm;
     margin: 20px auto;
-    background-color: white;
-    border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: relative;
+    box-sizing: border-box;
 }
 
 .document {
@@ -91,6 +86,7 @@
     border-collapse: collapse;
     margin-bottom: 1rem;
     border: 2px solid #023636; /* Add outer border */
+    page-break-inside: auto;
 }
 
 /* Table header styling */
@@ -182,6 +178,7 @@
 .totalRow {
     background-color: #e8f8f8 !important;
     font-weight: 600;
+    page-break-inside: avoid;
 }
 
 .totalRow td {
@@ -236,10 +233,12 @@
 .categoryRow {
     background-color: #fff;
     font-weight: 600;
+    page-break-inside: avoid;
 }
 
 .bulletRow {
     background-color: #fff;
+    page-break-inside: avoid;
 }
 
 .bulletCell {
@@ -248,6 +247,7 @@
     color: #023636;
     font-weight: bold;
     padding-left: 3rem !important; /* Move bullets right */
+    margin: 1rem !important;
 }
 
 /* Amount column styling */
@@ -269,6 +269,8 @@
     font-weight: 600;
     color: #023636;
     text-align: left;
+    page-break-inside: avoid;
+    page-break-before: auto;
 }
 
 .reliefRow td:last-child {
@@ -385,6 +387,7 @@
         margin: 0;
         border-radius: 0;
         box-shadow: none;
+        overflow: visible;
     }
 
     .contentWrapper {
@@ -392,6 +395,28 @@
     }
 
     /* Hide elements not needed in print */
+    .actions {
+        display: none;
+    }
+
+    /* Force page breaks between sections if needed */
+    .pageBreak {
+        page-break-before: always;
+    }
+
+    /* Ensure headers stay with their content */
+    .sectionHeader {
+        break-after: avoid;
+    }
+
+    /* Keep related content together */
+    .totalRow {
+        break-before: avoid;
+        break-after: avoid;
+    }
+
+    /* Hide navigation and controls when printing */
+    .header,
     .actions {
         display: none;
     }
@@ -482,11 +507,10 @@
 .sectionHeader td {
     background-color: #f8f9fa;
     font-weight: 600;
-    color: #023636;
-    padding: 1.0rem 0.75rem 0.75rem 1.5rem;
     border-top: 1px solid #023636;
     border-bottom: none;
-    text-align: left !important; /* Force left alignment */
+    padding-left: 1.5rem;
+    color: #023636;
 }
 
 /* Remove any inherited text alignment */
@@ -519,4 +543,81 @@ tr.sectionHeader td:last-child {
 /* Update amount styling for tax deductions */
 .taxDeductionRow .amountColumn {
     color: #dc3545;
+}
+
+.taxLiabilitySection td {
+    background-color: #f8f9fa;
+    padding: 0.75rem;
+    width: 33.33%; /* Equal width for all columns */
+    table-layout: fixed;
+}
+
+.taxBracketRow td {
+    color: #023636;
+    padding: 0.75rem;
+    width: 33.33%; /* Equal width for all columns */
+}
+
+/* First column (Tax Bracket Range) */
+.taxBracketRow td:first-child {
+    text-align: left;
+    padding-left: 2rem;
+}
+
+/* Second column (Rate) */
+.taxBracketRow td:nth-child(2) {
+    text-align: center;
+}
+
+/* Third column (Amount) */
+.taxBracketRow td:last-child {
+    text-align: right;
+    padding-right: 2rem;
+}
+
+.taxBracketRow .amountColumn {
+    font-weight: 500;
+    width: 33.33%; /* Equal width */
+}
+
+/* Tax Liability Table Specific Styles */
+.taxLiabilitySection {
+    margin: 1rem 0;
+}
+
+/* Tax bracket header styles */
+.taxBracketHeader td {
+    background-color: #f5f5f5;
+    padding: 10px;
+    text-align: center;
+    font-weight: 600;
+    border: 1px solid #e0e0e0;
+}
+
+/* Tax bracket row styles */
+.taxBracketRow td {
+    padding: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+/* First column (Tax Bracket Range) */
+.taxBracketRow td:first-child {
+    width: 40%;
+    text-align: left;
+    padding-left: 2rem;
+}
+
+/* Second column (Rate) */
+.taxBracketRow td:nth-child(2) {
+    width: 30%;
+    text-align: center;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+}
+
+/* Third column (Amount) */
+.taxBracketRow td:last-child {
+    width: 30%;
+    text-align: right;
+    padding-right: 2rem;
 }

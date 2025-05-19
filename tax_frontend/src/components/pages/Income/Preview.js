@@ -14,11 +14,106 @@ const CATEGORY_ORDER = [
     'Terminal Benefits'
 ];
 
+// Add this helper function at the top of the file
+const calculateTotalAmount = (category) => {
+    if (!category?.entries) return 0;
+    return category.entries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+};
+
+// Add this helper function at the top of the file
+const hasEntries = (category) => {
+    return category?.entries?.length > 0 && category.entries.some(entry => Number(entry.amount) > 0);
+};
+
+// Add tax bracket configurations
+const TAX_BRACKETS = {
+    '2024/2025': [
+        { limit: 1200000, rate: 0.06 },
+        { limit: 2400000, rate: 0.12 },
+        { limit: 3600000, rate: 0.18 },
+        { limit: 4800000, rate: 0.24 },
+        { limit: 6000000, rate: 0.30 },
+        { limit: Infinity, rate: 0.36 }
+    ],
+    '2025/2026': [
+        { limit: 1000000, rate: 0.06 },
+        { limit: 1500000, rate: 0.18 },
+        { limit: 2000000, rate: 0.24 },
+        { limit: 2500000, rate: 0.30 },
+        { limit: Infinity, rate: 0.36 }
+    ]
+};
+
+// Add this constant at the top of the file
+const PERSONAL_RELIEF_AMOUNTS = {
+    '2024/2025': 1200000,
+    '2025/2026': 1800000
+};
+
+// Add these components before the Preview component
+const EditableCell = ({ value, onChange, type = "text" }) => {
+    return (
+        <input
+            type={type}
+            value={value}
+            onChange={(e) => {
+                const newValue = type === "number" ? 
+                    Number(e.target.value) || 0 : 
+                    e.target.value;
+                onChange(newValue);
+            }}
+            className={styles.editableCell}
+        />
+    );
+};
+
+const EditableRow = ({ entry, onUpdate, onDelete, isEditing }) => {
+    if (!isEditing) {
+        return (
+            <tr className={styles.bulletRow}>
+                <td className={styles.bulletCell}>•</td>
+                <td>{entry.name}</td>
+                <td className={styles.amountColumn}>
+                    {Number(entry.amount).toLocaleString()}
+                </td>
+            </tr>
+        );
+    }
+
+    return (
+        <tr className={styles.bulletRow}>
+            <td className={styles.bulletCell}>
+                <button 
+                    onClick={onDelete}
+                    className={styles.deleteButton}
+                >
+                    ×
+                </button>
+            </td>
+            <td>
+                <EditableCell
+                    value={entry.name}
+                    onChange={(value) => onUpdate({ ...entry, name: value })}
+                />
+            </td>
+            <td className={styles.amountColumn}>
+                <EditableCell
+                    value={entry.amount}
+                    onChange={(value) => onUpdate({ ...entry, amount: Number(value) })}
+                    type="number"
+                />
+            </td>
+        </tr>
+    );
+};
+
 const Preview = () => {
     const [summaryData, setSummaryData] = useState([]);
     const [assessableIncome, setAssessableIncome] = useState(0);
     const [taxableIncome, setTaxableIncome] = useState(0);
     const [totalTaxPayable, setTotalTaxPayable] = useState(0);
+    const [taxYear, setTaxYear] = useState('2024/2025');
+    const [balanceTaxPayable, setBalanceTaxPayable] = useState(0);
 
     // Add state for relief entries
     const [reliefEntries, setReliefEntries] = useState([
@@ -36,9 +131,63 @@ const Preview = () => {
         wht: 0
     });
 
+    // Add state for tax brackets breakdown
+    const [taxBracketBreakdown, setTaxBracketBreakdown] = useState([]);
+
+    // Add these state variables at the beginning of the Preview component
+    const [isEditing, setIsEditing] = useState(false);
+    const [editableData, setEditableData] = useState({
+        categories: [],
+        deductions: {},
+        taxBrackets: []
+    });
+
+    // Add these states at the beginning of the Preview component
+    const [history, setHistory] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(-1);
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+    // Add these handlers in the Preview component
+    const handleAddRow = (categoryIndex) => {
+        const newData = [...summaryData];
+        
+        setSummaryData(newData);
+        recalculateAll(newData); // Add this function call
+    };
+
+    const handleUpdateRow = (categoryIndex, entryIndex, updatedEntry) => {
+        const newData = [...summaryData];
+        newData[categoryIndex].entries[entryIndex] = updatedEntry;
+        
+        // Recalculate category total
+        newData[categoryIndex].amount = newData[categoryIndex].entries.reduce(
+            (sum, entry) => sum + Number(entry.amount || 0), 
+            0
+        );
+        
+        setSummaryData(newData);
+        recalculateAll(newData); // Add this function call
+    };
+
+    const handleDeleteRow = (categoryIndex, entryIndex) => {
+        const newData = [...summaryData];
+        newData[categoryIndex].entries.splice(entryIndex, 1);
+        
+        // Recalculate category total
+        newData[categoryIndex].amount = newData[categoryIndex].entries.reduce(
+            (sum, entry) => sum + Number(entry.amount || 0), 
+            0
+        );
+        
+        setSummaryData(newData);
+        recalculateAll(newData); // Add this function call
+    };
+
     // Single useEffect to load all data
     useEffect(() => {
         const loadAllData = () => {
+            const selectedYear = sessionStorage.getItem('taxationYear') || '2024/2025';
+            setTaxYear(selectedYear);
             const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
             let categoryData = new Map(); // Use Map to store category data
             let totalIncome = 0;
@@ -594,7 +743,7 @@ const Preview = () => {
             setSummaryData(sortedSummaryData);
             setAssessableIncome(totalIncome);
             setTaxableIncome(totalIncome);
-            setTotalTaxPayable(calculateTaxLiability(totalIncome));
+            setTotalTaxPayable(calculateTaxLiability(totalIncome, selectedYear));
 
             // Call loadDeductions at the end
             loadDeductions();
@@ -613,30 +762,18 @@ const Preview = () => {
         };
 
         try {
-            // Load investment income deductions with better error handling
+            // Load investment income deductions
             const investmentData = JSON.parse(sessionStorage.getItem('investmentIncomeData') || '{}');
-            console.log('Raw Investment Data:', investmentData); // Debug log
-
-            // Check for deductions in both possible locations
-            const deductions = investmentData.deductions || investmentData.taxDeductions || [];
-            console.log('Found Deductions:', deductions); // Debug log
-
-            if (deductions.length > 0) {
-                // Process AIT deductions
-                const aitDeductions = deductions.filter(d => 
-                    d.type === 'AIT' || d.name?.toLowerCase().includes('ait'));
-                if (aitDeductions.length) {
-                    newDeductions.ait = aitDeductions.reduce((sum, entry) => 
-                        sum + (Number(entry.amount) || 0), 0);
-                }
-
-                // Process Paid Tax deductions
-                const paidTaxDeductions = deductions.filter(d => 
-                    d.type === 'Paid Tax' || d.name?.toLowerCase().includes('paid tax'));
-                if (paidTaxDeductions.length) {
-                    newDeductions.paidTax = paidTaxDeductions.reduce((sum, entry) => 
-                        sum + (Number(entry.amount) || 0), 0);
-                }
+            
+            // Check for tax deductions in investmentData
+            if (investmentData.taxDeductions && Array.isArray(investmentData.taxDeductions)) {
+                investmentData.taxDeductions.forEach(deduction => {
+                    if (deduction.type === 'AIT') {
+                        newDeductions.ait += Number(deduction.amount) || 0;
+                    } else if (deduction.type === 'Paid Tax') {
+                        newDeductions.paidTax += Number(deduction.amount) || 0;
+                    }
+                });
             }
 
             // Load APIT from Employment Income
@@ -653,14 +790,24 @@ const Preview = () => {
                     sum + (Number(entry.amount) || 0), 0);
             }
 
-            console.log('Investment Data:', investmentData); // Debug log
-            console.log('Processed Deductions:', newDeductions); // Debug log
+            console.log('Investment Data:', investmentData);
+            console.log('Processed Deductions:', newDeductions);
             
             setDeductions(newDeductions);
         } catch (error) {
             console.error('Error loading deductions:', error);
             console.error('Error details:', error.message);
         }
+    };
+
+    // Add function to calculate total tax credits
+    const calculateTotalTaxCredits = () => {
+        return (
+            deductions.apit +
+            deductions.ait +
+            deductions.paidTax +
+            deductions.wht
+        );
     };
 
     // Update the loadReliefData function in useEffect
@@ -712,15 +859,296 @@ const Preview = () => {
         loadReliefData();
     }, []);
 
-    // Tax calculation helper function
-    const calculateTaxLiability = (income) => {
-        if (income <= 1200000) return income * 0.06;
-        if (income <= 2400000) return 72000 + (income - 1200000) * 0.12;
-        if (income <= 3600000) return 216000 + (income - 2400000) * 0.18;
-        if (income <= 4800000) return 432000 + (income - 3600000) * 0.24;
-        if (income <= 6000000) return 720000 + (income - 4800000) * 0.30;
-        return 1080000 + (income - 6000000) * 0.36;
+    // Update the tax calculation function to be more reliable
+    const calculateTaxLiability = (income, taxYear) => {
+        const brackets = TAX_BRACKETS[taxYear];
+        if (!brackets) {
+            console.error('Invalid tax year:', taxYear);
+            return 0;
+        }
+
+        let remainingIncome = Number(income);
+        let totalTax = 0;
+        let previousLimit = 0;
+        let breakdown = [];
+
+        for (const bracket of brackets) {
+            const bracketAmount = bracket.limit - previousLimit;
+            const taxableInBracket = Math.min(remainingIncome, bracketAmount);
+            
+            if (taxableInBracket <= 0) break;
+
+            const taxInBracket = taxableInBracket * bracket.rate;
+            totalTax += taxInBracket;
+
+            breakdown.push({
+                from: previousLimit,
+                to: previousLimit + taxableInBracket,
+                amount: taxableInBracket,
+                rate: bracket.rate,
+                tax: taxInBracket
+            });
+
+            remainingIncome -= taxableInBracket;
+            previousLimit = bracket.limit;
+        }
+
+        setTaxBracketBreakdown(breakdown);
+        return totalTax;
     };
+
+    // Add this function after the state declarations
+    const recalculateAll = (data) => {
+        const currentData = data || summaryData;
+        const selectedYear = sessionStorage.getItem('taxationYear') || '2024/2025';
+        
+        // Calculate Assessable Income (excluding Qualifying Payments & Relief)
+        let totalAssessableIncome = 0;
+        currentData.forEach(category => {
+            if (!['Qualifying Payments & Relief'].includes(category.category)) {
+                const categoryTotal = category.entries?.reduce((sum, entry) => 
+                    sum + (Number(entry.amount) || 0), 0) || 0;
+                totalAssessableIncome += categoryTotal;
+            }
+        });
+
+        // Get Qualifying Payments & Relief
+        const qualifyingPayments = currentData.find(cat => cat.category === 'Qualifying Payments & Relief');
+        const qualifyingPaymentsTotal = qualifyingPayments?.entries?.reduce((sum, entry) => 
+            sum + (Number(entry.amount) || 0), 0) || 0;
+
+        // Always subtract Qualifying Payments from Assessable Income
+        const calculatedTaxableIncome = Math.max(0, totalAssessableIncome - qualifyingPaymentsTotal);
+
+        // Calculate tax liability with selected year
+        const taxLiability = calculateTaxLiability(calculatedTaxableIncome, selectedYear);
+        const totalTaxCredits = calculateTotalTaxCredits();
+
+        // Calculate balance tax payable
+        const calculatedBalanceTaxPayable = Math.max(0, taxLiability - totalTaxCredits);
+
+        // Update states
+        setAssessableIncome(totalAssessableIncome);
+        setTaxableIncome(calculatedTaxableIncome);
+        setTotalTaxPayable(taxLiability);
+        setBalanceTaxPayable(calculatedBalanceTaxPayable);
+
+        // Debug logging
+        console.log('Tax Calculation Details:', {
+            assessableIncome: totalAssessableIncome,
+            qualifyingPaymentsTotal,
+            taxableIncome: calculatedTaxableIncome,
+            taxLiability,
+            totalTaxCredits,
+            balanceTaxPayable: calculatedBalanceTaxPayable
+        });
+    };
+
+    // Update the loadAllData function to properly calculate values
+    useEffect(() => {
+        const loadAllData = () => {
+            try {
+                // Calculate Assessable Income
+                let totalAssessableIncome = 0;
+
+                // Sum up regular income categories
+                summaryData.forEach(category => {
+                    if (!['Qualifying Payments & Relief', 'Terminal Benefits'].includes(category.category)) {
+                        const categoryTotal = category.entries?.reduce((sum, entry) => 
+                            sum + (Number(entry.amount) || 0), 0) || 0;
+                        totalAssessableIncome += categoryTotal;
+                    }
+                });
+
+                // Calculate deductions
+                const terminalBenefits = summaryData.find(cat => cat.category === 'Terminal Benefits');
+                const terminalBenefitsTotal = terminalBenefits?.entries?.reduce((sum, entry) => 
+                    sum + (Number(entry.amount) || 0), 0) || 0;
+
+                const qualifyingPayments = summaryData.find(cat => cat.category === 'Qualifying Payments & Relief');
+                const qualifyingPaymentsTotal = qualifyingPayments?.entries?.reduce((sum, entry) => 
+                    sum + (Number(entry.amount) || 0), 0) || 0;
+
+                // Calculate total deductions
+                const totalDeductions = terminalBenefitsTotal + qualifyingPaymentsTotal;
+
+                // Calculate Taxable Income
+                const calculatedTaxableIncome = Math.max(0, totalAssessableIncome - totalDeductions);
+
+                // Get selected tax year
+                const selectedYear = sessionStorage.getItem('taxationYear') || '2024/2025';
+
+                // Calculate tax liability
+                const taxLiability = calculateTaxLiability(calculatedTaxableIncome, selectedYear);
+
+                // Calculate total tax credits
+                const totalTaxCredits = Object.values(deductions).reduce((sum, value) => 
+                    sum + (Number(value) || 0), 0);
+
+                // Calculate balance tax payable
+                const calculatedBalanceTaxPayable = Math.max(0, taxLiability - totalTaxCredits);
+
+                // Update all states at once
+                setAssessableIncome(totalAssessableIncome);
+                setTaxableIncome(calculatedTaxableIncome);
+                setTotalTaxPayable(taxLiability);
+                setBalanceTaxPayable(calculatedBalanceTaxPayable);
+
+                // Debug logging
+                console.log('Calculation Results:', {
+                    totalAssessableIncome,
+                    totalDeductions,
+                    calculatedTaxableIncome,
+                    taxLiability,
+                    totalTaxCredits,
+                    calculatedBalanceTaxPayable
+                });
+            } catch (error) {
+                console.error('Error in loadAllData:', error);
+            }
+        };
+
+        loadAllData();
+    }, [summaryData, deductions]); // Add dependencies to ensure recalculation when data changes
+
+    // Update the useEffect where data is loaded
+    useEffect(() => {
+        const loadAllData = () => {
+            // ...existing loading code...
+
+            // Calculate Assessable Income
+            let totalAssessableIncome = 0;
+
+            // Sum up regular income categories
+            summaryData.forEach(category => {
+                if (!['Qualifying Payments & Relief', 'Terminal Benefits'].includes(category.category)) {
+                    totalAssessableIncome += calculateTotalAmount(category);
+                }
+            });
+
+            // Calculate deductions
+            let totalDeductions = 0;
+
+            // Get Terminal Benefits total
+            const terminalBenefits = summaryData.find(cat => cat.category === 'Terminal Benefits');
+            const terminalBenefitsTotal = calculateTotalAmount(terminalBenefits);
+
+            // Get Qualifying Payments total
+            const qualifyingPayments = summaryData.find(cat => cat.category === 'Qualifying Payments & Relief');
+            const qualifyingPaymentsTotal = calculateTotalAmount(qualifyingPayments);
+
+            // Sum up all deductions
+            totalDeductions = terminalBenefitsTotal + qualifyingPaymentsTotal;
+
+            // Calculate Taxable Income
+            const calculatedTaxableIncome = Math.max(0, totalAssessableIncome - totalDeductions);
+
+            // Get selected tax year
+            const selectedYear = sessionStorage.getItem('taxationYear') || '2024/2025';
+
+            // Calculate tax liability with selected year
+            const taxLiability = calculateTaxLiability(calculatedTaxableIncome, selectedYear);
+            const totalTaxCredits = calculateTotalTaxCredits();
+        
+            // Calculate balance tax payable (cannot be negative)
+            const calculatedBalanceTaxPayable = Math.max(0, taxLiability - totalTaxCredits);
+
+            // Update state
+            setAssessableIncome(totalAssessableIncome);
+            setTaxableIncome(calculatedTaxableIncome);
+            setTotalTaxPayable(taxLiability);
+            setBalanceTaxPayable(calculatedBalanceTaxPayable);
+
+            // Debug logs
+            console.log('Assessable Income Components:', {
+                employmentIncome: summaryData.find(cat => cat.category === 'Employment Income')?.amount || 0,
+                businessIncome: summaryData.find(cat => cat.category === 'Business Income')?.amount || 0,
+                investmentIncome: summaryData.find(cat => cat.category === 'Investment Income')?.amount || 0,
+                otherIncome: summaryData.find(cat => cat.category === 'Other Income')?.amount || 0
+            });
+            console.log('Deduction Components:', {
+                terminalBenefits: terminalBenefitsTotal,
+                qualifyingPayments: qualifyingPaymentsTotal
+            });
+            console.log('Calculation Results:', {
+                totalAssessableIncome,
+                totalDeductions,
+                calculatedTaxableIncome
+            });
+        };
+
+        loadAllData();
+    }, []);
+
+    // Update the loadAllData function
+    const loadAllData = () => {
+        // ... existing loading code for categories ...
+
+        // Calculate Assessable Income (after all data is loaded)
+        let totalAssessableIncome = 0;
+        let totalDeductions = 0;
+
+        // Sum up regular income categories
+        summaryData.forEach(category => {
+            if (!['Qualifying Payments & Relief', 'Terminal Benefits'].includes(category.category)) {
+                const categoryTotal = category.entries?.reduce((sum, entry) => 
+                    sum + (Number(entry.amount) || 0), 0) || 0;
+                totalAssessableIncome += categoryTotal;
+            }
+        });
+
+        // Calculate deductions from Terminal Benefits and Qualifying Payments
+        const terminalBenefits = summaryData.find(cat => cat.category === 'Terminal Benefits');
+        const terminalBenefitsTotal = terminalBenefits?.entries?.reduce((sum, entry) => 
+            sum + (Number(entry.amount) || 0), 0) || 0;
+
+        const qualifyingPayments = summaryData.find(cat => cat.category === 'Qualifying Payments & Relief');
+        const qualifyingPaymentsTotal = qualifyingPayments?.entries?.reduce((sum, entry) => 
+            sum + (Number(entry.amount) || 0), 0) || 0;
+
+        // Sum up all deductions
+        totalDeductions = terminalBenefitsTotal + qualifyingPaymentsTotal;
+
+        // Calculate Taxable Income
+        const calculatedTaxableIncome = Math.max(0, totalAssessableIncome - totalDeductions);
+
+        // Get selected tax year
+        const selectedYear = sessionStorage.getItem('taxationYear') || '2024/2025';
+
+        // Calculate tax liability with selected year
+        const taxLiability = calculateTaxLiability(calculatedTaxableIncome, selectedYear);
+        const totalTaxCredits = calculateTotalTaxCredits();
+        
+        // Calculate balance tax payable (cannot be negative)
+        const calculatedBalanceTaxPayable = Math.max(0, taxLiability - totalTaxCredits);
+
+        // Update state with calculated values
+        setAssessableIncome(totalAssessableIncome);
+        setTaxableIncome(calculatedTaxableIncome);
+        setTotalTaxPayable(taxLiability);
+        setBalanceTaxPayable(calculatedBalanceTaxPayable);
+
+        // Debug logs
+        console.log('Calculation Details:', {
+            totalAssessableIncome,
+            terminalBenefitsTotal,
+            qualifyingPaymentsTotal,
+            totalDeductions,
+            calculatedTaxableIncome
+        });
+    };
+
+    // Add this useEffect
+    useEffect(() => {
+        if (!isEditing) {
+            recalculateAll();
+        }
+    }, [isEditing]);
+
+    // Add this useEffect after your other useEffect hooks
+    useEffect(() => {
+        loadDeductions();
+    }, []); // Empty dependency array means this runs once when component mounts
 
     // Rest of your component remains the same...
     const handleDownload = () => {
@@ -745,8 +1173,14 @@ const Preview = () => {
             <TaxationMenu />
             <div className={styles.contentWrapper}>
                 <div className={styles.header}>
-                    <h1>Calculation of Income Tax Liability</h1>
+                    <h1>Calculation of Income Tax Liability - {taxYear}</h1>
                     <div className={styles.actions}>
+                        <button 
+                            className={styles.actionButton} 
+                            onClick={() => setIsEditing(!isEditing)}
+                        >
+                            {isEditing ? 'Save Changes' : 'Edit Mode'}
+                        </button>
                         <button className={styles.actionButton} onClick={handleDownload}>
                             <Download size={16} />
                             Download PDF
@@ -755,7 +1189,9 @@ const Preview = () => {
                 </div>
 
                 <div className={styles.documentContainer}>
-                    <h1 className={styles.mainHeading}>Calculation of Income Tax Liability</h1>
+                    <h1 className={styles.mainHeading}>
+                        Calculation of Income Tax Liability - {taxYear}
+                    </h1>
                     <table className={styles.taxTable}>
                         <thead>
                             <tr>
@@ -765,25 +1201,49 @@ const Preview = () => {
                         </thead>
                         <tbody>
                             {/* Regular Income Categories */}
-                            {summaryData.map((category, index) => (
+                            {summaryData.map((category, categoryIndex) => (
                                 category.category !== 'Qualifying Payments & Relief' && 
-                                category.category !== 'Terminal Benefits' && (
-                                    <React.Fragment key={`category-${index}`}>
+                                category.category !== 'Terminal Benefits' && 
+                                hasEntries(category) && (
+                                    <React.Fragment key={`category-${categoryIndex}`}>
                                         <tr className={styles.categoryRow}>
-                                            <td colSpan="2">{category.category}</td>
+                                            <td colSpan="2">
+                                                {isEditing ? (
+                                                    <EditableCell
+                                                        value={category.category}
+                                                        onChange={(value) => {
+                                                            const newData = [...summaryData];
+                                                            newData[categoryIndex].category = value;
+                                                            setSummaryData(newData);
+                                                        }}
+                                                    />
+                                                ) : category.category}
+                                            </td>
                                             <td className={styles.amountColumn}>
                                                 {category.amount > 0 && `Rs. ${Number(category.amount).toLocaleString()}`}
+                                                {isEditing && (
+                                                    <button 
+                                                        onClick={() => handleAddRow(categoryIndex)}
+                                                        className={styles.addButton}
+                                                    >
+                                                        +
+                                                    </button>
+                                                )}
                                             </td>
                                         </tr>
                                         
-                                        {category.entries?.map((entry, i) => (
-                                            <tr key={`entry-${i}`} className={styles.bulletRow}>
-                                                <td className={styles.bulletCell}>•</td>
-                                                <td>{entry.name}</td>
-                                                <td className={styles.amountColumn}>
-                                                    {Number(entry.amount).toLocaleString()}
-                                                </td>
-                                            </tr>
+                                        {category.entries?.map((entry, entryIndex) => (
+                                            Number(entry.amount) > 0 && (
+                                                <EditableRow
+                                                    key={`entry-${entryIndex}`}
+                                                    entry={entry}
+                                                    isEditing={isEditing}
+                                                    onUpdate={(updatedEntry) => 
+                                                        handleUpdateRow(categoryIndex, entryIndex, updatedEntry)
+                                                    }
+                                                    onDelete={() => handleDeleteRow(categoryIndex, entryIndex)}
+                                                />
+                                            )
                                         ))}
                                     </React.Fragment>
                                 )
@@ -805,78 +1265,92 @@ const Preview = () => {
                                 <td colSpan="3"></td>
                             </tr>
 
-                            {/* Less - Terminal Benefits section continues... */}
-                            <tr className={styles.sectionHeader}>
-                                <td colSpan="3">Terminal Benefits (Less)</td>
-                            </tr>
-                            {summaryData.map(category => (
-                                category.category === 'Terminal Benefits' && (
-                                    category.entries?.map((entry, i) => (
-                                        <tr key={`terminal-${i}`} className={styles.bulletRow}>
-                                            <td className={styles.bulletCell}>•</td>
-                                            <td>{entry.name}</td>
-                                            <td className={styles.amountColumn}>
-                                                ({Number(entry.amount).toLocaleString()})
-                                            </td>
-                                        </tr>
-                                    ))
-                                )
-                            ))}
-
-
-                            {/* APIT Deductions */}
-                            {deductions.apit > 0 && (
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>APIT (Advanced Personal Income Tax)</td>
-                                    <td className={styles.amountColumn}>
-                                        ({Number(deductions.apit).toLocaleString()})
-                                    </td>
-                                </tr>
-                            )}
-
-                            {/* AIT Deductions */}
-                            {deductions.ait > 0 && (
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>AIT (Advance Income Tax)</td>
-                                    <td className={styles.amountColumn}>
-                                        ({Number(deductions.ait).toLocaleString()})
-                                    </td>
-                                </tr>
-                            )}
-
-                            {/* WHT Deductions */}
-                            {deductions.wht > 0 && (
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>WHT (Withholding Tax)</td>
-                                    <td className={styles.amountColumn}>
-                                        ({Number(deductions.wht).toLocaleString()})
-                                    </td>
-                                </tr>
+                            {/* Less - Terminal Benefits section */}
+                            {summaryData.some(category => 
+                                category.category === 'Terminal Benefits' && hasEntries(category)
+                            ) && (
+                                <>
+                                    <tr className={styles.sectionHeader}>
+                                        <td colSpan="3">Terminal Benefits (Less)</td>
+                                    </tr>
+                                    {summaryData.map(category => (
+                                        category.category === 'Terminal Benefits' && 
+                                        category.entries?.map((entry, i) => (
+                                            Number(entry.amount) > 0 && (
+                                                <EditableRow
+                                                    key={`terminal-${i}`}
+                                                    entry={entry}
+                                                    onUpdate={(updatedEntry) => {
+                                                        const updatedCategory = { ...category };
+                                                        updatedCategory.entries[i] = updatedEntry;
+                                                        const updatedSummaryData = [...summaryData];
+                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Terminal Benefits');
+                                                        updatedSummaryData[categoryIndex] = updatedCategory;
+                                                        setSummaryData(updatedSummaryData);
+                                                    }}
+                                                    onDelete={() => {
+                                                        const updatedCategory = { ...category };
+                                                        updatedCategory.entries.splice(i, 1);
+                                                        const updatedSummaryData = [...summaryData];
+                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Terminal Benefits');
+                                                        updatedSummaryData[categoryIndex] = updatedCategory;
+                                                        setSummaryData(updatedSummaryData);
+                                                    }}
+                                                    isEditing={isEditing}
+                                                />
+                                            )
+                                        ))
+                                    ))}
+                                </>
                             )}
 
                             {/* Less - Relief & Qualifying Payments */}
-                            <tr className={styles.sectionHeader}>
-                                <td colSpan="3">Relief & Qualifying Payments (Less)</td>
-                            </tr>
-                            {summaryData.map(category => {
-                                if (category.category === 'Qualifying Payments & Relief') {
-                                    return category.entries
-                                        .filter(entry => !entry.type.includes('Terminal'))
-                                        .map((entry, i) => (
-                                            <tr key={`relief-${i}`} className={styles.bulletRow}>
-                                                <td className={styles.bulletCell}>•</td>
-                                                <td>{entry.name}</td>
-                                                <td className={styles.amountColumn}>
-                                                    ({Number(entry.amount).toLocaleString()})
-                                                </td>
-                                            </tr>
-                                        ));
-                                }
-                                return null;
-                            })}
+                            <>
+                                <tr className={styles.sectionHeader}>
+                                    <td colSpan="3">Relief & Qualifying Payments (Less)</td>
+                                </tr>
+                                
+                                {/* Always show Personal Relief */}
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>Personal Relief</td>
+                                    <td className={styles.amountColumn}>
+                                        Rs. {Number(PERSONAL_RELIEF_AMOUNTS[taxYear]).toLocaleString()}
+                                    </td>
+                                </tr>
+
+                                {/* Show other qualifying payments if they exist */}
+                                {summaryData.map(category => {
+                                    if (category.category === 'Qualifying Payments & Relief') {
+                                        return category.entries
+                                            .filter(entry => !entry.type.includes('Personal Relief') && Number(entry.amount) > 0)
+                                            .map((entry, i) => (
+                                                <EditableRow
+                                                    key={`relief-${i}`}
+                                                    entry={entry}
+                                                    isEditing={isEditing}
+                                                    onUpdate={(updatedEntry) => {
+                                                        const updatedCategory = { ...category };
+                                                        updatedCategory.entries[i] = updatedEntry;
+                                                        const updatedSummaryData = [...summaryData];
+                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Qualifying Payments & Relief');
+                                                        updatedSummaryData[categoryIndex] = updatedCategory;
+                                                        setSummaryData(updatedSummaryData);
+                                                    }}
+                                                    onDelete={() => {
+                                                        const updatedCategory = { ...category };
+                                                        updatedCategory.entries.splice(i, 1);
+                                                        const updatedSummaryData = [...summaryData];
+                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Qualifying Payments & Relief');
+                                                        updatedSummaryData[categoryIndex] = updatedCategory;
+                                                        setSummaryData(updatedSummaryData);
+                                                    }}
+                                                />
+                                            ));
+                                    }
+                                    return null;
+                                })}
+                            </>
 
                             {/* Taxable Income */}
                             <tr className={styles.totalRow} data-type="taxable">
@@ -886,56 +1360,103 @@ const Preview = () => {
                                 </td>
                             </tr>
 
-                            {/* Tax Deductions Section */}
-                            <tr className={styles.sectionHeader}>
-                                <td colSpan="3">Less - Tax Deductions</td>
+                            {/* Add two spacer rows */}
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            
+
+                            {/* Tax Liability Breakdown Section */}
+                            <tr className={`${styles.sectionHeader} ${styles.pageBreak}`}>
+                                <td colSpan="3">Tax Liability Calculation</td>
                             </tr>
 
-                            {/* APIT Deductions */}
-                            {deductions.apit > 0 && (
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>APIT (Advanced Personal Income Tax)</td>
+                            {taxBracketBreakdown.map((bracket, index) => (
+                                <tr key={`bracket-${index}`} className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}></td>
+                                    <td>
+                                        {bracket.from.toLocaleString()} - {bracket.to.toLocaleString()} ---------- ({(bracket.rate * 100)}%)
+                                    </td>
                                     <td className={styles.amountColumn}>
-                                        ({Number(deductions.apit).toLocaleString()})
+                                        {Number(bracket.tax).toLocaleString()}
                                     </td>
                                 </tr>
+                            ))}
+
+                            {/* Total Tax Liability */}
+                            <tr className={styles.totalRow}>
+                                <td colSpan="2">Total Tax Liability</td>
+                                <td className={styles.amountColumn}>
+                                    Rs. {Number(totalTaxPayable).toLocaleString()}
+                                </td>
+                            </tr>
+
+                            {/* Add two spacer rows */}
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+
+                            {/* Tax Deductions Section */}
+                            {Object.values(deductions).some(value => value > 0) && (
+                                <>
+                                    <tr className={styles.sectionHeader}>
+                                        <td colSpan="3">Tax Deductions - Credits</td>
+                                    </tr>
+                                    {/* Only show deductions with values > 0 */}
+                                    {deductions.apit > 0 && (
+                                        <tr className={styles.bulletRow}>
+                                            <td className={styles.bulletCell}>•</td>
+                                            <td>APIT (Advanced Personal Income Tax)</td>
+                                            <td className={styles.amountColumn}>
+                                                ({Number(deductions.apit).toLocaleString()})
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {/* Repeat for other deductions... */}
+                                    {deductions.ait > 0 && (
+                                        <tr className={styles.bulletRow}>
+                                            <td className={styles.bulletCell}>•</td>
+                                            <td>AIT (Advance Income Tax)</td>
+                                            <td className={styles.amountColumn}>
+                                                ({Number(deductions.ait).toLocaleString()})
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                    {/* Paid Tax Deductions */}
+                                    {deductions.paidTax > 0 && (
+                                        <tr className={styles.bulletRow}>
+                                            <td className={styles.bulletCell}>•</td>
+                                            <td>Paid Tax</td>
+                                            <td className={styles.amountColumn}>
+                                                ({Number(deductions.paidTax).toLocaleString()})
+                                            </td>
+                                        </tr>
+                                    )}
+
+                                    {/* WHT Deductions */}
+                                    {deductions.wht > 0 && (
+                                        <tr className={styles.bulletRow}>
+                                            <td className={styles.bulletCell}>•</td>
+                                            <td>WHT (Withholding Tax)</td>
+                                            <td className={styles.amountColumn}>
+                                                ({Number(deductions.wht).toLocaleString()})
+                                            </td>
+                                        </tr>
+                                    )}
+                                </>
                             )}
 
-                            {/* AIT Deductions */}
-                            {deductions.ait > 0 && (
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>AIT (Advance Income Tax)</td>
-                                    <td className={styles.amountColumn}>
-                                        ({Number(deductions.ait).toLocaleString()})
-                                    </td>
-                                </tr>
-                            )}
-
-                            {/* Paid Tax Deductions */}
-                            {deductions.paidTax > 0 && (
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>Paid Tax</td>
-                                    <td className={styles.amountColumn}>
-                                        ({Number(deductions.paidTax).toLocaleString()})
-                                    </td>
-                                </tr>
-                            )}
-
-                            {/* WHT Deductions */}
-                            {deductions.wht > 0 && (
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>WHT (Withholding Tax)</td>
-                                    <td className={styles.amountColumn}>
-                                        ({Number(deductions.wht).toLocaleString()})
-                                    </td>
-                                </tr>
-                            )}
-
-                            {/* Add spacer for visual separation */}
+                           {/* Add two spacer rows */}
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
                             <tr className={styles.spacerRow}>
                                 <td colSpan="3"></td>
                             </tr>
@@ -944,9 +1465,18 @@ const Preview = () => {
                             <tr className={styles.totalRow}>
                                 <td colSpan="2">Balance Tax Payable</td>
                                 <td className={styles.amountColumn}>
-                                    Rs. {Number(totalTaxPayable).toLocaleString()}
+                                    Rs. {Number(balanceTaxPayable).toLocaleString()}
                                 </td>
                             </tr>
+
+                            {/* Add two spacer rows */}
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            
                         </tbody>
                     </table>
                 </div>

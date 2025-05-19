@@ -43,17 +43,18 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.admin',
     'django.contrib.auth',  # Required for REST framework
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework_simplejwt',
     'corsheaders',
+    # Add your new app here
+    'tax_report.apps.TaxReportConfig',  # or simply 'tax_report'
     'tax_calculator',
     'chatbot',
-    'django.contrib.admin',
     'users',
 ]
 
