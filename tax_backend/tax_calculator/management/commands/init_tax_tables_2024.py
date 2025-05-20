@@ -231,12 +231,29 @@ class Command(BaseCommand):
                     INSERT INTO rental_tax_rates_2024
                     (period_type, bracket_order, rate, bracket_limit, relief_amount)
                     VALUES 
-                    -- Monthly rates
-                    ('monthly', 1, 4.00, 100000.00, 100000.00),
-                    ('monthly', 2, 8.00, 41666.67, NULL),
-                    ('monthly', 3, 12.00, 41666.67, NULL),
-                    ('monthly', 4, 16.00, 41666.67, NULL),
-                    ('monthly', 5, 20.00, 99999999.99, NULL)
+                    -- Monthly rates (based on taxable income after 25% deduction)
+                    ('monthly', 1, 6.00, 41666.67, 100000.00),   -- First 500,000 of taxable income
+                    ('monthly', 2, 12.00, 41666.67, NULL),       -- Next 500,000 of taxable income
+                    ('monthly', 3, 18.00, 41666.67, NULL),       -- Next 500,000 of taxable income
+                    ('monthly', 4, 24.00, 41666.67, NULL),       -- Next 500,000 of taxable income
+                    ('monthly', 5, 30.00, 41666.67, NULL),       -- Next 500,000 of taxable income
+                    ('monthly', 6, 36.00, 99999999.99, NULL),    -- Above 2,500,000 of taxable income
+
+                    -- Quarterly rates (based on taxable income after 25% deduction)
+                    ('quarterly', 1, 6.00, 125000.00, 300000.00), -- First 1,500,000 of taxable income
+                    ('quarterly', 2, 12.00, 125000.00, NULL),     -- Next 1,500,000 of taxable income
+                    ('quarterly', 3, 18.00, 125000.00, NULL),     -- Next 1,500,000 of taxable income
+                    ('quarterly', 4, 24.00, 125000.00, NULL),     -- Next 1,500,000 of taxable income
+                    ('quarterly', 5, 30.00, 125000.00, NULL),     -- Next 1,500,000 of taxable income
+                    ('quarterly', 6, 36.00, 99999999.99, NULL),   -- Above 7,500,000 of taxable income
+                    
+                    -- Annual rates (based on taxable income after 25% deduction)
+                    ('annually', 1, 6.00, 500000.00, 1200000.00), -- First 6,000,000 of taxable income
+                    ('annually', 2, 12.00, 500000.00, NULL),      -- Next 6,000,000 of taxable income
+                    ('annually', 3, 18.00, 500000.00, NULL),      -- Next 6,000,000 of taxable income
+                    ('annually', 4, 24.00, 500000.00, NULL),      -- Next 6,000,000 of taxable income
+                    ('annually', 5, 30.00, 500000.00, NULL),      -- Next 6,000,000 of taxable income
+                    ('annually', 6, 36.00, 99999999.99, NULL)     -- Above 30,000,000 of taxable income
                 """)
 
                 # Update rental tax parameters table creation
@@ -350,6 +367,39 @@ class Command(BaseCommand):
                     ('monthly', 1, 10.00, 99999999.99, 0.00, TRUE, TRUE),
                     -- Quarterly rates
                     ('quarterly', 1, 10.00, 99999999.99, 0.00, TRUE, TRUE)
+                """)
+
+                # First clear existing data
+                cursor.execute("TRUNCATE TABLE rental_tax_rates_2024")
+
+                # Insert rental tax rates with brackets for final taxable amount
+                cursor.execute("""
+                    INSERT INTO rental_tax_rates_2024
+                    (period_type, bracket_order, rate, bracket_limit, relief_amount)
+                    VALUES 
+                    -- Monthly rates (brackets apply to amount after 25% deduction AND relief)
+                    ('monthly', 1, 6.00, 41666.67, 100000.00),   -- First bracket
+                    ('monthly', 2, 12.00, 41666.67, NULL),       -- Second bracket
+                    ('monthly', 3, 18.00, 41666.67, NULL),       -- Third bracket
+                    ('monthly', 4, 24.00, 41666.67, NULL),       -- Fourth bracket
+                    ('monthly', 5, 30.00, 41666.67, NULL),       -- Fifth bracket
+                    ('monthly', 6, 36.00, 99999999.99, NULL),    -- Final bracket
+
+                    -- Quarterly rates (brackets apply to amount after 25% deduction AND relief)
+                    ('quarterly', 1, 6.00, 125000.00, 300000.00), -- First bracket
+                    ('quarterly', 2, 12.00, 125000.00, NULL),     -- Second bracket
+                    ('quarterly', 3, 18.00, 125000.00, NULL),     -- Third bracket
+                    ('quarterly', 4, 24.00, 125000.00, NULL),     -- Fourth bracket
+                    ('quarterly', 5, 30.00, 125000.00, NULL),     -- Fifth bracket
+                    ('quarterly', 6, 36.00, 99999999.99, NULL),   -- Final bracket
+
+                    -- Annual rates (brackets apply to amount after 25% deduction AND relief)
+                    ('annually', 1, 6.00, 500000.00, 1200000.00), -- First bracket
+                    ('annually', 2, 12.00, 500000.00, NULL),      -- Next bracket
+                    ('annually', 3, 18.00, 500000.00, NULL),      -- Next bracket
+                    ('annually', 4, 24.00, 500000.00, NULL),      -- Next bracket
+                    ('annually', 5, 30.00, 500000.00, NULL),      -- Next bracket
+                    ('annually', 6, 36.00, 99999999.99, NULL)     -- Final bracket
                 """)
 
                 self.stdout.write(self.style.SUCCESS('Successfully initialized 2024 tax rates tables'))

@@ -1,8 +1,15 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronDown } from "lucide-react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Taxation.module.css';
-//import AuthPrompt from '../../common/AuthPrompt/AuthPrompt';
+import axios from 'axios';
+import CloseIcon from '@mui/icons-material/Close';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
+import DescriptionIcon from '@mui/icons-material/Description';
+import ArticleIcon from '@mui/icons-material/Article';
+import TableChartIcon from '@mui/icons-material/TableChart';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 const Taxation = () => {
     // 1. First define all constants
@@ -51,12 +58,29 @@ const Taxation = () => {
     const [isDragging, setIsDragging] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
     const [selectedYear, setSelectedYear] = useState('2024/2025');
+    const [documents, setDocuments] = useState([]);
     const navigate = useNavigate();
+    const location = useLocation();
 
     // Place all hooks and effects before any conditional returns
     useEffect(() => {
         // Any effects you need
+        fetchSessionDocuments();
     }, []);
+
+    const fetchSessionDocuments = async () => {
+        try {
+            const response = await axios.get('/api/tax-report/session-documents/', {
+                withCredentials: true  // Important for session cookies
+            });
+            
+            if (response.data.success) {
+                setDocuments(response.data.documents);
+            }
+        } catch (error) {
+            console.error('Error fetching documents:', error);
+        }
+    };
 
     const handleArrowClick = (e, categoryId) => {
         e.stopPropagation();
@@ -158,28 +182,52 @@ const Taxation = () => {
         setSelectedFiles(prevFiles => [...prevFiles, ...validFiles]);
     }, []);
 
+    // Add state for tracking form navigation
+    const [isInternalNavigation, setIsInternalNavigation] = useState(false);
+
+    // Modify your documents state initialization
+    useEffect(() => {
+        const loadDocuments = async () => {
+            try {
+                // Check if we're returning from internal navigation
+                const returnPath = sessionStorage.getItem('taxationReturnPath');
+                const isReturning = returnPath === location.pathname;
+
+                if (!isReturning) {
+                    // Clear documents if we're not returning from internal navigation
+                    setDocuments([]);
+                    sessionStorage.removeItem('taxationDocuments');
+                } else {
+                    // Load stored documents if returning from internal navigation
+                    const storedDocs = sessionStorage.getItem('taxationDocuments');
+                    if (storedDocs) {
+                        setDocuments(JSON.parse(storedDocs));
+                    }
+                }
+                
+                // Clear the return path
+                sessionStorage.removeItem('taxationReturnPath');
+            } catch (error) {
+                console.error('Error loading documents:', error);
+            }
+        };
+
+        loadDocuments();
+    }, [location.pathname]);
+
+    // Modify your handleSubmit function
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (selectedCategories.length === 0) {
-            alert('Please select at least one category');
-            return;
-        }
-    
         try {
-            // Store selected categories
-            await sessionStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+            // Store documents in sessionStorage before navigation
+            sessionStorage.setItem('taxationDocuments', JSON.stringify(documents));
             
-            // Get first selected category
+            // Store the current path as return path
+            sessionStorage.setItem('taxationReturnPath', location.pathname);
+
+            // Your existing navigation logic
             const firstCategory = selectedCategories[0];
-            await sessionStorage.setItem('currentCategory', firstCategory);
-    
-            // Store file data
-            if (selectedFiles.length > 0) {
-                await sessionStorage.setItem('uploadedFiles', JSON.stringify(selectedFiles.map(f => f.name)));
-            }
-    
-            // Navigate to first form
             const routes = {
                 business: '/business_income',
                 employment: '/employment_income',
@@ -188,19 +236,28 @@ const Taxation = () => {
                 terminal: '/terminal_benefits',
                 qualifying: '/qualifying_payments'
             };
-    
+
             const route = routes[firstCategory];
             if (route) {
+                setIsInternalNavigation(true);
                 navigate(route);
-            } else {
-                throw new Error(`Invalid category: ${firstCategory}`);
             }
-    
         } catch (error) {
             console.error('Error processing form:', error);
             alert('An error occurred. Please try again.');
         }
     };
+
+    // Add cleanup on component unmount
+    useEffect(() => {
+        return () => {
+            if (!isInternalNavigation) {
+                // Clear stored documents if leaving the taxation flow
+                sessionStorage.removeItem('taxationDocuments');
+                sessionStorage.removeItem('taxationReturnPath');
+            }
+        };
+    }, [isInternalNavigation]);
 
     const handleSelectAll = useCallback(() => {
         setSelectAll(!selectAll);
@@ -224,6 +281,109 @@ const Taxation = () => {
     //if (!isAuthenticated) {
     //    return <AuthPrompt service="Tax Declaration" />;
     //}
+
+    // Update handleRemoveDocument function
+    const handleRemoveDocument = async (docId) => {
+        try {
+            const response = await axios.delete(`/api/tax-report/remove-document/${docId}/`);
+            if (response.data.success) {
+                setDocuments(prev => prev.filter(doc => doc.id !== docId));
+            }
+        } catch (error) {
+            console.error('Error removing document:', error);
+            alert('Failed to remove document');
+        }
+    };
+
+    // Add this function near your other handlers
+    const handleDocumentClick = async (doc) => {
+        try {
+            // Add loading state if needed
+            const response = await axios.get(`/api/tax-report/view-document/${doc.id}/`, {
+                responseType: 'blob',
+                headers: {
+                    'Accept': '*/*'  // Accept all content types
+                }
+            });
+            
+            // Get the file extension
+            const fileExtension = doc.filename.split('.').pop().toLowerCase();
+            
+            // Map file extensions to MIME types
+            const mimeTypes = {
+                'pdf': 'application/pdf',
+                'doc': 'application/msword',
+                'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'xls': 'application/vnd.ms-excel',
+                'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'csv': 'text/csv',
+                'txt': 'text/plain',
+                'jpg': 'image/jpeg',
+                'jpeg': 'image/jpeg',
+                'png': 'image/png'
+            };
+            
+            // Get content type and create blob
+            const contentType = mimeTypes[fileExtension] || response.headers['content-type'];
+            const blob = new Blob([response.data], { type: contentType });
+            const url = window.URL.createObjectURL(blob);
+
+            // Create and click a temporary link to download/open the file
+            const link = document.createElement('a');
+            link.href = url;
+            
+            // For PDFs and images, open in new tab
+            if (contentType.includes('pdf') || contentType.includes('image/')) {
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+            } else {
+                // For other files, trigger download
+                link.download = doc.filename;
+            }
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Clean up
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+            }, 100);
+        } catch (error) {
+            console.error('Error viewing document:', error);
+            alert('Unable to open document. Please try again.');
+        }
+    };
+
+    // Add this function near your other utility functions
+    const getFileIcon = (filename) => {
+        const extension = filename.split('.').pop().toLowerCase();
+        const iconProps = {
+            className: styles.fileIcon,
+            'data-filetype': extension,
+            sx: { fontSize: 28 }  // Slightly larger size for better visibility
+        };
+        
+        switch (extension) {
+            case 'pdf':
+                return <PictureAsPdfIcon {...iconProps} />;
+            case 'doc':
+            case 'docx':
+                return <DescriptionIcon {...iconProps} />;
+            case 'xls':
+            case 'xlsx':
+            case 'csv':
+                return <TableChartIcon {...iconProps} />;
+            case 'jpg':
+            case 'jpeg':
+            case 'png':
+                return <ImageIcon {...iconProps} />;
+            case 'txt':
+                return <ArticleIcon {...iconProps} />;
+            default:
+                return <InsertDriveFileIcon {...iconProps} />;
+        }
+    };
 
     return (
         <div className={styles.container}>
@@ -317,26 +477,60 @@ const Taxation = () => {
                             <p className={styles.dragText}>or drag and drop files/folders here</p>
                         </div>
 
-                        {selectedFiles.length > 0 && (
-                            <div className={styles.fileList}>
-                                {selectedFiles.map((file, index) => (
-                                    <div key={index} className={styles.fileItem}>
-                                        <span className={styles.fileName}>{file.name}</span>
-                                        <button 
-                                            onClick={() => removeFile(index)}
-                                            className={styles.removeButton}
-                                        >
-                                            ×
-                                        </button>
+                        <div className={styles.fileList}>
+                            {/* Show selected files waiting to be uploaded */}
+                            {selectedFiles.map((file, index) => (
+                                <div key={`selected-${index}`} className={styles.fileItem}>
+                                    {getFileIcon(file.name)}
+                                    <span className={styles.fileName}>{file.name}</span>
+                                    <button 
+                                        onClick={() => removeFile(index)}
+                                        className={styles.removeButton}
+                                    >
+                                        <CloseIcon />
+                                    </button>
+                                </div>
+                            ))}
+
+                            {/* Show uploaded documents */}
+                            {documents.map((doc) => (
+                                <div key={`uploaded-${doc.id}`} className={styles.fileItem}>
+                                    <div 
+                                        className={styles.fileContent}
+                                        onClick={() => handleDocumentClick(doc)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleDocumentClick(doc)}
+                                        role="button"
+                                        tabIndex={0}
+                                        style={{ cursor: 'pointer' }}
+                                    >
+                                        {getFileIcon(doc.filename)}
+                                        <span className={styles.fileName}>{doc.filename}</span>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                    <button 
+                                        type="button"
+                                        className={styles.removeButton}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            handleRemoveDocument(doc.id);
+                                        }}
+                                    >
+                                        <CloseIcon sx={{ fontSize: 20 }} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
                 <div className={styles.buttonContainer}>
-                    <button type="submit" className={styles.nextButton}>Next</button>
+                    <button 
+                        type="submit" 
+                        className={styles.nextButton}
+                        onClick={handleSubmit}
+                    >
+                        Next
+                    </button>
                 </div>
             </form>
         </div>

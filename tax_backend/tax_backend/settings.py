@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     # Add your new app here
-    'tax_report.apps.TaxReportConfig',  # or simply 'tax_report'
+    'tax_report',
     'tax_calculator',
     'chatbot',
     'users',
@@ -179,6 +179,16 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Ensure the media directory exists
 os.makedirs(MEDIA_ROOT, exist_ok=True)
+
+# For handling sessions
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_SAVE_EVERY_REQUEST = True  # Important for persistence
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# For file uploads
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 # Consolidate CORS settings
 CORS_ALLOWED_ORIGINS = [

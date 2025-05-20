@@ -156,34 +156,113 @@
 }
 
 .fileList {
-    max-height: 150px;
-    overflow-y: auto;
-    margin-top: 0.75rem;
-    text-align: left;
+    width: 100%;
+    margin-top: 1rem;
 }
 
 .fileItem {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
     padding: 0.5rem 1rem;
-    background-color: #e8f8f8;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
+    border: 2px solid #023636;
+    border-radius: 8px;
     margin-bottom: 0.5rem;
+    background-color: white;
+    transition: all 0.3s ease;
 }
 
-.removeFile {
+.fileItem:hover {
+    background-color: #f0f8f8;
+}
+
+.fileIcon {
+    margin-right: 0.75rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.fileIcon[data-filetype="pdf"] {
+    color: #e53935 !important;
+}
+
+.fileIcon[data-filetype="doc"],
+.fileIcon[data-filetype="docx"] {
+    color: #1565c0 !important;
+}
+
+.fileIcon[data-filetype="xls"],
+.fileIcon[data-filetype="xlsx"],
+.fileIcon[data-filetype="csv"] {
+    color: #2e7d32 !important;
+}
+
+.fileIcon[data-filetype="jpg"],
+.fileIcon[data-filetype="jpeg"],
+.fileIcon[data-filetype="png"] {
+    color: #d81b60 !important;
+}
+
+.fileIcon[data-filetype="txt"] {
+    color: #455a64 !important;
+}
+
+.fileContent:hover .fileIcon {
+    transform: scale(1.1);
+}
+
+.fileName {
+    flex: 1;
+    color: #023636;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.fileContent {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fileContent:hover {
+    background-color: #f0f8f8;
+}
+
+.fileContent:active {
+    background-color: #e0f0f0;
+}
+
+.fileName {
+    flex: 1;
+    color: #023636;
+    font-weight: 500;
+    margin-left: 0.5rem;
+    text-decoration: none;
+}
+
+.fileContent:hover .fileName {
+    text-decoration: underline;
+}
+
+.removeButton {
+    color: #666;
     background: none;
     border: none;
-    color: #dc3545;
-    font-size: 1.2rem;
+    padding: 4px;
+    border-radius: 50%;
     cursor: pointer;
-    padding: 0 0.5rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.removeFile:hover {
-    color: #c82333;
+.removeButton:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    color: #d32f2f;
 }
 
 .nextButton {
@@ -208,11 +287,10 @@
 .uploadArea {
     padding: 1rem;
     min-height: 80px;
-    max-height: 250px;
+    max-height: none; /* Remove max-height restriction */
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 1.5rem;
     border: 2px dashed #023636;
     border-radius: 8px;
@@ -225,9 +303,15 @@
     border-color: #034f4f;
 }
 
-.uploadButtons {
+.uploadContent {
+    width: 100%;
     display: flex;
+    flex-direction: column;
     gap: 1rem;
+}
+
+.uploadButtons {
+    margin-bottom: 1rem;
 }
 
 .uploadButtonWrapper {
@@ -273,20 +357,24 @@
 
 .fileItem {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 1rem;
-    background-color: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    border: 2px solid #023636;
+    border-radius: 8px;
     margin-bottom: 0.5rem;
+    background-color: white;
+    transition: all 0.3s ease;
 }
 
 .fileName {
-    font-size: 0.9rem;
-    color: #333;
-    word-break: break-all;
-    margin-right: 1rem;
+    flex: 1;
+    margin-left: 1rem;
+    color: #023636;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .removeButton {
@@ -363,4 +451,125 @@
 .yearSelect:focus {
     border-color: #023636;
     box-shadow: 0 0 0 2px rgba(2, 54, 54, 0.1);
+}
+
+/* Document List Styles */
+.documentList {
+    margin: 1rem 0;
+    width: 100%;
+    background-color: transparent;
+}
+
+.documentItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.documentItem:hover {
+    background-color: #f0f8f8;
+}
+
+.fileIcon {
+    color: #023636;
+}
+
+.documentIcon {
+    margin-right: 1.5rem;
+}
+
+.documentInfo {
+    flex: 1;
+    min-width: 0;
+}
+
+.documentName {
+    font-weight: 500;
+    color: #023636;
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+}
+
+.documentMeta {
+    font-size: 0.875rem;
+    color: #666666;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.separator {
+    color: #999;
+}
+
+.removeButton {
+    padding: 0.5rem;
+    border: none;
+    background: none;
+    color: #dc3545;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.removeButton:hover {
+    background-color: #ffebeb;
+    color: #c82333;
+}
+
+.fileContent {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.fileContent:hover {
+    background-color: #f0f8f8;
+}
+
+.fileContent:active {
+    background-color: #e0f0f0;
+}
+
+.fileName {
+    flex: 1;
+    color: #023636;
+    font-weight: 500;
+    margin-left: 0.5rem;
+}
+
+.fileContent:hover .fileName {
+    text-decoration: underline;
+}
+
+.fileIcon {
+    color: #023636;
+    flex-shrink: 0;
+}
+
+.documentContent {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.documentContent:hover {
+    background-color: #f0f8f8;
+}
+
+.documentContent:active {
+    background-color: #e0f0f0;
+}
+
+.documentName:hover {
+    text-decoration: underline;
 }

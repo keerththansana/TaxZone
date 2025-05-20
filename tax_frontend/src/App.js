@@ -18,6 +18,7 @@ import Terminal_Benefits from "./components/pages/Income/Terminal_Benefits";
 import Business_Income from "./components/pages/Income/Business_Income";
 import Preview from "./components/pages/Income/Preview";
 import Calculator from "./components/pages/Calculator/Calculator";
+import './axiosConfig';
 
 const App = () => {
   return (

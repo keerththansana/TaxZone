@@ -70,30 +70,50 @@ const CalculatorResponse = ({ results }) => {
                     {/* Rental income section */}
                     {results.tax_type === 'rental' && (
                         <>
+                            
+                            
+                            {/* Standard 25% deduction for rental */}
                             <div className={styles.summaryRow}>
-                                <span>Less: Rental Income Relief (25%):</span>
+                                <span>Less: Standard Deduction (25%):</span>
                                 <span className={styles.relief}>
-                                    ({formatCurrency(results.rental_relief)})
+                                    ({formatCurrency(results.gross_income * 0.25)})
                                 </span>
                             </div>
+
+                            {/* Net income after 25% deduction */}
                             <div className={styles.summaryRow}>
-                                <span>Net Rental Income after 25% Relief:</span>
-                                <span>{formatCurrency(results.net_rental_income)}</span>
+                                <span>Net Income after Standard Deduction:</span>
+                                <span>{formatCurrency(results.gross_income * 0.75)}</span>
                             </div>
+
+                            {/* Period specific relief */}
                             <div className={styles.summaryRow}>
-                                <span>Less: Standard Relief ({results.period}):</span>
+                                <span>Less: {results.period} Tax-Free Allowance:</span>
                                 <span className={styles.relief}>
                                     ({formatCurrency(results.relief_amount)})
                                 </span>
                             </div>
 
+                            {/* Taxable rental income */}
+                            <div className={`${styles.summaryRow} ${styles.highlight}`}>
+                                <span>Taxable Rental Income:</span>
+                                <span>{formatCurrency(results.taxable_income)}</span>
+                            </div>
+
+                            {/* WHT section if applicable */}
                             {results.wht_applicable && (
-                                <div className={styles.summaryRow}>
-                                    <span>Withholding Tax (WHT):</span>
-                                    <span className={styles.wht}>
-                                        {formatCurrency(results.wht_amount)}
-                                    </span>
-                                </div>
+                                <>
+                                    <div className={styles.summaryRow}>
+                                        <span>Withholding Tax (WHT) @ 10%:</span>
+                                        <span className={styles.wht}>
+                                            {formatCurrency(results.wht_amount)}
+                                        </span>
+                                    </div>
+                                    <div className={styles.infoNote}>
+                                        * WHT is deducted by the tenant if monthly rental exceeds LKR 100,000.
+                                        This is an advance payment of tax.
+                                    </div>
+                                </>
                             )}
                         </>
                     )}
