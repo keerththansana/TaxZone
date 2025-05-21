@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand # type: ignore
 from tax_report.services.document_processor import DocumentProcessor
 import asyncio
 import os

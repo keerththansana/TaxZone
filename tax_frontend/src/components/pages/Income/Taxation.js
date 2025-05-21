@@ -59,9 +59,19 @@ const Taxation = () => {
     const [selectAll, setSelectAll] = useState(false);
     const [selectedYear, setSelectedYear] = useState('2024/2025');
     const [documents, setDocuments] = useState(() => {
-        // Try to load from session storage first
         const stored = sessionStorage.getItem('taxationDocuments');
-        return stored ? JSON.parse(stored) : [];
+        // Only parse and return if stored data exists and is valid
+        if (stored) {
+            try {
+                const parsedDocs = JSON.parse(stored);
+                // Filter out any invalid documents (those without id or filename)
+                return parsedDocs.filter(doc => doc && doc.id && doc.filename);
+            } catch (error) {
+                console.error('Error parsing stored documents:', error);
+                return [];
+            }
+        }
+        return [];
     });
     const [uploadedDocuments, setUploadedDocuments] = useState(() => {
         // Initialize from session storage if available
@@ -80,11 +90,15 @@ const Taxation = () => {
     const fetchSessionDocuments = async () => {
         try {
             const response = await axios.get('/api/tax-report/session-documents/', {
-                withCredentials: true  // Important for session cookies
+                withCredentials: true
             });
             
-            if (response.data.success) {
-                setDocuments(response.data.documents);
+            if (response.data.success && Array.isArray(response.data.documents)) {
+                // Filter out any invalid documents
+                const validDocuments = response.data.documents.filter(doc => doc && doc.id && doc.filename);
+                setDocuments(validDocuments);
+                // Update session storage with valid documents
+                sessionStorage.setItem('taxationDocuments', JSON.stringify(validDocuments));
             }
         } catch (error) {
             console.error('Error fetching documents:', error);
@@ -255,12 +269,19 @@ const Taxation = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
+        if (selectedCategories.length === 0) {
+            alert('Please select at least one category');
+            return;
+        }
+        
         try {
             // Store current documents before navigation
             sessionStorage.setItem('taxationDocuments', JSON.stringify(documents));
             sessionStorage.setItem('taxationReturnPath', location.pathname);
+            sessionStorage.setItem('selectedCategories', JSON.stringify(selectedCategories));
+            sessionStorage.setItem('currentCategory', selectedCategories[0]);
 
-            // Your existing navigation logic
+            // Your navigation logic
             const firstCategory = selectedCategories[0];
             const routes = {
                 business: '/business_income',
@@ -317,19 +338,23 @@ const Taxation = () => {
     //}
 
     // Update handleRemoveDocument function
-    const handleRemoveDocument = async (docId) => {
+    const handleRemoveDocument = async (event, docId) => {
+        // Prevent any form submission or propagation
+        event.preventDefault();
+        event.stopPropagation();
+        
         try {
-            const response = await axios.delete(`/api/tax-report/remove-document/${docId}/`);
+            const response = await axios.delete(`/api/tax-report/remove-document/${docId}/`, {
+                withCredentials: true
+            });
+            
             if (response.data.success) {
-                // Update both states and session storage
+                // Update documents state with filtered documents
                 const updatedDocs = documents.filter(doc => doc.id !== docId);
-                const updatedUploaded = uploadedDocuments.filter(doc => doc.id !== docId);
-                
                 setDocuments(updatedDocs);
-                setUploadedDocuments(updatedUploaded);
                 
+                // Update session storage
                 sessionStorage.setItem('taxationDocuments', JSON.stringify(updatedDocs));
-                sessionStorage.setItem('taxationUploadedDocuments', JSON.stringify(updatedUploaded));
             }
         } catch (error) {
             console.error('Error removing document:', error);
@@ -337,93 +362,82 @@ const Taxation = () => {
         }
     };
 
-    // Add this function near your other handlers
+    // Update the handleDocumentClick function
     const handleDocumentClick = async (doc) => {
+        if (!doc || !doc.id) {
+            console.error('Invalid document object');
+            return;
+        }
+
         try {
-            // Add loading state if needed
+            // Show loading state
+            const targetDiv = document.querySelector(`[data-doc-id="${doc.id}"]`);
+            if (targetDiv) {
+                targetDiv.style.opacity = '0.6';
+            }
+
             const response = await axios.get(`/api/tax-report/view-document/${doc.id}/`, {
                 responseType: 'blob',
                 headers: {
-                    'Accept': '*/*'  // Accept all content types
-                }
+                    'Accept': '*/*'
+                },
+                withCredentials: true
             });
-            
-            // Get the file extension
-            const fileExtension = doc.filename.split('.').pop().toLowerCase();
-            
-            // Map file extensions to MIME types
-            const mimeTypes = {
-                'pdf': 'application/pdf',
-                'doc': 'application/msword',
-                'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'xls': 'application/vnd.ms-excel',
-                'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'csv': 'text/csv',
-                'txt': 'text/plain',
-                'jpg': 'image/jpeg',
-                'jpeg': 'image/jpeg',
-                'png': 'image/png'
-            };
-            
-            // Get content type and create blob
-            const contentType = mimeTypes[fileExtension] || response.headers['content-type'];
-            const blob = new Blob([response.data], { type: contentType });
-            const url = window.URL.createObjectURL(blob);
 
-            // Create and click a temporary link to download/open the file
-            const link = document.createElement('a');
-            link.href = url;
+            // Create and click a temporary link to download the file
+            const blob = new Blob([response.data], { 
+                type: response.headers['content-type'] || 'application/octet-stream' 
+            });
+            const url = window.URL.createObjectURL(blob);
             
-            // For PDFs and images, open in new tab
-            if (contentType.includes('pdf') || contentType.includes('image/')) {
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-            } else {
-                // For other files, trigger download
-                link.download = doc.filename;
-            }
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Clean up
+            // Open in new tab
+            window.open(url, '_blank');
+
+            // Cleanup
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
-            }, 100);
+                if (targetDiv) {
+                    targetDiv.style.opacity = '1';
+                }
+            }, 1000);
+
         } catch (error) {
             console.error('Error viewing document:', error);
             alert('Unable to open document. Please try again.');
+            // Reset loading state
+            const targetDiv = document.querySelector(`[data-doc-id="${doc.id}"]`);
+            if (targetDiv) {
+                targetDiv.style.opacity = '1';
+            }
         }
     };
 
-    // Add this function near your other utility functions
-    const getFileIcon = (filename) => {
-        const extension = filename.split('.').pop().toLowerCase();
-        const iconProps = {
-            className: styles.fileIcon,
-            'data-filetype': extension,
-            sx: { fontSize: 28 }  // Slightly larger size for better visibility
-        };
+    // Modify only the getFileIcon function
+    const getFileIcon = (fileName) => {
+        if (!fileName || typeof fileName !== 'string') {
+            return <InsertDriveFileIcon data-filetype="default" />;
+        }
+
+        const extension = fileName.split('.').pop().toLowerCase();
         
         switch (extension) {
             case 'pdf':
-                return <PictureAsPdfIcon {...iconProps} />;
+                return <PictureAsPdfIcon data-filetype="pdf" />;
             case 'doc':
             case 'docx':
-                return <DescriptionIcon {...iconProps} />;
+                return <DescriptionIcon data-filetype="doc" />;
             case 'xls':
             case 'xlsx':
             case 'csv':
-                return <TableChartIcon {...iconProps} />;
+                return <TableChartIcon data-filetype="excel" />;
             case 'jpg':
             case 'jpeg':
             case 'png':
-                return <ImageIcon {...iconProps} />;
+                return <ImageIcon data-filetype="image" />;
             case 'txt':
-                return <ArticleIcon {...iconProps} />;
+                return <ArticleIcon data-filetype="txt" />;
             default:
-                return <InsertDriveFileIcon {...iconProps} />;
+                return <InsertDriveFileIcon data-filetype="default" />;
         }
     };
 
@@ -556,12 +570,13 @@ const Taxation = () => {
                         </div>
 
                         <div className={styles.fileList}>
-                            {/* Show selected files waiting to be uploaded */}
+                            {/* Only show selected files that are waiting to be uploaded */}
                             {selectedFiles.map((file, index) => (
                                 <div key={`selected-${index}`} className={styles.fileItem}>
                                     {getFileIcon(file.name)}
                                     <span className={styles.fileName}>{file.name}</span>
                                     <button 
+                                        type="button"
                                         onClick={() => removeFile(index)}
                                         className={styles.removeButton}
                                     >
@@ -570,28 +585,32 @@ const Taxation = () => {
                                 </div>
                             ))}
 
-                            {/* Show uploaded documents */}
-                            {documents.map((doc) => (
+                            {/* Only show successfully uploaded documents that have both id and filename */}
+                            {documents.filter(doc => doc && doc.id && doc.filename).map((doc) => (
                                 <div key={`uploaded-${doc.id}`} className={styles.fileItem}>
                                     <div 
                                         className={styles.fileContent}
                                         onClick={() => handleDocumentClick(doc)}
-                                        onKeyPress={(e) => e.key === 'Enter' && handleDocumentClick(doc)}
+                                        data-doc-id={doc.id}
                                         role="button"
                                         tabIndex={0}
-                                        style={{ cursor: 'pointer' }}
+                                        style={{ 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            flex: 1,
+                                            padding: '8px',
+                                            borderRadius: '4px'
+                                        }}
                                     >
-                                        {getFileIcon(doc.filename)}
+                                        <span className={styles.fileIcon}>
+                                            {getFileIcon(doc.filename)}
+                                        </span>
                                         <span className={styles.fileName}>{doc.filename}</span>
                                     </div>
                                     <button 
                                         type="button"
                                         className={styles.removeButton}
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            e.stopPropagation();
-                                            handleRemoveDocument(doc.id);
-                                        }}
+                                        onClick={(e) => handleRemoveDocument(e, doc.id)}
                                     >
                                         <CloseIcon sx={{ fontSize: 20 }} />
                                     </button>
@@ -605,7 +624,6 @@ const Taxation = () => {
                     <button 
                         type="submit" 
                         className={styles.nextButton}
-                        onClick={handleSubmit}
                     >
                         Next
                     </button>

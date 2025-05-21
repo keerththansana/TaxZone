@@ -290,10 +290,10 @@ const EmploymentIncome = () => {
             if (nextRoute) {
                 navigate(nextRoute);
             } else {
-                navigate('/summary');
+                navigate('/preview');
             }
         } else {
-            navigate('/summary');
+            navigate('/preview');
         }
     };
 

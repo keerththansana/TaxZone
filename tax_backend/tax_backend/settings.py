@@ -17,7 +17,7 @@ from dotenv import load_dotenv # type: ignore
 
 # Add try-except block for pytesseract import
 try:
-    import pytesseract
+    import pytesseract # type: ignore
     TESSERACT_INSTALLED = True
 except ImportError:
     TESSERACT_INSTALLED = False
@@ -212,6 +212,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ['Content-Type', 'Content-Disposition']
 
 # Update CORS settings
 CORS_ALLOW_METHODS = [

@@ -139,22 +139,50 @@ const InvestmentIncome = () => {
     // Update the handleSubmit function
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        // Format tax deductions to match the expected structure
-        const formattedData = {
-            ...formData,
-            taxDeductions: formData.taxDeductions.map(deduction => ({
-                type: deduction.type || 'AIT', // Default to AIT if not specified
-                source: deduction.source,
-                name: deduction.type === 'Paid Tax' ? 'Paid Tax' : 'AIT',
-                amount: Number(deduction.amount) || 0
-            }))
-        };
-
-        // Save to session storage
-        sessionStorage.setItem('investmentIncomeData', JSON.stringify(formattedData));
         
-        // ... rest of your submit logic ...
+        // Save form data
+        const formData = {
+            interestEntries,
+            rentEntries,
+            capitalGainEntries,
+            dividendEntries,
+            otherEntries,
+            taxDeductions,
+            selectedTypes,
+            totalInvestmentIncome,
+            totalTaxDeductions
+        };
+        sessionStorage.setItem('investmentIncomeData', JSON.stringify(formData));
+
+        // Get next form to navigate to
+        const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+        const currentIndex = selectedCategories.indexOf('investment');
+        const nextCategory = selectedCategories[currentIndex + 1];
+
+        // Update current category in session storage
+        if (nextCategory) {
+            sessionStorage.setItem('currentCategory', nextCategory);
+        }
+
+        // Navigate to appropriate form
+        if (nextCategory) {
+            const routes = {
+                business: '/business_income',
+                employment: '/employment_income',
+                other: '/other_income',
+                terminal: '/terminal_benefits',
+                qualifying: '/qualifying_payments'
+            };
+
+            const nextRoute = routes[nextCategory];
+            if (nextRoute) {
+                navigate(nextRoute);
+            } else {
+                navigate('/preview');
+            }
+        } else {
+            navigate('/preview');
+        }
     };
 
     // Update useEffect for calculations

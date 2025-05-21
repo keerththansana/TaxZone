@@ -236,10 +236,10 @@ const OtherIncome = () => {
             if (nextRoute) {
                 navigate(nextRoute);
             } else {
-                navigate('/summary');
+                navigate('/preview');
             }
         } else {
-            navigate('/summary');
+            navigate('/preview');
         }
     };
 

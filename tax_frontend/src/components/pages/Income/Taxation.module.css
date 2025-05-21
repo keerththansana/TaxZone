@@ -177,9 +177,9 @@
 }
 
 .fileIcon {
-    margin-right: 0.75rem;
-    flex-shrink: 0;
-    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    margin-right: 8px;
 }
 
 .fileIcon[data-filetype="pdf"] {
@@ -205,6 +205,22 @@
 
 .fileIcon[data-filetype="txt"] {
     color: #455a64 !important;
+}
+
+.fileContent {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.fileContent:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.fileName {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .fileContent:hover .fileIcon {
@@ -572,4 +588,29 @@
 
 .documentName:hover {
     text-decoration: underline;
+}
+
+/* File icon colors */
+[data-filetype="pdf"] {
+    color: #FF4B4B !important;
+}
+
+[data-filetype="doc"] {
+    color: #4285F4 !important;
+}
+
+[data-filetype="excel"] {
+    color: #0F9D58 !important;
+}
+
+[data-filetype="image"] {
+    color: #FF7043 !important;
+}
+
+[data-filetype="txt"] {
+    color: #607D8B !important;
+}
+
+[data-filetype="default"] {
+    color: #757575 !important;
 }

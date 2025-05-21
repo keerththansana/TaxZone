@@ -1,32 +1,32 @@
 import os
-import google.generativeai as genai
-from django.conf import settings
-import pytesseract
-from pdf2image import convert_from_path
-from django.core.files.storage import default_storage
+import google.generativeai as genai # type: ignore
+from django.conf import settings # type: ignore
+import pytesseract # type: ignore
+from pdf2image import convert_from_path # type: ignore
+from django.core.files.storage import default_storage # type: ignore
 import shutil
 import uuid
-from django.utils import timezone
+from django.utils import timezone # type: ignore
 import json
 
 # Handle optional dependencies with try-except blocks
 try:
-    import pandas as pd
+    import pandas as pd # type: ignore
     PANDAS_INSTALLED = True
 except ImportError:
     PANDAS_INSTALLED = False
     print("Warning: pandas not installed. Excel processing will be limited.")
 
 try:
-    from docx import Document
+    from docx import Document # type: ignore
     DOCX_INSTALLED = True
 except ImportError:
     DOCX_INSTALLED = False
     print("Warning: python-docx not installed. Word document processing will be limited.")
 
 try:
-    import cv2
-    import numpy as np
+    import cv2 # type: ignore
+    import numpy as np # type: ignore
     CV2_INSTALLED = True
 except ImportError:
     CV2_INSTALLED = False
@@ -145,7 +145,7 @@ class DocumentProcessor:
             
             return stored_path
         except Exception as e:
-            logger.error(f"Error storing document: {str(e)}")
+            logger.error(f"Error storing document: {str(e)}") # type: ignore
             return None
 
     def cleanup_session_documents(self, session_id):
@@ -179,7 +179,7 @@ class DocumentProcessor:
                 
             return True
         except Exception as e:
-            logger.error(f"Error maintaining session documents: {str(e)}")
+            logger.error(f"Error maintaining session documents: {str(e)}") # type: ignore
             return False
 
 class TaxFormDocumentProcessor:
@@ -222,7 +222,7 @@ class TaxFormDocumentProcessor:
             return doc_info
 
         except Exception as e:
-            logger.error(f"Document processing error: {str(e)}")
+            logger.error(f"Document processing error: {str(e)}") # type: ignore
             return None
 
     def _store_session_metadata(self, session_id, doc_info):
@@ -245,7 +245,7 @@ class TaxFormDocumentProcessor:
                 json.dump(existing_docs, f, indent=2)
                 
         except Exception as e:
-            logger.error(f"Metadata storage error: {str(e)}")
+            logger.error(f"Metadata storage error: {str(e)}") # type: ignore
 
     def get_session_documents(self, session_id):
         """Retrieve all documents for a session"""
@@ -267,7 +267,7 @@ class TaxFormDocumentProcessor:
             return valid_docs
             
         except Exception as e:
-            logger.error(f"Error retrieving session documents: {str(e)}")
+            logger.error(f"Error retrieving session documents: {str(e)}") # type: ignore
             return []
 
     def verify_document(self, doc_info):
@@ -284,5 +284,5 @@ class TaxFormDocumentProcessor:
                 shutil.rmtree(session_dir)
             return True
         except Exception as e:
-            logger.error(f"Error cleaning up session: {str(e)}")
+            logger.error(f"Error cleaning up session: {str(e)}") # type: ignore
             return False
