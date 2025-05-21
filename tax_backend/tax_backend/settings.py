@@ -10,10 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-from pathlib import Path
 import os
+from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv # type: ignore
+
+# Add try-except block for pytesseract import
+try:
+    import pytesseract
+    TESSERACT_INSTALLED = True
+except ImportError:
+    TESSERACT_INSTALLED = False
+    print("Warning: pytesseract not installed. Document OCR features will be disabled.")
 
 load_dotenv()
 
@@ -161,6 +169,7 @@ REST_FRAMEWORK = {
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
         'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FileUploadParser',
     ],
 }
 
@@ -180,15 +189,22 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Ensure the media directory exists
 os.makedirs(MEDIA_ROOT, exist_ok=True)
 
-# For handling sessions
+# Session and File Upload Settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 SESSION_COOKIE_AGE = 86400  # 24 hours
-SESSION_SAVE_EVERY_REQUEST = True  # Important for persistence
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_SECURE = False  # Set to True in production
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 
 # For file uploads
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 FILE_UPLOAD_PERMISSIONS = 0o644
+
+# File Upload Settings
+FILE_UPLOAD_HANDLERS = [
+    'django.core.files.uploadhandler.MemoryFileUploadHandler',
+    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
+]
 
 # Consolidate CORS settings
 CORS_ALLOWED_ORIGINS = [
@@ -199,12 +215,9 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Update CORS settings
 CORS_ALLOW_METHODS = [
-    'DELETE',
+    'POST',
     'GET',
     'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -212,15 +225,16 @@ CORS_ALLOW_HEADERS = [
     'accept-encoding',
     'authorization',
     'content-type',
-    'dnt',
     'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False  # More secure
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
 
 # Add this setting
 APPEND_SLASH = False
+
+# Update the Tesseract settings
+TESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+if TESSERACT_INSTALLED and os.name == 'nt' and os.path.exists(TESSERACT_PATH):
+    pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
 

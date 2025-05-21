@@ -58,7 +58,16 @@ const Taxation = () => {
     const [isDragging, setIsDragging] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
     const [selectedYear, setSelectedYear] = useState('2024/2025');
-    const [documents, setDocuments] = useState([]);
+    const [documents, setDocuments] = useState(() => {
+        // Try to load from session storage first
+        const stored = sessionStorage.getItem('taxationDocuments');
+        return stored ? JSON.parse(stored) : [];
+    });
+    const [uploadedDocuments, setUploadedDocuments] = useState(() => {
+        // Initialize from session storage if available
+        const stored = sessionStorage.getItem('taxationUploadedDocuments');
+        return stored ? JSON.parse(stored) : [];
+    });
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -100,9 +109,8 @@ const Taxation = () => {
         });
     };
 
-    const handleFileChange = (event) => {
+    const handleFileChange = async (event) => {
         const files = Array.from(event.target.files);
-        // Validate file types
         const allowedTypes = [
             'application/pdf',
             'application/msword',
@@ -122,6 +130,34 @@ const Taxation = () => {
 
         if (validFiles.length !== files.length) {
             alert('Some files were not added. Only PDF, Word, Excel, CSV, Text, and Image files are allowed.');
+        }
+
+        for (const file of validFiles) {
+            const formData = new FormData();
+            formData.append('file', file, file.name);
+            
+            try {
+                const uploadResponse = await axios.post('/api/tax-report/upload-document/', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    withCredentials: true
+                });
+
+                if (uploadResponse.data.success) {
+                    const newDoc = uploadResponse.data.document;
+                    
+                    // Update state and session storage atomically
+                    setDocuments(prevDocs => {
+                        const updatedDocs = [...prevDocs, newDoc];
+                        // Store immediately in session storage
+                        sessionStorage.setItem('taxationDocuments', JSON.stringify(updatedDocs));
+                        return updatedDocs;
+                    });
+                }
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
         }
 
         setSelectedFiles(prevFiles => [...prevFiles, ...validFiles]);
@@ -220,10 +256,8 @@ const Taxation = () => {
         e.preventDefault();
         
         try {
-            // Store documents in sessionStorage before navigation
+            // Store current documents before navigation
             sessionStorage.setItem('taxationDocuments', JSON.stringify(documents));
-            
-            // Store the current path as return path
             sessionStorage.setItem('taxationReturnPath', location.pathname);
 
             // Your existing navigation logic
@@ -287,7 +321,15 @@ const Taxation = () => {
         try {
             const response = await axios.delete(`/api/tax-report/remove-document/${docId}/`);
             if (response.data.success) {
-                setDocuments(prev => prev.filter(doc => doc.id !== docId));
+                // Update both states and session storage
+                const updatedDocs = documents.filter(doc => doc.id !== docId);
+                const updatedUploaded = uploadedDocuments.filter(doc => doc.id !== docId);
+                
+                setDocuments(updatedDocs);
+                setUploadedDocuments(updatedUploaded);
+                
+                sessionStorage.setItem('taxationDocuments', JSON.stringify(updatedDocs));
+                sessionStorage.setItem('taxationUploadedDocuments', JSON.stringify(updatedUploaded));
             }
         } catch (error) {
             console.error('Error removing document:', error);
@@ -382,6 +424,42 @@ const Taxation = () => {
                 return <ArticleIcon {...iconProps} />;
             default:
                 return <InsertDriveFileIcon {...iconProps} />;
+        }
+    };
+
+    // Add this function to your Taxation component
+    const analyzeDocument = async (doc) => {
+        try {
+            const response = await axios.post(`/api/tax-report/analyze-document/${doc.id}/`);
+            if (response.data.success) {
+                // Store analysis results in sessionStorage
+                const analysisResults = {
+                    ...JSON.parse(sessionStorage.getItem('documentAnalysis') || '{}'),
+                    [doc.id]: response.data.analysis
+                };
+                sessionStorage.setItem('documentAnalysis', JSON.stringify(analysisResults));
+                
+                // Store form mappings for auto-fill
+                const formMappings = {
+                    ...JSON.parse(sessionStorage.getItem('formMappings') || '{}'),
+                    ...response.data.analysis.form_mappings
+                };
+                sessionStorage.setItem('formMappings', JSON.stringify(formMappings));
+            }
+        } catch (error) {
+            console.error('Error analyzing document:', error);
+        }
+    };
+
+    const handleReturnHome = async () => {
+        try {
+            await axios.post('/api/tax-report/cleanup-session/');
+            // Clear all storage
+            sessionStorage.removeItem('taxationDocuments');
+            sessionStorage.removeItem('taxationReturnPath');
+            navigate('/');
+        } catch (error) {
+            console.error('Error cleaning up session:', error);
         }
     };
 

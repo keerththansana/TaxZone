@@ -2,95 +2,84 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser, FormParser
-import logging
-from .models import TaxFormDocument
-from .services.document_processor import TaxFormDocumentProcessor
-from django.http import FileResponse, Http404
+from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
+from django.core.files.storage import default_storage
+from django.conf import settings
 import os
+import logging
 import mimetypes
+import json
+from django.http import FileResponse, Http404
+import uuid
+
+from .models import TaxFormDocument
+from .services.document_processor import TaxFormDocumentProcessor, DocumentProcessor
 
 logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
-@parser_classes([MultiPartParser, FormParser])
+@parser_classes([MultiPartParser, FormParser, FileUploadParser])
 def upload_tax_form_document(request):
     try:
+        # Ensure session exists
+        if not request.session.session_key:
+            request.session.create()
+        
+        # Handle file upload
         if 'file' not in request.FILES:
             return Response({
                 'error': 'No file provided'
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        # Ensure session exists
-        if not request.session.session_key:
-            request.session.create()
-        
-        session_id = request.session.session_key
-        file = request.FILES['file']
-
-        # Create a copy of the file in memory
-        from django.core.files.base import ContentFile
-        file_copy = ContentFile(file.read())
-        file_copy.name = file.name
-
-        # Initialize processor and process document
+        uploaded_file = request.FILES['file']
         processor = TaxFormDocumentProcessor()
-        result = processor.process_document(file_copy, session_id)
         
-        if result:
-            # Store document ID in session for persistence
-            uploaded_files = request.session.get('tax_form_documents', [])
-            uploaded_files.append(str(result['doc_id']))
-            request.session['tax_form_documents'] = uploaded_files
-            request.session.modified = True
-
+        # Process and store document
+        result = processor.process_document(uploaded_file, request.session.session_key)
+        
+        if not result:
             return Response({
-                'success': True,
-                'document': result
-            })
-        else:
-            return Response({
-                'success': False,
                 'error': 'Failed to process document'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    except Exception as e:
-        logger.error(f"Document upload error: {str(e)}")
+        # Store document reference in session
+        documents = request.session.get('tax_documents', [])
+        documents.append(result)
+        request.session['tax_documents'] = documents
+        request.session.modified = True
+
         return Response({
-            'error': 'File processing error'
+            'success': True,
+            'document': result
+        })
+
+    except Exception as e:
+        logger.error(f"Upload error: {str(e)}")
+        return Response({
+            'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    finally:
-        # Ensure file handles are closed
-        if 'file' in locals():
-            file.close()
-        if 'file_copy' in locals():
-            file_copy.close()
 
 @api_view(['GET'])
 def get_session_documents(request):
     try:
-        if not request.session.session_key:
-            request.session.create()
-            return Response({'documents': []})
-
-        session_id = request.session.session_key
-        docs = TaxFormDocument.objects.filter(session_id=session_id)
+        documents = request.session.get('tax_documents', [])
         
-        return Response({
-            'success': True,
-            'documents': [{
-                'id': str(doc.id),
-                'filename': doc.original_filename,
-                'uploaded_at': doc.uploaded_at,
-                'file_url': f'/api/tax-report/view-document/{doc.id}/',
-                'file_size': doc.file.size if doc.file else None
-            } for doc in docs]
-        })
+        # Verify files still exist
+        valid_documents = []
+        for doc in documents:
+            if default_storage.exists(doc['path']):
+                valid_documents.append(doc)
+        
+        # Update session if any files were missing
+        if len(valid_documents) != len(documents):
+            request.session['tax_documents'] = valid_documents
+            request.session.modified = True
+
+        return Response(valid_documents)
+
     except Exception as e:
-        logger.error(f"Error fetching session documents: {e}")
-        return Response({
-            'error': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger.error(f"Error retrieving session documents: {str(e)}")
+        return Response({'error': str(e)}, status=500)
 
 @api_view(['DELETE'])
 def remove_session_document(request, doc_id):
@@ -173,3 +162,99 @@ def view_document(request, doc_id):
             {'error': 'Unable to retrieve document'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+
+@api_view(['POST'])
+async def analyze_document(request, doc_id):
+    try:
+        document = TaxFormDocument.objects.get(id=doc_id)
+        processor = DocumentProcessor()
+        
+        # Extract text from document
+        text = processor.extract_text_from_document(document.file.path)
+        
+        # Analyze content using Gemini AI
+        analysis_result = await processor.analyze_document(text)
+        
+        # Parse the JSON response
+        analysis_data = json.loads(analysis_result)
+        
+        # Store analysis results
+        document.analysis_results = analysis_data
+        document.save()
+        
+        return Response({
+            'success': True,
+            'analysis': analysis_data
+        })
+    except Exception as e:
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=500)
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser, FormParser])
+def analyze_uploaded_document(request):
+    # Debug logging
+    logger.debug(f"Request META: {request.META.get('CONTENT_TYPE', 'No content type')}")
+    logger.debug(f"Request FILES: {request.FILES}")
+    logger.debug(f"Request POST: {request.POST}")
+    
+    # Check if any file was uploaded
+    if len(request.FILES) == 0:
+        return Response({
+            'error': 'No file uploaded',
+            'debug_info': {
+                'content_type': request.content_type,
+                'files_received': list(request.FILES.keys()),
+                'post_data': list(request.POST.keys())
+            }
+        }, status=400)
+
+    # Get the uploaded file
+    file_field = next(iter(request.FILES.values()))
+    
+    try:
+        # Create temp directory if it doesn't exist
+        temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp')
+        os.makedirs(temp_dir, exist_ok=True)
+        
+        # Save file with unique name
+        file_name = default_storage.get_available_name(
+            os.path.join('temp', file_field.name)
+        )
+        file_path = default_storage.save(file_name, file_field)
+        full_path = default_storage.path(file_path)
+        
+        # Process the document
+        processor = DocumentProcessor()
+        extracted_text = processor.extract_text_from_document(full_path)
+        analysis_result = processor.analyze_document(extracted_text)
+        
+        # Clean up
+        default_storage.delete(file_path)
+        
+        return Response({
+            'success': True,
+            'analysis': analysis_result
+        })
+        
+    except Exception as e:
+        logger.error(f"Error processing document: {str(e)}")
+        return Response({
+            'error': str(e),
+            'detail': 'Error processing document'
+        }, status=500)
+
+@api_view(['POST'])
+def cleanup_tax_session(request):
+    """Clean up session documents when returning to home"""
+    try:
+        if request.session.session_key:
+            processor = DocumentProcessor()
+            processor.cleanup_session_documents(request.session.session_key)
+            request.session['tax_documents'] = []
+            request.session.modified = True
+        return Response({'success': True})
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
