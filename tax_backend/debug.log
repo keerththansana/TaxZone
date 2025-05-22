@@ -497,3 +497,11 @@ ERROR 2025-05-22 14:03:38,596 views 10348 13208 Error analyzing document: Unable
 ERROR 2025-05-22 14:03:38,596 log 10348 13208 Internal Server Error: /api/tax-report/analyze-document/00ec1f7f-d814-4b07-9c1f-501612d0f6d2/
 ERROR 2025-05-22 14:03:38,622 views 10348 13208 Error analyzing document: Unable to get page count. Is poppler installed and in PATH?
 ERROR 2025-05-22 14:03:38,623 log 10348 13208 Internal Server Error: /api/tax-report/analyze-document/4180bbe2-176d-4ac3-ae87-b34ff5c2f320/
+INFO 2025-05-22 14:44:26,437 autoreload 26604 27144 Watching for file changes with StatReloader
+INFO 2025-05-22 14:44:32,678 loader 26604 27144 Loading faiss with AVX512 support.
+INFO 2025-05-22 14:44:32,678 loader 26604 27144 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-05-22 14:44:32,678 loader 26604 27144 Loading faiss with AVX2 support.
+INFO 2025-05-22 14:44:32,751 loader 26604 27144 Successfully loaded faiss with AVX2 support.
+INFO 2025-05-22 14:44:32,768 __init__ 26604 27144 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-05-22 14:44:32,773 views 26604 27144 Vector store initialized with 93 chunks from 12 documents
