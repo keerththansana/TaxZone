@@ -175,33 +175,51 @@ def view_document(request, doc_id):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
-async def analyze_document(request, doc_id):
+def analyze_document(request, doc_id):
     try:
-        document = TaxFormDocument.objects.get(id=doc_id)
+        # Get document from session
+        documents = request.session.get('tax_documents', [])
+        document = next((doc for doc in documents if doc['doc_id'] == doc_id), None)
+        
+        if not document or 'stored_filename' not in document:
+            return Response({
+                'success': False,
+                'error': 'Document not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        file_path = os.path.join(settings.MEDIA_ROOT, document['stored_filename'])
+        
+        if not os.path.exists(file_path):
+            return Response({
+                'success': False,
+                'error': 'File not found'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Initialize processor and process document
         processor = DocumentProcessor()
         
         # Extract text from document
-        text = processor.extract_text_from_document(document.file.path)
+        extracted_text = processor.extract_text_from_document(file_path)
         
-        # Analyze content using Gemini AI
-        analysis_result = await processor.analyze_document(text)
+        # Analyze the document synchronously
+        analysis_result = processor.analyze_document(extracted_text)
         
-        # Parse the JSON response
-        analysis_data = json.loads(analysis_result)
-        
-        # Store analysis results
-        document.analysis_results = analysis_data
-        document.save()
-        
+        # Update document with analysis results
+        document['analyzed'] = True
+        document['analysis'] = json.loads(analysis_result)
+        request.session.modified = True
+
         return Response({
             'success': True,
-            'analysis': analysis_data
+            'analysis': json.loads(analysis_result)
         })
+
     except Exception as e:
+        logger.error(f"Error analyzing document: {str(e)}")
         return Response({
             'success': False,
             'error': str(e)
-        }, status=500)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
