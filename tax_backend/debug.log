@@ -505,3 +505,31 @@ INFO 2025-05-22 14:44:32,678 loader 26604 27144 Loading faiss with AVX2 support.
 INFO 2025-05-22 14:44:32,751 loader 26604 27144 Successfully loaded faiss with AVX2 support.
 INFO 2025-05-22 14:44:32,768 __init__ 26604 27144 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
 INFO 2025-05-22 14:44:32,773 views 26604 27144 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-05-22 14:46:43,201 views 26604 21748 Gemini 1.5 Flash model configured successfully
+INFO 2025-05-22 15:06:43,850 autoreload 26604 27144 C:\Users\Keerththansana\Desktop\Project\Tax.X\tax_backend\tax_report\views.py changed, reloading.
+INFO 2025-05-22 15:06:52,252 autoreload 14792 18448 Watching for file changes with StatReloader
+INFO 2025-05-22 15:06:59,362 loader 14792 18448 Loading faiss with AVX512 support.
+INFO 2025-05-22 15:06:59,362 loader 14792 18448 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-05-22 15:06:59,362 loader 14792 18448 Loading faiss with AVX2 support.
+INFO 2025-05-22 15:06:59,442 loader 14792 18448 Successfully loaded faiss with AVX2 support.
+INFO 2025-05-22 15:06:59,448 __init__ 14792 18448 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-05-22 15:06:59,462 views 14792 18448 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-05-22 15:07:46,332 autoreload 14792 18448 C:\Users\Keerththansana\Desktop\Project\Tax.X\tax_backend\tax_report\views.py changed, reloading.
+INFO 2025-05-22 15:07:50,513 autoreload 17680 13668 Watching for file changes with StatReloader
+INFO 2025-05-22 15:07:58,434 loader 17680 13668 Loading faiss with AVX512 support.
+INFO 2025-05-22 15:07:58,435 loader 17680 13668 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-05-22 15:07:58,435 loader 17680 13668 Loading faiss with AVX2 support.
+INFO 2025-05-22 15:07:58,506 loader 17680 13668 Successfully loaded faiss with AVX2 support.
+INFO 2025-05-22 15:07:58,553 __init__ 17680 13668 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-05-22 15:07:58,564 views 17680 13668 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-05-22 15:08:17,261 autoreload 17680 13668 C:\Users\Keerththansana\Desktop\Project\Tax.X\tax_backend\tax_report\views.py changed, reloading.
+INFO 2025-05-22 15:08:21,471 autoreload 27248 19608 Watching for file changes with StatReloader
+INFO 2025-05-22 15:08:27,624 loader 27248 19608 Loading faiss with AVX512 support.
+INFO 2025-05-22 15:08:27,624 loader 27248 19608 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-05-22 15:08:27,624 loader 27248 19608 Loading faiss with AVX2 support.
+INFO 2025-05-22 15:08:27,686 loader 27248 19608 Successfully loaded faiss with AVX2 support.
+INFO 2025-05-22 15:08:27,693 __init__ 27248 19608 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-05-22 15:08:27,702 views 27248 19608 Vector store initialized with 93 chunks from 12 documents

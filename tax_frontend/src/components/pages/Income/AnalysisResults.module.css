@@ -49,6 +49,7 @@
 .content {
     padding: 1rem;
     overflow-y: auto;
+  text-align: justify;
 }
 
 .resultCard {
@@ -83,6 +84,7 @@
 .section li {
     padding: 0.5rem;
     border-bottom: 1px solid #eee;
+  text-align: justify;
 }
 
 .totalIncome {
@@ -91,9 +93,14 @@
     border-top: 2px solid #023636;
 }
 
+.totalIncome p {
+  text-align: justify;
+}
+
 .error {
     color: #dc3545;
     padding: 1rem;
     background-color: #fee;
     border-radius: 4px;
+  text-align: justify;
 }
