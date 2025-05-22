@@ -411,7 +411,10 @@
 .buttonContainer {
     display: flex;
     justify-content: flex-end;
-    margin-top: 0.5rem;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 1rem;
+    padding: 1rem;
 }
 
 .selectAllContainer {
@@ -613,4 +616,19 @@
 
 [data-filetype="default"] {
     color: #757575 !important;
+}
+
+.analysisButton {
+    background-color: #023636;
+    color: white;
+    padding: 0.6rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: background-color 0.3s ease;
+}
+
+.analysisButton:hover {
+    background-color: #034f4f;
 }

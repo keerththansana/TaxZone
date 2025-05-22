@@ -10,6 +10,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import ArticleIcon from '@mui/icons-material/Article';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import AnalysisResults from './AnalysisResults'; // Import the new component
 
 const Taxation = () => {
     // 1. First define all constants
@@ -78,6 +79,9 @@ const Taxation = () => {
         const stored = sessionStorage.getItem('taxationUploadedDocuments');
         return stored ? JSON.parse(stored) : [];
     });
+    const [documentAnalysis, setDocumentAnalysis] = useState({});
+    const [showAnalysis, setShowAnalysis] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -161,16 +165,40 @@ const Taxation = () => {
                 if (uploadResponse.data.success) {
                     const newDoc = uploadResponse.data.document;
                     
-                    // Update state and session storage atomically
+                    try {
+                        // Changed endpoint to match backend URL
+                        console.log('Analyzing document:', newDoc.filename);
+                        const analysisResponse = await axios.post(`/api/tax-report/analyze-document/${newDoc.id}/`, null, {
+                            withCredentials: true,
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (analysisResponse.data.success) {
+                            console.log('Analysis successful for:', newDoc.filename);
+                            setDocumentAnalysis(prev => ({
+                                ...prev,
+                                [newDoc.id]: analysisResponse.data.analysis
+                            }));
+
+                            newDoc.analyzed = true;
+                            newDoc.analysis = analysisResponse.data.analysis;
+                        }
+                    } catch (analysisError) {
+                        console.error('Error analyzing document:', analysisError);
+                        newDoc.analyzed = false;
+                    }
+
                     setDocuments(prevDocs => {
                         const updatedDocs = [...prevDocs, newDoc];
-                        // Store immediately in session storage
                         sessionStorage.setItem('taxationDocuments', JSON.stringify(updatedDocs));
                         return updatedDocs;
                     });
                 }
             } catch (error) {
                 console.error('Error uploading file:', error);
+                alert(`Failed to upload ${file.name}`);
             }
         }
 
@@ -364,51 +392,34 @@ const Taxation = () => {
 
     // Update the handleDocumentClick function
     const handleDocumentClick = async (doc) => {
-        if (!doc || !doc.id) {
-            console.error('Invalid document object');
-            return;
-        }
-
         try {
-            // Show loading state
-            const targetDiv = document.querySelector(`[data-doc-id="${doc.id}"]`);
-            if (targetDiv) {
-                targetDiv.style.opacity = '0.6';
+            // If doc.url already exists, use it directly
+            if (doc.url || doc.fileUrl) {
+                window.open(doc.url || doc.fileUrl, '_blank');
+                return;
             }
 
-            const response = await axios.get(`/api/tax-report/view-document/${doc.id}/`, {
-                responseType: 'blob',
+            // If URL needs to be fetched from backend
+            const response = await fetch(`/api/documents/${doc.id}/download`, {
+                method: 'GET',
                 headers: {
-                    'Accept': '*/*'
-                },
-                withCredentials: true
-            });
-
-            // Create and click a temporary link to download the file
-            const blob = new Blob([response.data], { 
-                type: response.headers['content-type'] || 'application/octet-stream' 
-            });
-            const url = window.URL.createObjectURL(blob);
-            
-            // Open in new tab
-            window.open(url, '_blank');
-
-            // Cleanup
-            setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-                if (targetDiv) {
-                    targetDiv.style.opacity = '1';
+                    'Authorization': `Bearer ${yourAuthToken}` // Add if needed
                 }
-            }, 1000);
+            });
 
-        } catch (error) {
-            console.error('Error viewing document:', error);
-            alert('Unable to open document. Please try again.');
-            // Reset loading state
-            const targetDiv = document.querySelector(`[data-doc-id="${doc.id}"]`);
-            if (targetDiv) {
-                targetDiv.style.opacity = '1';
+            if (response.ok) {
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                window.open(url, '_blank');
+                // Clean up the URL object after opening
+                setTimeout(() => window.URL.revokeObjectURL(url), 100);
+            } else {
+                console.error('Failed to fetch document');
+                // Add error handling here
             }
+        } catch (error) {
+            console.error('Error opening document:', error);
+            // Add error handling here
         }
     };
 
@@ -444,24 +455,81 @@ const Taxation = () => {
     // Add this function to your Taxation component
     const analyzeDocument = async (doc) => {
         try {
-            const response = await axios.post(`/api/tax-report/analyze-document/${doc.id}/`);
+            const response = await axios.post(`/api/tax-report/analyze-document/${doc.id}/`, {
+                withCredentials: true
+            });
+            
             if (response.data.success) {
-                // Store analysis results in sessionStorage
-                const analysisResults = {
-                    ...JSON.parse(sessionStorage.getItem('documentAnalysis') || '{}'),
+                setDocumentAnalysis(prev => ({
+                    ...prev,
                     [doc.id]: response.data.analysis
-                };
-                sessionStorage.setItem('documentAnalysis', JSON.stringify(analysisResults));
-                
-                // Store form mappings for auto-fill
-                const formMappings = {
-                    ...JSON.parse(sessionStorage.getItem('formMappings') || '{}'),
-                    ...response.data.analysis.form_mappings
-                };
-                sessionStorage.setItem('formMappings', JSON.stringify(formMappings));
+                }));
+                return response.data.analysis;
             }
         } catch (error) {
             console.error('Error analyzing document:', error);
+            return null;
+        }
+    };
+
+    // Update the viewAnalysisResults function
+    const viewAnalysisResults = async () => {
+        if (!documents || documents.length === 0) {
+            alert('Please upload documents first');
+            return;
+        }
+
+        try {
+            const results = [];
+            
+            // Analyze any unanalyzed documents
+            for (const doc of documents) {
+                if (!doc.analyzed) {
+                    try {
+                        const response = await axios.post(`/api/tax-report/analyze-document/${doc.id}/`, null, {
+                            withCredentials: true,
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+
+                        if (response.data.success) {
+                            doc.analyzed = true;
+                            doc.analysis = response.data.analysis;
+                            setDocumentAnalysis(prev => ({
+                                ...prev,
+                                [doc.id]: response.data.analysis
+                            }));
+                        }
+                    } catch (error) {
+                        console.error(`Error analyzing document ${doc.filename}:`, error);
+                    }
+                }
+
+                results.push({
+                    filename: doc.filename,
+                    analysis: doc.analysis || documentAnalysis[doc.id] || null
+                });
+            }
+
+            const formattedResults = results
+                .filter(result => result.analysis)
+                .map(result => ({
+                    filename: result.filename,
+                    analysis: result.analysis
+                }));
+
+            if (formattedResults.length === 0) {
+                alert('No analysis results available. Please ensure documents are properly uploaded.');
+                return;
+            }
+
+            setAnalysisResults(formattedResults);
+            setShowAnalysis(true);
+
+        } catch (error) {
+            console.error('Error displaying analysis:', error);
+            alert('Error displaying analysis results. Please try again.');
         }
     };
 
@@ -570,7 +638,7 @@ const Taxation = () => {
                         </div>
 
                         <div className={styles.fileList}>
-                            {/* Only show selected files that are waiting to be uploaded */}
+                            {/* Display selected files waiting to be uploaded */}
                             {selectedFiles.map((file, index) => (
                                 <div key={`selected-${index}`} className={styles.fileItem}>
                                     {getFileIcon(file.name)}
@@ -585,7 +653,7 @@ const Taxation = () => {
                                 </div>
                             ))}
 
-                            {/* Only show successfully uploaded documents that have both id and filename */}
+                            {/* Display successfully uploaded documents */}
                             {documents.filter(doc => doc && doc.id && doc.filename).map((doc) => (
                                 <div key={`uploaded-${doc.id}`} className={styles.fileItem}>
                                     <div 
@@ -622,6 +690,14 @@ const Taxation = () => {
 
                 <div className={styles.buttonContainer}>
                     <button 
+                        type="button"
+                        className={styles.analysisButton}
+                        onClick={viewAnalysisResults}
+                        disabled={documents.length === 0}
+                    >
+                        Analysis
+                    </button>
+                    <button 
                         type="submit" 
                         className={styles.nextButton}
                     >
@@ -629,6 +705,13 @@ const Taxation = () => {
                     </button>
                 </div>
             </form>
+
+            {showAnalysis && (
+                <AnalysisResults 
+                    results={analysisResults}
+                    onClose={() => setShowAnalysis(false)}
+                />
+            )}
         </div>
     );
 };
