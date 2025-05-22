@@ -398,9 +398,19 @@ const Taxation = () => {
     // Update the handleDocumentClick function
     const handleDocumentClick = async (docId) => {
         try {
-            // Use the backend URL instead of frontend
             const documentUrl = `http://localhost:8000/api/tax-report/view-document/${docId}/`;
-            window.open(documentUrl, '_blank');
+            
+            const response = await axios.get(documentUrl, {
+                responseType: 'blob',
+                withCredentials: true
+            });
+            
+            // Create blob URL and open in new tab
+            const blob = new Blob([response.data], { 
+                type: response.headers['content-type'] 
+            });
+            const url = window.URL.createObjectURL(blob);
+            window.open(url, '_blank');
         } catch (error) {
             console.error('Error opening document:', error);
             alert('Failed to open document. Please try again.');

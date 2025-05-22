@@ -23,11 +23,9 @@ logger = logging.getLogger(__name__)
 @parser_classes([MultiPartParser, FormParser, FileUploadParser])
 def upload_tax_form_document(request):
     try:
-        # Ensure session exists
         if not request.session.session_key:
             request.session.create()
         
-        # Handle file upload
         if 'file' not in request.FILES:
             return Response({
                 'success': False,
@@ -35,44 +33,33 @@ def upload_tax_form_document(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         uploaded_file = request.FILES['file']
-        processor = TaxFormDocumentProcessor()
         
-        try:
-            # Process and store document
-            document = processor.process_document(uploaded_file, request.session.session_key)
-            
-            if not document:
-                logger.error("Document processing failed")
-                return Response({
-                    'success': False,
-                    'error': 'Failed to process document'
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # Generate unique filename
+        unique_filename = f"{uuid.uuid4()}_{uploaded_file.name}"
+        file_path = os.path.join('tax_documents', request.session.session_key, unique_filename)
+        
+        # Save file
+        full_path = default_storage.save(file_path, uploaded_file)
 
-            # Create document response data
-            document_data = {
-                'doc_id': document['id'],  # Changed to dictionary access
-                'filename': uploaded_file.name,
-                'upload_date': timezone.now().isoformat(),
-                'file_type': uploaded_file.content_type
-            }
+        # Create document data
+        document_data = {
+            'doc_id': str(uuid.uuid4()),
+            'filename': uploaded_file.name,
+            'stored_filename': full_path,  # Save the stored path
+            'file_type': uploaded_file.content_type,
+            'upload_date': timezone.now().isoformat()
+        }
 
-            # Store document reference in session
-            documents = request.session.get('tax_documents', [])
-            documents.append(document_data)
-            request.session['tax_documents'] = documents
-            request.session.modified = True
+        # Store in session
+        documents = request.session.get('tax_documents', [])
+        documents.append(document_data)
+        request.session['tax_documents'] = documents
+        request.session.modified = True
 
-            return Response({
-                'success': True,
-                'document': document_data
-            }, status=status.HTTP_200_OK)
-
-        except Exception as process_error:
-            logger.error(f"Document processing error: {str(process_error)}")
-            return Response({
-                'success': False,
-                'error': 'Document processing failed'
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({
+            'success': True,
+            'document': document_data
+        })
 
     except Exception as e:
         logger.error(f"Upload error: {str(e)}")
@@ -111,64 +98,81 @@ def get_session_documents(request):
 @api_view(['DELETE'])
 def remove_session_document(request, doc_id):
     try:
-        if not request.session.session_key:
-            return Response({
-                'error': 'No active session'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        session_id = request.session.session_key
-        doc = TaxFormDocument.objects.filter(id=doc_id, session_id=session_id).first()
+        # Get documents from session
+        documents = request.session.get('tax_documents', [])
         
-        if doc:
-            doc.delete()
+        # Find the document to remove
+        document = next((doc for doc in documents if doc['doc_id'] == doc_id), None)
+        
+        if not document:
             return Response({
-                'success': True,
-                'message': 'Document removed successfully'
-            })
-        else:
-            return Response({
+                'success': False,
                 'error': 'Document not found'
             }, status=status.HTTP_404_NOT_FOUND)
 
-    except Exception as e:
-        logger.error(f"Error removing document: {e}")
+        # Remove file from storage if it exists
+        if 'stored_filename' in document:
+            try:
+                file_path = document['stored_filename']
+                if default_storage.exists(file_path):
+                    default_storage.delete(file_path)
+            except Exception as e:
+                logger.error(f"Error deleting file: {str(e)}")
+
+        # Remove document from session
+        updated_documents = [doc for doc in documents if doc['doc_id'] != doc_id]
+        request.session['tax_documents'] = updated_documents
+        request.session.modified = True
+
         return Response({
+            'success': True,
+            'message': 'Document removed successfully'
+        })
+
+    except Exception as e:
+        logger.error(f"Error removing document: {str(e)}")
+        return Response({
+            'success': False,
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def view_document(request, doc_id):
     try:
-        # Get the document from session
+        # Get document from session
         documents = request.session.get('tax_documents', [])
         document = next((doc for doc in documents if doc['doc_id'] == doc_id), None)
         
-        if not document:
-            raise Http404('Document not found')
+        if not document or 'stored_filename' not in document:
+            logger.error(f"Document not found or invalid: {doc_id}")
+            return Response({
+                'success': False,
+                'error': 'Document not found'
+            }, status=status.HTTP_404_NOT_FOUND)
 
-        # Construct the full file path
-        file_path = os.path.join(settings.MEDIA_ROOT, 'tax_documents', 
-                                request.session.session_key, document['stored_filename'])
+        file_path = document['stored_filename']
         
-        if not os.path.exists(file_path):
-            raise Http404('File not found')
+        if not default_storage.exists(file_path):
+            logger.error(f"File not found at path: {file_path}")
+            return Response({
+                'success': False,
+                'error': 'File not found'
+            }, status=status.HTTP_404_NOT_FOUND)
 
-        # Open and return the file
-        file = open(file_path, 'rb')
+        # Open and serve file
+        file = default_storage.open(file_path)
         response = FileResponse(file)
-        
-        # Set content type based on file extension
-        content_type = document.get('file_type', 'application/octet-stream')
-        response['Content-Type'] = content_type
-        
-        # Set content disposition to display in browser
+        response['Content-Type'] = document.get('file_type', 'application/octet-stream')
         response['Content-Disposition'] = f'inline; filename="{document["filename"]}"'
         
         return response
 
     except Exception as e:
         logger.error(f"Error viewing document: {str(e)}")
-        raise Http404('Error viewing document')
+        return Response({
+            'success': False,
+            'error': 'Error viewing document'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 async def analyze_document(request, doc_id):

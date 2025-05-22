@@ -182,12 +182,14 @@ SIMPLE_JWT = {
     'UPDATE_LAST_LOGIN': True,
 }
 
+import os
+
 # Media files configuration
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Ensure the media directory exists
-os.makedirs(MEDIA_ROOT, exist_ok=True)
+# Ensure media directory exists
+os.makedirs(os.path.join(MEDIA_ROOT, 'tax_documents'), exist_ok=True)
 
 # Session and File Upload Settings
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
