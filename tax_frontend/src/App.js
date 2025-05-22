@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, createBrowserRouter } from "react-router-dom";
 import Home from "./components/pages/Home/Home"; // Correct path to Home.js
 import Login from "./components/pages/Login/Login"; // Import Login component
 import './App.css'; // If you have any global styles in App.css
@@ -19,6 +19,123 @@ import Business_Income from "./components/pages/Income/Business_Income";
 import Preview from "./components/pages/Income/Preview";
 import Calculator from "./components/pages/Calculator/Calculator";
 import './axiosConfig';
+
+export const router = createBrowserRouter(
+  [
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+  {
+    path: "/signin",
+    element: <Signin />,
+  },
+  {
+    path: "/assistant",
+    element: <Assistant />,
+  },
+  {
+    path: "/services",
+    element: <ServicesSection />,
+  },
+  {
+    path: "/servicesMain",
+    element: <ServicesMain />,
+  },
+  {
+    path: "/contact",
+    element: <Contact />,
+  },
+  {
+    path: "/guidelines",
+    element: <Guidelines />,
+  },
+  {
+    path: "/taxation",
+    element: <Taxation />,
+  },
+  {
+    path: "/employment_income",
+    element: <Employment_Income />,
+  },
+  {
+    path: "/business_income",
+    element: <Business_Income />,
+  },
+  {
+    path: "/investment_income",
+    element: <Investment_Income />,
+  },
+  {
+    path: "/other_income",
+    element: <Other_Income />,
+  },
+  {
+    path: "/qualifying_payments",
+    element: <Qualifying_Payments />,
+  },
+  {
+    path: "/terminal_benefits",
+    element: <Terminal_Benefits />,
+  },
+  {
+    path: "/preview",
+    element: <Preview />,
+  },
+  {
+    path: "/calculator",
+    element: <Calculator />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+  {
+    path: "/tin-registration",
+    element: <tin-registration />,
+  },
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }
+});
 
 const App = () => {
   return (
