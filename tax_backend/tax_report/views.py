@@ -1,20 +1,22 @@
 from django.shortcuts import render
+import logging
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser, FileUploadParser
 from django.core.files.storage import default_storage
 from django.conf import settings
+from django.http import FileResponse, Http404
+from django.utils import timezone
 import os
-import logging
 import mimetypes
 import json
-from django.http import FileResponse, Http404
 import uuid
 
 from .models import TaxFormDocument
 from .services.document_processor import TaxFormDocumentProcessor, DocumentProcessor
 
+# Initialize logger
 logger = logging.getLogger(__name__)
 
 @api_view(['POST'])
@@ -28,58 +30,83 @@ def upload_tax_form_document(request):
         # Handle file upload
         if 'file' not in request.FILES:
             return Response({
+                'success': False,
                 'error': 'No file provided'
             }, status=status.HTTP_400_BAD_REQUEST)
 
         uploaded_file = request.FILES['file']
         processor = TaxFormDocumentProcessor()
         
-        # Process and store document
-        result = processor.process_document(uploaded_file, request.session.session_key)
-        
-        if not result:
+        try:
+            # Process and store document
+            document = processor.process_document(uploaded_file, request.session.session_key)
+            
+            if not document:
+                logger.error("Document processing failed")
+                return Response({
+                    'success': False,
+                    'error': 'Failed to process document'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # Create document response data
+            document_data = {
+                'doc_id': document['id'],  # Changed to dictionary access
+                'filename': uploaded_file.name,
+                'upload_date': timezone.now().isoformat(),
+                'file_type': uploaded_file.content_type
+            }
+
+            # Store document reference in session
+            documents = request.session.get('tax_documents', [])
+            documents.append(document_data)
+            request.session['tax_documents'] = documents
+            request.session.modified = True
+
             return Response({
-                'error': 'Failed to process document'
+                'success': True,
+                'document': document_data
+            }, status=status.HTTP_200_OK)
+
+        except Exception as process_error:
+            logger.error(f"Document processing error: {str(process_error)}")
+            return Response({
+                'success': False,
+                'error': 'Document processing failed'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-        # Store document reference in session
-        documents = request.session.get('tax_documents', [])
-        documents.append(result)
-        request.session['tax_documents'] = documents
-        request.session.modified = True
-
-        return Response({
-            'success': True,
-            'document': result
-        })
 
     except Exception as e:
         logger.error(f"Upload error: {str(e)}")
         return Response({
+            'success': False,
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
 def get_session_documents(request):
     try:
+        # Ensure session exists
+        if not request.session.session_key:
+            request.session.create()
+            
+        # Get documents from session
         documents = request.session.get('tax_documents', [])
         
-        # Verify files still exist
-        valid_documents = []
-        for doc in documents:
-            if default_storage.exists(doc['path']):
-                valid_documents.append(doc)
+        # Ensure we're returning a list
+        if not isinstance(documents, list):
+            documents = []
+            
+        return Response({
+            'success': True,
+            'documents': documents
+        }, status=status.HTTP_200_OK)
         
-        # Update session if any files were missing
-        if len(valid_documents) != len(documents):
-            request.session['tax_documents'] = valid_documents
-            request.session.modified = True
-
-        return Response(valid_documents)
-
     except Exception as e:
-        logger.error(f"Error retrieving session documents: {str(e)}")
-        return Response({'error': str(e)}, status=500)
+        logger.error(f"Error fetching session documents: {str(e)}")
+        return Response({
+            'success': False,
+            'error': 'Failed to fetch documents',
+            'documents': []
+        }, status=status.HTTP_200_OK)  # Return 200 with empty array instead of 500
 
 @api_view(['DELETE'])
 def remove_session_document(request, doc_id):
@@ -112,56 +139,36 @@ def remove_session_document(request, doc_id):
 @api_view(['GET'])
 def view_document(request, doc_id):
     try:
-        doc = TaxFormDocument.objects.get(id=doc_id)
-        if not doc.file or not os.path.exists(doc.file.path):
-            raise Http404("Document not found")
+        # Get the document from session
+        documents = request.session.get('tax_documents', [])
+        document = next((doc for doc in documents if doc['doc_id'] == doc_id), None)
+        
+        if not document:
+            raise Http404('Document not found')
 
-        # Get file extension and determine content type
-        file_name = doc.original_filename
-        extension = os.path.splitext(file_name)[1].lower()
+        # Construct the full file path
+        file_path = os.path.join(settings.MEDIA_ROOT, 'tax_documents', 
+                                request.session.session_key, document['stored_filename'])
         
-        # Map file extensions to content types
-        content_types = {
-            '.pdf': 'application/pdf',
-            '.doc': 'application/msword',
-            '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            '.xls': 'application/vnd.ms-excel',
-            '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            '.csv': 'text/csv',
-            '.txt': 'text/plain',
-            '.jpg': 'image/jpeg',
-            '.jpeg': 'image/jpeg',
-            '.png': 'image/png'
-        }
-        
-        # Get content type from mapping or fallback to mime type guess
-        content_type = content_types.get(extension)
-        if not content_type:
-            content_type, _ = mimetypes.guess_type(file_name)
-        if not content_type:
-            content_type = 'application/octet-stream'
+        if not os.path.exists(file_path):
+            raise Http404('File not found')
 
-        # Open file and create response
-        file_handle = open(doc.file.path, 'rb')
-        response = FileResponse(file_handle)
+        # Open and return the file
+        file = open(file_path, 'rb')
+        response = FileResponse(file)
         
-        # Set response headers for inline display
+        # Set content type based on file extension
+        content_type = document.get('file_type', 'application/octet-stream')
         response['Content-Type'] = content_type
-        # Force inline display instead of download
-        response['Content-Disposition'] = f'inline; filename="{doc.original_filename}"'
-        response['Access-Control-Allow-Origin'] = '*'  # Allow cross-origin access
-        response['X-Content-Type-Options'] = 'nosniff'
+        
+        # Set content disposition to display in browser
+        response['Content-Disposition'] = f'inline; filename="{document["filename"]}"'
         
         return response
-            
-    except TaxFormDocument.DoesNotExist:
-        raise Http404("Document not found")
+
     except Exception as e:
         logger.error(f"Error viewing document: {str(e)}")
-        return Response(
-            {'error': 'Unable to retrieve document'}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
+        raise Http404('Error viewing document')
 
 @api_view(['POST'])
 async def analyze_document(request, doc_id):

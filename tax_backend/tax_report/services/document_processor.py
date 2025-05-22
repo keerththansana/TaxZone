@@ -8,6 +8,7 @@ import shutil
 import uuid
 from django.utils import timezone # type: ignore
 import json
+import logging
 
 # Handle optional dependencies with try-except blocks
 try:
@@ -31,6 +32,8 @@ try:
 except ImportError:
     CV2_INSTALLED = False
     print("Warning: opencv-python not installed. Image processing will be limited.")
+
+logger = logging.getLogger(__name__)
 
 class DocumentProcessor:
     def __init__(self):
@@ -189,40 +192,28 @@ class TaxFormDocumentProcessor:
 
     def process_document(self, file, session_id):
         try:
-            # Create session-specific directory
-            session_dir = os.path.join(self.storage_path, session_id)
-            os.makedirs(session_dir, exist_ok=True)
-
-            # Generate unique filename
+            # Generate a unique document ID
             doc_id = str(uuid.uuid4())
-            file_ext = os.path.splitext(file.name)[1]
-            filename = f"{doc_id}{file_ext}"
             
-            # Store file with session path
-            file_path = os.path.join(session_dir, filename)
-            
-            # Save file with chunks for large files
-            with open(file_path, 'wb+') as destination:
-                for chunk in file.chunks():
-                    destination.write(chunk)
-            
-            # Create document metadata
-            doc_info = {
-                'doc_id': doc_id,
-                'name': file.name,
-                'path': file_path,
-                'session_id': session_id,
-                'upload_time': timezone.now().isoformat(),
-                'is_processed': True
+            # Save the file
+            file_path = f'tax_documents/{session_id}/{doc_id}_{file.name}'
+            saved_path = default_storage.save(file_path, file)
+
+            # Create document dictionary
+            document = {
+                'id': doc_id,
+                'original_filename': file.name,
+                'stored_filename': saved_path,
+                'file_type': file.content_type,
+                'upload_date': timezone.now(),
+                'session_id': session_id
             }
 
-            # Store metadata in session file
-            self._store_session_metadata(session_id, doc_info)
-            
-            return doc_info
+            logger.info(f"Document processed successfully: {doc_id}")
+            return document
 
         except Exception as e:
-            logger.error(f"Document processing error: {str(e)}") # type: ignore
+            logger.error(f"Error processing document: {str(e)}")
             return None
 
     def _store_session_metadata(self, session_id, doc_info):

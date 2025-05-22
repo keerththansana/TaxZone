@@ -212,13 +212,12 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
-CORS_EXPOSE_HEADERS = ['Content-Type', 'Content-Disposition']
 
-# Update CORS settings
 CORS_ALLOW_METHODS = [
-    'POST',
     'GET',
-    'OPTIONS',
+    'POST',
+    'DELETE',
+    'OPTIONS'
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -226,7 +225,11 @@ CORS_ALLOW_HEADERS = [
     'accept-encoding',
     'authorization',
     'content-type',
+    'dnt',
     'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
@@ -238,4 +241,42 @@ APPEND_SLASH = False
 TESSERACT_PATH = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 if TESSERACT_INSTALLED and os.name == 'nt' and os.path.exists(TESSERACT_PATH):
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_PATH
+
+# Add this to your existing settings.py
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        '': {  # Root logger
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
+        'tax_report': {  # App specific logger
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
 

@@ -61,18 +61,7 @@ const Taxation = () => {
     const [selectedYear, setSelectedYear] = useState('2024/2025');
     const [documents, setDocuments] = useState(() => {
         const stored = sessionStorage.getItem('taxationDocuments');
-        // Only parse and return if stored data exists and is valid
-        if (stored) {
-            try {
-                const parsedDocs = JSON.parse(stored);
-                // Filter out any invalid documents (those without id or filename)
-                return parsedDocs.filter(doc => doc && doc.id && doc.filename);
-            } catch (error) {
-                console.error('Error parsing stored documents:', error);
-                return [];
-            }
-        }
-        return [];
+        return stored ? JSON.parse(stored) : [];
     });
     const [uploadedDocuments, setUploadedDocuments] = useState(() => {
         // Initialize from session storage if available
@@ -94,18 +83,30 @@ const Taxation = () => {
     const fetchSessionDocuments = async () => {
         try {
             const response = await axios.get('/api/tax-report/session-documents/', {
-                withCredentials: true
+                withCredentials: true,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
             });
             
             if (response.data.success && Array.isArray(response.data.documents)) {
                 // Filter out any invalid documents
-                const validDocuments = response.data.documents.filter(doc => doc && doc.id && doc.filename);
+                const validDocuments = response.data.documents.filter(doc => 
+                    doc && doc.id && doc.filename
+                );
                 setDocuments(validDocuments);
                 // Update session storage with valid documents
                 sessionStorage.setItem('taxationDocuments', JSON.stringify(validDocuments));
+            } else {
+                // If no documents or invalid response, set empty array
+                setDocuments([]);
+                sessionStorage.setItem('taxationDocuments', JSON.stringify([]));
             }
         } catch (error) {
             console.error('Error fetching documents:', error);
+            // On error, initialize with empty array
+            setDocuments([]);
+            sessionStorage.setItem('taxationDocuments', JSON.stringify([]));
         }
     };
 
@@ -127,8 +128,8 @@ const Taxation = () => {
         });
     };
 
-    const handleFileChange = async (event) => {
-        const files = Array.from(event.target.files);
+    // Add this function near the top of your component, after const categories
+    const validateFiles = (files) => {
         const allowedTypes = [
             'application/pdf',
             'application/msword',
@@ -150,60 +151,64 @@ const Taxation = () => {
             alert('Some files were not added. Only PDF, Word, Excel, CSV, Text, and Image files are allowed.');
         }
 
-        for (const file of validFiles) {
-            const formData = new FormData();
-            formData.append('file', file, file.name);
-            
-            try {
-                const uploadResponse = await axios.post('/api/tax-report/upload-document/', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data'
-                    },
-                    withCredentials: true
-                });
+        return validFiles;
+    };
 
-                if (uploadResponse.data.success) {
-                    const newDoc = uploadResponse.data.document;
-                    
-                    try {
-                        // Changed endpoint to match backend URL
-                        console.log('Analyzing document:', newDoc.filename);
-                        const analysisResponse = await axios.post(`/api/tax-report/analyze-document/${newDoc.id}/`, null, {
-                            withCredentials: true,
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        });
+    // Update the handleFileChange function
+    const handleFileChange = async (event) => {
+        try {
+            const files = Array.from(event.target.files);
+            const validFiles = validateFiles(files);
 
-                        if (analysisResponse.data.success) {
-                            console.log('Analysis successful for:', newDoc.filename);
-                            setDocumentAnalysis(prev => ({
-                                ...prev,
-                                [newDoc.id]: analysisResponse.data.analysis
-                            }));
+            for (const file of validFiles) {
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    const uploadResponse = await axios.post('/api/tax-report/upload-document/', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        },
+                        withCredentials: true
+                    });
 
-                            newDoc.analyzed = true;
-                            newDoc.analysis = analysisResponse.data.analysis;
-                        }
-                    } catch (analysisError) {
-                        console.error('Error analyzing document:', analysisError);
-                        newDoc.analyzed = false;
+                    if (!uploadResponse.data.success) {
+                        console.error('Upload failed:', uploadResponse.data.error);
+                        alert(`Failed to upload ${file.name}: ${uploadResponse.data.error}`);
+                        continue;
                     }
 
+                    const newDoc = uploadResponse.data.document;
+                    if (!newDoc || !newDoc.doc_id) {
+                        console.error('Invalid document data received from upload');
+                        alert(`Invalid response received for ${file.name}`);
+                        continue;
+                    }
+
+                    // Update documents state
                     setDocuments(prevDocs => {
-                        const updatedDocs = [...prevDocs, newDoc];
+                        const updatedDocs = [...prevDocs, {
+                            id: newDoc.doc_id,
+                            filename: file.name,
+                            upload_date: new Date().toISOString(),
+                            file_type: file.type,
+                            analyzed: false
+                        }];
                         sessionStorage.setItem('taxationDocuments', JSON.stringify(updatedDocs));
                         return updatedDocs;
                     });
-                }
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                alert(`Failed to upload ${file.name}`);
-            }
-        }
 
-        setSelectedFiles(prevFiles => [...prevFiles, ...validFiles]);
-        event.target.value = ''; // Reset input for next upload
+                } catch (error) {
+                    console.error('Upload failed for file:', file.name, error);
+                    alert(`Failed to upload ${file.name}. Please try again.`);
+                }
+            }
+        } catch (error) {
+            console.error('File processing error:', error);
+            alert('An error occurred while processing files. Please try again.');
+        } finally {
+            event.target.value = ''; // Reset input
+        }
     };
 
     
@@ -391,35 +396,14 @@ const Taxation = () => {
     };
 
     // Update the handleDocumentClick function
-    const handleDocumentClick = async (doc) => {
+    const handleDocumentClick = async (docId) => {
         try {
-            // If doc.url already exists, use it directly
-            if (doc.url || doc.fileUrl) {
-                window.open(doc.url || doc.fileUrl, '_blank');
-                return;
-            }
-
-            // If URL needs to be fetched from backend
-            const response = await fetch(`/api/documents/${doc.id}/download`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${yourAuthToken}` // Add if needed
-                }
-            });
-
-            if (response.ok) {
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                window.open(url, '_blank');
-                // Clean up the URL object after opening
-                setTimeout(() => window.URL.revokeObjectURL(url), 100);
-            } else {
-                console.error('Failed to fetch document');
-                // Add error handling here
-            }
+            // Use the backend URL instead of frontend
+            const documentUrl = `http://localhost:8000/api/tax-report/view-document/${docId}/`;
+            window.open(documentUrl, '_blank');
         } catch (error) {
             console.error('Error opening document:', error);
-            // Add error handling here
+            alert('Failed to open document. Please try again.');
         }
     };
 
@@ -658,7 +642,7 @@ const Taxation = () => {
                                 <div key={`uploaded-${doc.id}`} className={styles.fileItem}>
                                     <div 
                                         className={styles.fileContent}
-                                        onClick={() => handleDocumentClick(doc)}
+                                        onClick={() => handleDocumentClick(doc.id)}
                                         data-doc-id={doc.id}
                                         role="button"
                                         tabIndex={0}
