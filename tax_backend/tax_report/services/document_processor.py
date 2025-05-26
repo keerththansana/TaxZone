@@ -97,6 +97,11 @@ class DocumentProcessor:
         2. Income amounts by category
         3. Deductions and reliefs
         4. Total assessable income
+        5. APIT or Advance personal income tax (if applicable)
+        6. Any other relevant information
+        7. WHT (Withholding Tax) if applicable
+        9. Paid tax amount
+        10.AIT (Advance Income Tax) if applicable
 
         Return ONLY a JSON object without markdown formatting:
         {

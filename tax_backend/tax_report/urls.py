@@ -10,4 +10,5 @@ urlpatterns = [
     path('analyze-document/<str:doc_id>/', views.analyze_document, name='analyze-document'),
     path('analyze-uploaded-document/', views.analyze_uploaded_document, name='analyze-uploaded-document'),
     path('cleanup-session/', views.cleanup_tax_session, name='cleanup-session'),
+    path('auto-fill/', views.process_auto_fill, name='process-auto-fill'),
 ]

@@ -1,7 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { AutoFillHelper } from './utils/autoFillHelper';
 import styles from './AnalysisResults.module.css';
 
-const AnalysisResults = ({ results, onClose }) => {
+const AnalysisResults = ({ results, onClose, onAutoFill }) => {
+    useEffect(() => {
+        const processResults = async () => {
+            if (results && results.length > 0 && typeof onAutoFill === 'function') {
+                try {
+                    const mappedData = await AutoFillHelper.mapAnalysisToForms(results);
+                    onAutoFill(mappedData);
+                } catch (error) {
+                    console.error('Error processing analysis results:', error);
+                }
+            }
+        };
+
+        processResults();
+    }, [results, onAutoFill]);
+
     return (
         <div className={styles.overlay}>
             <div className={styles.container}>

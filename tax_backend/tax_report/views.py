@@ -287,3 +287,53 @@ def cleanup_tax_session(request):
         return Response({'success': True})
     except Exception as e:
         return Response({'error': str(e)}, status=500)
+
+@api_view(['POST'])
+def process_auto_fill(request):
+    try:
+        analysis_data = request.data.get('analysisResults')
+        if not analysis_data:
+            return Response({
+                'success': False,
+                'error': 'No analysis data provided'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Process the analysis results
+        mapped_data = {}
+        for result in analysis_data:
+            if 'analysis' in result:
+                # Process income items
+                for item in result['analysis'].get('income_items', []):
+                    form_type = determine_form_type(item['category'])
+                    if form_type:
+                        if form_type not in mapped_data:
+                            mapped_data[form_type] = {'income': {}}
+                        mapped_data[form_type]['income'][item['category']] = item['amount']
+
+                # Process deductions
+                for deduction in result['analysis'].get('deductions', []):
+                    form_type = determine_form_type(deduction['type'])
+                    if form_type:
+                        if form_type not in mapped_data:
+                            mapped_data[form_type] = {'deductions': {}}
+                        mapped_data[form_type]['deductions'][deduction['type']] = deduction['amount']
+
+        return Response({
+            'success': True,
+            'data': mapped_data
+        })
+
+    except Exception as e:
+        logger.error(f"Error in auto-fill process: {str(e)}")
+        return Response({
+            'success': False,
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def determine_form_type(item_type):
+    form_mapping = {
+        'APIT': 'EmploymentIncome',
+        'SALARY': 'EmploymentIncome',
+        # Add more mappings as needed
+    }
+    return form_mapping.get(item_type)

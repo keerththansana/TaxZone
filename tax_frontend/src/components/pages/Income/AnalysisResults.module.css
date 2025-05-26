@@ -104,3 +104,31 @@
     border-radius: 4px;
   text-align: justify;
 }
+
+.categorySection {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+
+.categorySection h3 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+}
+
+.summary {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #e8f4f8;
+    border-radius: 5px;
+}
+
+.summary p {
+    font-size: 1.1em;
+    margin: 10px 0;
+    color: #2c3e50;
+}
