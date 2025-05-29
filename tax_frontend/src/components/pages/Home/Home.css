@@ -1,4 +1,4 @@
-/* Home.css */
+/* Base Reset */
 * {
   margin: 0;
   padding: 0;
@@ -9,25 +9,26 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  font-family: sans-serif;
 }
 
 .home-container {
-  font-family: sans-serif;
   color: #023636;
   background-color: #e8f8f8;
-  min-height: 100vh; /* Changed from 150vh */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
-  margin: 0; /* Add this */
-  padding: 0; /* Add this */
+  text-align: center;
 }
 
+/* Header */
 .header {
   background-color: #023636;
   padding: 1.3rem 2rem;
   z-index: 10;
+  margin-top: 0; /* add this line to remove the gap */
 }
 
 .header-content {
@@ -37,23 +38,25 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  flex-wrap: wrap;
 }
 
 .tax-logo {
-  width: 80px;  /* Increased width */
-  height: auto;  /* Changed to auto to maintain aspect ratio */
+  width: 80px;
+  height: auto;
   object-fit: contain;
 }
 
 .nav {
-  height: 20px;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  gap: 1rem;
 }
 
 .nav a {
   color: white;
   text-decoration: none;
-  margin-left: 2rem;
   font-size: 1rem;
   font-weight: 500;
   transition: color 0.3s ease;
@@ -63,6 +66,7 @@ body {
   color: #a3e1e1;
 }
 
+/* Hero Section */
 .hero {
   position: relative;
   width: 100%;
@@ -85,7 +89,7 @@ body {
 .hero-text {
   max-width: 50%;
   position: absolute;
-  left: 5%; /* Adjust based on design */
+  left: 5%;
   z-index: 10;
   color: white;
   background: rgba(0, 0, 0, 0.5);
@@ -128,14 +132,15 @@ body {
   filter: brightness(60%);
 }
 
+/* Footer */
 .footer {
   background-color: #023636;
   text-align: center;
   padding: 1rem 2rem;
+  width: 100%;
   display: flex;
-  width: 100%; /* Add this */
-  margin: 0; /* Add this */
-  bottom: 0; /* Add this */
+  justify-content: center;
+  align-items: center;
 }
 
 .footer p {
@@ -143,12 +148,7 @@ body {
   color: white;
 }
 
-/* Home Container */
-.home-container {
-  text-align: center;
-}
-
-/* Modal Overlay (Background Blur) */
+/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -161,7 +161,6 @@ body {
   justify-content: center;
 }
 
-/* Modal Content (Login Box) */
 .modal-content {
   padding: 20px;
   border-radius: 10px;
@@ -169,9 +168,9 @@ body {
   position: relative;
   max-width: 400px;
   width: 100%;
+  background-color: white;
 }
 
-/* Close Button */
 .close-button {
   position: absolute;
   top: 10px;
@@ -180,4 +179,72 @@ body {
   border: none;
   font-size: 20px;
   cursor: pointer;
+}
+
+/* -------------------------- */
+/* Responsive Design Section */
+/* -------------------------- */
+
+/* Tablets (≤ 992px) */
+@media (max-width: 992px) {
+  .hero-text {
+    max-width: 80%;
+    left: 10%;
+    font-size: 1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
+/* Mobile (≤ 768px) */
+@media (max-width: 768px) {
+  .hero {
+    height: auto;
+    padding: 2rem 0;
+  }
+
+  .hero-text {
+    max-width: 90%;
+    left: 5%;
+    padding: 1rem;
+  }
+
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .get-started-button {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+  }
+
+  .footer {
+    flex-direction: column;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .modal-content {
+    max-width: 90%;
+    padding: 15px;
+  }
 }

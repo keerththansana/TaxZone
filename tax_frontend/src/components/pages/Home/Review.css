@@ -1,6 +1,6 @@
 .review-section {
     padding: 4rem 2rem;
-    background-color: #ffffff;
+    background-color:#e8f8f8;
 }
 
 .review-section h2 {
@@ -20,7 +20,7 @@
 }
 
 .review-card {
-    background-color: #e8f8f8;
+    background-color: #ffffff;
     border : 1px solid #bff4f4;
     border-radius: 10px;
     padding: 1.5rem;

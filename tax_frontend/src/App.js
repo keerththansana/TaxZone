@@ -18,6 +18,7 @@ import Terminal_Benefits from "./components/pages/Income/Terminal_Benefits";
 import Business_Income from "./components/pages/Income/Business_Income";
 import Preview from "./components/pages/Income/Preview";
 import Calculator from "./components/pages/Calculator/Calculator";
+import ReviewForm from "./components/pages/Home/ReviewForm";
 import './axiosConfig';
 
 export const router = createBrowserRouter(
@@ -91,6 +92,10 @@ export const router = createBrowserRouter(
     element: <Calculator />,
   },
   {
+    path: "/review-form",
+    element: <ReviewForm />,
+  },
+  {
     path: "/tin-registration",
     element: <tin-registration />,
   },
@@ -159,15 +164,7 @@ const App = () => {
         <Route path="/preview" element={<Preview/>} /> {/*Guideline Page Route */}  
         <Route path="/calculator" element={<Calculator/>} /> {/*Guideline Page Route */}  
         <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}  
-        <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
+        <Route path="/review-form" element={<ReviewForm />} />
       </Routes>
     </div>
   );

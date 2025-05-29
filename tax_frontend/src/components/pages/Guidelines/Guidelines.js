@@ -7,8 +7,8 @@ import "./Guidelines.css"; // CSS for this component
 const guidelinesData = [
   { title: "How Tax.X Helps Individuals", link: "/guidelines/help" },
   { title: "Taxpayer Identification Number (TIN) Registration", link: "/guidelines/tin_registration" },
-  { title: "Types of Taxes for Individuals in Sri Lanka",link: "/guidelines/tax-registration" },
-  { title: "Tax Rates & Income Slabs for Individuals",  link: "/guidelines/tax_rates" },
+  { title: "Types of Taxes for Individuals in Sri Lanka", link: "/guidelines/tax-registration" },
+  { title: "Tax Rates & Income Slabs for Individuals", link: "/guidelines/tax_rates" },
   { title: "How to Calculate Your Tax", link: "/guidelines/calculations" },
   { title: "Tax Deductions & Exemptions for Individuals", link: "/guidelines/deductions" },
   { title: "Tax Filing Process for Individuals", link: "/guidelines/tax_filling" },
@@ -18,39 +18,53 @@ const guidelinesData = [
 ];
 
 export default function GuidelinesSection() {
-  const [openIndex] = useState(null);
+  const [openIndex, setOpenIndex] = useState(null);
   const navigate = useNavigate(); // Hook for navigation
 
-  const handleArrowClick = (link) => {
-    // Navigate to the specified link when the right arrow is clicked
+  const handleItemClick = (link, index) => {
+    setOpenIndex(openIndex === index ? null : index);
     navigate(link);
   };
 
   return (
-    <div className="guidelines-section">
-      <h2 className="title">Tax Guidelines</h2>
-      <div className="guidelines-list">
-        {guidelinesData.map((item, index) => (
-          <div key={index} className="guideline-item">
-            <button
-              className="toggle-button"
-              onClick={() => handleArrowClick(item.link)} // Navigate to the link when the arrow is clicked
+    <section className="guidelines-section">
+      <div className="guidelines-container">
+        <h1 className="title">Tax Guidelines</h1>
+        <div className="guidelines-list">
+          {guidelinesData.map((item, index) => (
+            <div 
+              key={index} 
+              className="guideline-item"
+              onClick={() => handleItemClick(item.link, index)}
             >
-              {item.title}
-              <ChevronRight /> {/* Display the right arrow */}
-            </button>
-            {/* Optional content if needed for expanded view */}
-            {openIndex === index && (
-              <div className="content">
-                <p>{item.content}</p>
-                <Button className="read-more-button">
-                  <a href={item.link}>Read More</a>
-                </Button>
-              </div>
-            )}
-          </div>
-        ))}
+              <button
+                className="toggle-button"
+                aria-expanded={openIndex === index}
+                aria-controls={`content-${index}`}
+              >
+                {item.title}
+                <ChevronRight 
+                  className={openIndex === index ? 'rotated' : ''} 
+                  aria-hidden="true"
+                />
+              </button>
+              {openIndex === index && (
+                <div 
+                  id={`content-${index}`}
+                  className="content"
+                  role="region"
+                  aria-label={`Content for ${item.title}`}
+                >
+                  <p>{item.content}</p>
+                  <Button className="read-more-button">
+                    <a href={item.link}>Read More</a>
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

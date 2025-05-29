@@ -1,68 +1,291 @@
 /* ServicesSection.css */
 .services-section {
-    padding: 40px 20px;
+    padding: 4rem 2rem;
+    background-color:  #e8f8f8;
+}
+
+.services-section h2 {
     text-align: center;
+    margin-bottom: 3rem;
+    color: #023636;
+    font-size: 3rem;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.services-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background-color: #023636;
 }
 
 .services-section-content {
-    max-width: 1200px; /* Adjust as needed */
+    display: flex;
+    gap: 1.5rem;
+    max-width: 100%;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    overflow-x: auto;
+    padding: 1rem 0;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
 }
 
-.service-block1, .service-block2 {
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px; /* Add margin for spacing between rows */
+.services-section-content::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .service-block {
-    border: 1px solid #ccf1f1;
-    background: linear-gradient(to bottom, #023636, #a4f1f1);
-    text-align: left;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
+    background: white;
+    min-width: 300px;
+    flex: 1;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.service-block:hover {
+    transform: translateY(-5px);
 }
 
 .service-block img {
-    width: 640px; /* Make images stretch to fill the block */
-    height: 200px; /* Set a fixed height for uniformity */
-    object-fit: cover; /* Ensures images scale properly without distortion */
-    display: block; /* Removes extra spacing below the image */
-    border-radius: 100px; /* Optional: Keeps rounded edges */
-    align-items: center;
-    margin: 0 auto;
-    border:1px solid #ebf6f6
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px 10px 0 0;
+    margin-bottom: 0;
+    display: block;
+    position: relative;
 }
 
+.service-block::before {
+    content: 'Read More';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(2, 54, 54, 0.9);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 2;
+}
+
+.service-block::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 200px;
+    background: rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.service-block:hover::before {
+    opacity: 1;
+}
+
+.service-block:hover::after {
+    opacity: 1;
+}
 
 .service-block h3 {
-    align-items: center;
-    margin-bottom: 15px;
     color: #023636;
-    font-weight: bold;
-    font-size: 20px;
+    margin: 1.5rem 0 1rem;
+    font-size: 1.5rem;
+    padding: 0 1.5rem;
 }
 
-.service-block img {
-    width: 500px;  /* Set a fixed width */
-    height: 200px; /* Set a fixed height */
-    object-fit: cover; /* Ensures images fit without distortion */
-    display: block; /* Removes extra space below the image */
-    margin-top: 0 ; /* Centers the image inside the block */
-    border-radius: 8px; /* Keeps rounded corners */
-}
 .service-block p {
+    color: #666;
     line-height: 1.6;
-    color: #023636;
+    padding: 0 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .service-block ul {
-    list-style-type: disc;
-    margin-left: 20px;
+    list-style-type: none;
+    padding: 0 1.5rem;
+    margin: 0 0 1.5rem;
+}
+
+.service-block li {
+    margin-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.service-block li:before {
+    content: "•";
+    color: #023636;
+    position: absolute;
+    left: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .services-section-content {
+        gap: 1.2rem;
+    }
+
+    .service-block {
+        min-width: 280px;
+    }
+}
+
+@media (max-width: 992px) {
+    .services-section {
+        padding: 3rem 1.5rem;
+    }
+
+    .services-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .service-block h3 {
+        font-size: 1.3rem;
+        padding: 0 1.2rem;
+    }
+
+    .service-block p,
+    .service-block ul {
+        padding: 0 1.2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .services-section-content {
+        flex-direction: column;
+        overflow-x: visible;
+        gap: 2rem;
+    }
+
+    .service-block {
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .service-block img {
+        height: 180px;
+    }
+
+    .service-block::after {
+        height: 180px;
+    }
+
+    .service-block::before {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.95rem;
+    }
+
+    .service-block h3 {
+        font-size: 1.4rem;
+        padding: 0 1.5rem;
+    }
+
+    .service-block p,
+    .service-block ul {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .services-section {
+        padding: 2rem 1rem;
+    }
+
+    .services-section h2 {
+        font-size: 2.2rem;
+        margin-bottom: 2rem;
+    }
+
+    .service-block {
+        min-width: 100%;
+    }
+
+    .service-block h3 {
+        font-size: 1.2rem;
+        padding: 0 1rem;
+    }
+
+    .service-block p,
+    .service-block ul {
+        padding: 0 1rem;
+    }
+
+    .service-block img {
+        height: 160px;
+    }
+
+    .service-block::after {
+        height: 160px;
+    }
+
+    .service-block::before {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    .service-block p {
+        font-size: 0.95rem;
+    }
+
+    .service-block li {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .services-section h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .service-block {
+        min-width: 100%;
+    }
+
+    .service-block img {
+        height: 140px;
+    }
+
+    .service-block::after {
+        height: 140px;
+    }
+
+    .service-block::before {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .service-block h3 {
+        font-size: 1.1rem;
+    }
+
+    .service-block p {
+        font-size: 0.9rem;
+    }
+
+    .service-block li {
+        font-size: 0.9rem;
+    }
 }
 
 .get-started-button {
