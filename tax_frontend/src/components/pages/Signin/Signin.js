@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-import TaxLogo from '../../../assets/Tax_logo.png';
+import TaxLogo from '../../../assets/logo4.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import './Signin.css';
 
 const Signin = () => {
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
+    const [formData, setFormData] = useState({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
     const [showPassword, setShowPassword] = useState(false);
     const [statusMessage, setStatusMessage] = useState('');
     const [loading, setLoading] = useState(false);
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,14 +28,33 @@ const Signin = () => {
         };
     }, []);
 
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setStatusMessage('');
         setLoading(true);
-        
+
+        const { username, email, password, confirmPassword } = formData;
+
+        if (!username || !email || !password || !confirmPassword) {
+            setStatusMessage('All fields are required.');
+            setLoading(false);
+            return;
+        }
+
         if (password !== confirmPassword) {
             setStatusMessage('Passwords do not match.');
+            setLoading(false);
+            return;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setStatusMessage('Please enter a valid email address.');
             setLoading(false);
             return;
         }
@@ -45,20 +66,21 @@ const Signin = () => {
                 password,
                 password2: confirmPassword
             });
-            setStatusMessage('Registration successful!');
-            setTimeout(() => {
-                navigate('/login');
-            }, 2000);
+
+            setStatusMessage('Registration successful! Redirecting...');
+            setTimeout(() => navigate('/login'), 2000);
         } catch (error) {
-            setLoading(false);
-            let errorMessage = 'Registration failed. Please try again.';
-            if (error.response?.data?.error) {
-                errorMessage = error.response.data.error;
-            } else if (error.message) {
-                errorMessage = `Registration failed: ${error.message}`;
-            }
-            setStatusMessage(errorMessage);
+            const errData = error.response?.data;
+            // Only show email-related errors, ignore username errors
+            setStatusMessage(
+                errData?.email?.[0] || 
+                errData?.password?.[0] || 
+                errData?.message || 
+                'Registration failed. Please try again.'
+            );
             console.error('Registration error:', error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -74,19 +96,12 @@ const Signin = () => {
 
             if (response.data.access) {
                 localStorage.setItem('token', response.data.access);
-                setStatusMessage('Registration/Login with Google successful! Redirecting...');
-                setTimeout(() => {
-                    navigate('/emotion'); // Or your desired logged-in route
-                }, 2000);
-            } else {
-                throw new Error('No access token received');
+                setStatusMessage('Google login successful! Redirecting...');
+                setTimeout(() => navigate('/emotion'), 2000);
             }
-        } catch (error) {
-            console.error('Google login failed:', error);
-            setStatusMessage('Login with Google failed. Please try again.');
-            setTimeout(() => {
-                setStatusMessage('');
-            }, 3000);
+        } catch (err) {
+            console.error('Google login failed:', err);
+            setStatusMessage('Google login failed. Please try again.');
         }
     };
 
@@ -94,41 +109,58 @@ const Signin = () => {
         <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
             <div className="login-container">
                 <div className="login-left">
-                    <div className="brand-logo">
-                        <img src={TaxLogo} alt="Tax_logo" className="tax-logo" />
-                    </div>
-                    <h2>Welcome to Tax.X</h2>
-                    <p>Manage your taxes with ease and security.</p>
+                    <img src={TaxLogo} alt="Tax Logo" className="brand-logo" />
+                    <h2>Welcome to TaxZone</h2>
+                    <p>Secure and simplified tax management for individuals.</p>
                 </div>
+
                 <div className="login-right">
-                    <h2>Create your Account</h2>
-                    <h4>If you don't have an account, register here to start your tax journey</h4>
-                    {statusMessage && <p className="message">{statusMessage}</p>}
-                    <form onSubmit={handleSubmit} className="login-form">
+                    <h2>Create Your Account</h2>
+                    <p className="subtext">Join now and manage your taxes with ease.</p>
+
+                    {statusMessage && (
+                        <div className={`status-message ${statusMessage.includes('successful') ? 'success' : 'error'}`}>
+                            {statusMessage}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit} className="login-form" autoComplete="off">
                         <input
                             type="text"
-                            placeholder="User Name"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            required
+                            name="username"
+                            placeholder="Username"
+                            value={formData.username}
+                            onChange={handleChange}
                             className="input-field"
+                            autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck="false"
                         />
                         <input
                             type="email"
-                            placeholder="Enter your email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
+                            name="email"
+                            placeholder="Email"
+                            value={formData.email}
+                            onChange={handleChange}
                             className="input-field"
+                            autoComplete="off"
+                            autoCorrect="off"
+                            autoCapitalize="off"
+                            spellCheck="false"
                         />
                         <div className="password-container">
                             <input
                                 type={showPassword ? 'text' : 'password'}
+                                name="password"
                                 placeholder="Password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
+                                value={formData.password}
+                                onChange={handleChange}
                                 className="input-field"
+                                autoComplete="new-password"
+                                autoCorrect="off"
+                                autoCapitalize="off"
+                                spellCheck="false"
                             />
                             <FontAwesomeIcon
                                 icon={showPassword ? faEye : faEyeSlash}
@@ -139,11 +171,15 @@ const Signin = () => {
                         <div className="password-container">
                             <input
                                 type={showPassword ? 'text' : 'password'}
+                                name="confirmPassword"
                                 placeholder="Confirm Password"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
                                 className="input-field"
+                                autoComplete="new-password"
+                                autoCorrect="off"
+                                autoCapitalize="off"
+                                spellCheck="false"
                             />
                             <FontAwesomeIcon
                                 icon={showPassword ? faEye : faEyeSlash}
@@ -151,17 +187,23 @@ const Signin = () => {
                                 className="eye-icon"
                             />
                         </div>
-                        <div className="terms-container">
-                            <input type="checkbox" required /> I agree with Terms & Conditions
-                        </div>
+                        <label className="terms-checkbox">
+                            <input type="checkbox" required />
+                            I agree to the <a href="/terms" target="_blank" rel="noopener noreferrer" className="terms-link">Terms & Conditions</a>
+                        </label>
                         <button type="submit" className="submit-button" disabled={loading}>
-                            {loading ? 'Signing up...' : 'Sign Up'}
+                            {loading ? 'Registering...' : 'Sign Up'}
                         </button>
-                        <h4>Already Registered?</h4>
-                        <button type="button" className="secondary-button" onClick={() => navigate('/login')}>Sign In</button>
+                        <p className="switch-link">Already have an account? <span onClick={() => navigate('/login')}>Sign In</span></p>
                     </form>
+
                     <div className="google-login">
-                        <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => console.log('Google Login Error')} text="Sign up with Google" />
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setStatusMessage('Google login failed')}
+                            text="signup_with"
+                            theme="outline"
+                        />
                     </div>
                 </div>
             </div>

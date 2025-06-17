@@ -4,17 +4,19 @@
     background-color: #ffffff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 2rem;
-    overflow-x: auto; /* Enable horizontal scroll if needed */
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: #023636 #e8f8f8; /* For Firefox - thumb and track colors */
-    scroll-behavior: smooth; /* Add smooth scrolling */
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #023636 #e8f8f8;
+    scroll-behavior: smooth;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    position: relative;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Webkit browsers (Chrome, Safari, Edge) scrollbar styling */
+/* Webkit browsers scrollbar styling */
 .menuContainer::-webkit-scrollbar {
-    height: 8px; /* Horizontal scrollbar height */
+    height: 8px;
 }
 
 .menuContainer::-webkit-scrollbar-track {
@@ -35,12 +37,12 @@
 .menuWrapper {
     display: flex;
     align-items: center;
-    justify-content: center; /* Change from flex-start to center */
-    flex-wrap: nowrap; /* Prevent wrapping */
+    justify-content: flex-start;
+    flex-wrap: nowrap;
     gap: 0.3rem;
-    min-width: max-content; /* Ensure all items fit */
+    min-width: max-content;
     padding: 0 1rem;
-    max-width: fit-content; /* Ensure wrapper only takes needed space */
+    margin: 0 auto;
 }
 
 .menuItem {
@@ -49,41 +51,41 @@
     gap: 0.75rem;
     padding: 0.75rem 1.5rem;
     border-radius: 10px;
-    border-color: #023636;
+    border: 0.1px solid #bdf5f5;
     cursor: pointer;
     transition: all 0.3s ease;
     background-color: #e8f8f8;
-    width: 180px;
+    min-width: 220px;
     height: 50px;
-    flex-shrink: 0; /* Prevent shrinking */
-    border: 0.1px solid #bdf5f5; /* Add border */
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .menuItem:hover {
     background-color: #d0f0f0;
-    border-color: #034f4f; /* Darken border on hover */
+    border-color: #034f4f;
 }
 
 .menuItem.active {
     background-color: #023636;
     color: white;
-    border-color: #023636; /* Keep border color same as background when active */
+    border-color: #023636;
 }
 
 .menuNumber {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px; /* Fixed width */
-    height: 30px; /* Fixed height - same as width for perfect circle */
-    min-width: 30px; /* Prevent shrinking */
-    min-height: 30px; /* Prevent shrinking */
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
     border-radius: 50%;
     background-color: #023636;
     color: white;
     font-size: 0.9rem;
     font-weight: 500;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 .active .menuNumber {
@@ -94,6 +96,10 @@
 .menuLabel {
     font-size: 0.95rem;
     font-weight: 500;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+    flex: 1;
 }
 
 .connector {
@@ -103,6 +109,7 @@
     justify-content: center;
     width: 30px;
     height: 20px;
+    flex-shrink: 0;
 }
 
 .connector::before,
@@ -124,38 +131,81 @@
     left: 12px;
 }
 
+/* Media Queries */
+@media (max-width: 1024px) {
+    .menuItem {
+        min-width: 200px;
+        padding: 0.6rem 1.2rem;
+    }
 
+    .menuLabel {
+        font-size: 0.9rem;
+    }
+}
 
 @media (max-width: 768px) {
+    .menuContainer {
+        padding: 0.75rem;
+    }
+
     .menuWrapper {
-        flex-direction: row; /* Keep row direction */
-        justify-content: center; /* Keep centered on mobile */
-        gap: 1rem;
+        gap: 0.2rem;
+        padding: 0 0.5rem;
+    }
+
+    .menuItem {
+        min-width: 180px;
+        height: 45px;
+        padding: 0.5rem 1rem;
+    }
+
+    .menuNumber {
+        width: 25px;
+        height: 25px;
+        min-width: 25px;
+        min-height: 25px;
+        font-size: 0.8rem;
+    }
+
+    .menuLabel {
+        font-size: 0.85rem;
     }
 
     .connector {
         width: 20px;
     }
-    
-    .connector::before {
-        left: 4px;
+}
+
+@media (max-width: 480px) {
+    .menuContainer {
+        padding: 0.5rem;
     }
-    
-    .connector::after {
-        left: 8px;
+
+    .menuWrapper {
+        gap: 0.15rem;
+        padding: 0 0.25rem;
     }
 
     .menuItem {
-        width: 180px;
-        height: 50px;
-        border: 2px solid #023636;
+        min-width: 160px;
+        height: 40px;
+        padding: 0.4rem 0.8rem;
     }
 
     .menuNumber {
-        width: 30px;
-        height: 30px;
-        min-width: 30px;
-        min-height: 30px;
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        min-height: 22px;
+        font-size: 0.75rem;
+    }
+
+    .menuLabel {
+        font-size: 0.8rem;
+    }
+
+    .connector {
+        width: 15px;
     }
 }
 

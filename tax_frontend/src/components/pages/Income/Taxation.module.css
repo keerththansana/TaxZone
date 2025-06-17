@@ -410,11 +410,85 @@
 
 .buttonContainer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    margin-top: 1rem;
+    margin-top: 2rem;
+    width: 100%;
+}
+
+.rightButtons {
+    display: flex;
     gap: 1rem;
-    padding: 1rem;
+}
+
+.backButton {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: #023636;
+    color: white;
+    box-shadow: 0 2px 4px rgba(2, 54, 54, 0.2);
+}
+
+.backButton:hover {
+    background-color: #012929;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(2, 54, 54, 0.3);
+}
+
+.analysisButton {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: #023636;
+    color: white;
+    box-shadow: 0 2px 4px rgba(2, 54, 54, 0.2);
+}
+
+.analysisButton:hover {
+    background-color: #012929;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(2, 54, 54, 0.3);
+}
+
+.analysisButton:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.nextButton {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background-color: #023636;
+    color: white;
+    box-shadow: 0 2px 4px rgba(2, 54, 54, 0.2);
+}
+
+.nextButton:hover {
+    background-color: #012929;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(2, 54, 54, 0.3);
 }
 
 .selectAllContainer {
@@ -531,7 +605,7 @@
     color: #dc3545;
     cursor: pointer;
     border-radius: 0.25rem;
-    transition: all 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .removeButton:hover {
@@ -590,7 +664,7 @@
 }
 
 .documentName:hover {
-    text-decoration: underline;
+    text-decoration: underline
 }
 
 /* File icon colors */
@@ -618,17 +692,161 @@
     color: #757575 !important;
 }
 
-.analysisButton {
-    background-color: #023636;
-    color: white;
-    padding: 0.6rem 1.5rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-size: 0.95rem;
-    transition: background-color 0.3s ease;
+.personalInfoContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
-.analysisButton:hover {
-    background-color: #034f4f;
+.personalInfoHeading {
+    font-size: 18px;
+    font-weight: 600;
+    font-style: bold;
+    color: #023636;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.personalInfoField {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+.personalInfoLabel {
+    min-width: 120px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    text-align: left;
+}
+
+.personalInfoInput {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.personalInfoInput:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.personalInfoInput::placeholder {
+    color: #999;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .personalInfoContainer {
+        padding: 15px;
+        gap: 15px;
+        margin: 0 15px 30px 15px;
+    }
+
+    .personalInfoField {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .personalInfoLabel {
+        min-width: auto;
+    }
+
+    .personalInfoInput {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .personalInfoContainer {
+        padding: 10px;
+        gap: 10px;
+        margin: 0 10px 20px 10px;
+    }
+
+    .personalInfoLabel {
+        font-size: 13px;
+    }
+
+    .personalInfoInput {
+        padding: 8px;
+        font-size: 13px;
+    }
+}
+
+.actionButtons {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    justify-content: center;
+}
+
+.analysisButton,
+.autoFillButton {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 150px;
+}
+
+.analysisButton {
+    background: #023636;
+    color: white;
+}
+
+.analysisButton:hover:not(:disabled) {
+    background: #034f4f;
+    transform: translateY(-1px);
+}
+
+.autoFillButton {
+    background: #28a745;
+    color: white;
+}
+
+.autoFillButton:hover:not(:disabled) {
+    background: #218838;
+    transform: translateY(-1px);
+}
+
+.analysisButton:disabled,
+.autoFillButton:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+@media (max-width: 768px) {
+    .actionButtons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .analysisButton,
+    .autoFillButton {
+        width: 100%;
+        padding: 0.875rem;
+    }
 }

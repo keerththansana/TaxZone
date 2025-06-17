@@ -21,7 +21,6 @@
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
-  color: white;
 }
 
 .App-link {
@@ -35,4 +34,56 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Add this to ensure proper spacing for pages with navigation bar */
+.services-page,
+.terms-page,
+.contact-page,
+.guidelines-page,
+.calculator-page,
+.assistant-page,
+.taxation-page,
+.calendar-page,
+.reset-password-page,
+.new-password-page,
+.services-main-page,
+.calculation-service-page,
+.tax-report-service-page,
+.assistant-service-page,
+.notification-service-page,
+.employment-income-page {
+  padding-top: 80px; /* Match the navigation bar height */
+  min-height: 100vh;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .services-page,
+  .terms-page,
+  .contact-page,
+  .guidelines-page,
+  .calculator-page,
+  .assistant-page,
+  .taxation-page,
+  .calendar-page,
+  .reset-password-page,
+  .new-password-page,
+  .services-main-page,
+  .calculation-service-page,
+  .tax-report-service-page,
+  .assistant-service-page,
+  .notification-service-page,
+  .employment-income-page {
+    padding-top: 70px; /* Match the mobile navigation bar height */
+  }
+}
+
+/* Ensure the navigation bar stays on top */
+.nav {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
 }

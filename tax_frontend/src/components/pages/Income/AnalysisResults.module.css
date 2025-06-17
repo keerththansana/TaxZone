@@ -4,75 +4,155 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 1rem;
+    text-align: left;
 }
 
 .container {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    width: 90%;
-    max-width: 1000px;
+    background: #e8f8f8;
+    border-radius: 12px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 1200px;
     max-height: 90vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    border: 1px solid #e0e0e0;
 }
 
 .header {
-    background-color: #023636;
-    color: white;
-    padding: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #023636;
 }
 
 .header h1 {
     margin: 0;
+    font-size: 2rem;
+    color: #023636;
+    font-weight: 600;
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.undoButton,
+.redoButton {
+    background: none;
+    border: solid 1px #023636;
     font-size: 1.5rem;
+    cursor: pointer;
+    color: #023636;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 4px;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+.undoButton:hover:not(:disabled),
+.redoButton:hover:not(:disabled) {
+    background-color: #023636;
+    color: white;
+    transform: scale(1.1);
+}
+
+.undoButton:disabled,
+.redoButton:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .closeButton {
     background: none;
     border: none;
-    color: white;
-    font-size: 1.5rem;
+    font-size: 2rem;
     cursor: pointer;
+    color: #023636;
     padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+}
+
+.closeButton:hover {
+    background-color: #023636;
+    color: white;
+    transform: scale(1.1);
 }
 
 .content {
-    padding: 1rem;
-    overflow-y: auto;
-  text-align: justify;
+    margin-bottom: 2rem;
 }
 
 .resultCard {
-    background-color: #f8f8f8;
-    border-radius: 6px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.resultCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
 .resultCard h2 {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.3rem;
     color: #023636;
-    margin-top: 0;
-    font-size: 1.2rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.75rem;
 }
 
 .section {
-    margin: 1rem 0;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+
 }
 
 .section h3 {
+    margin: 0 0 1rem 0;
+    font-size: 1.1rem;
     color: #023636;
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section h3::before {
+    content: '';
+    width: 4px;
+    height: 1.2rem;
+    background-color: #023636;
+    border-radius: 2px;
 }
 
 .section ul {
@@ -82,53 +162,683 @@
 }
 
 .section li {
+    padding: 0.75rem;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.section li:hover {
+    background-color: #f8f9fa;
+}
+
+.section li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.itemDescription {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 3rem;
+    padding-right:2rem;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.itemDescription > span {
+    flex: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    line-height: 1.5;
+}
+
+.itemType {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    min-width: 200px;
+    max-width: 200px;
+    padding-left: 0.5rem;
+    padding-right: 1rem;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.itemAmount {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 180px;
+    justify-content: flex-end;
+    padding-right: 0.5rem;
+}
+
+.itemActions {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    justify-content: center;
+    min-width: 80px;
+    align-items: center;
+}
+
+.amountInput {
+    width: 120px;
     padding: 0.5rem;
-    border-bottom: 1px solid #eee;
-  text-align: justify;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+.actionButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.editButton {
+    color: #023636;
+}
+
+.editButton:hover {
+    background: #e3f2fd;
+}
+
+.deleteButton {
+    color: #f44336;
+}
+
+.deleteButton:hover {
+    background: #ffebee;
+}
+
+.editingItem {
+    background: #f8f9fa;
+    border-radius: 4px;
+    padding: 0.5rem;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    display: grid;
+    grid-template-columns: 300px 1fr 180px 80px;
+    align-items: center;
+    padding: 0.75rem;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 1rem;
+    min-height: 3rem;
+    grid-template-areas: "type description amount actions";
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+li:hover {
+    background: #f8f9fa;
+}
+
+.addButton {
+    color: #023636;
+}
+
+.addButton:hover {
+    background: #034f4f;
+}
+
+.addItemForm {
+    display: grid;
+    grid-template-columns: 300px 1fr 180px 80px 80px;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.addItemForm input {
+    flex: 1;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.addItemForm input:focus {
+    outline: none;
+    border-color: #023636;
+    box-shadow: 0 0 0 2px rgba(2, 54, 54, 0.1);
+}
+
+.addItemForm button {
+    padding: 0.25rem 0.75rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.addItemForm button[type="submit"] {
+    background: #023636;
+    color: white;
+}
+
+.addItemForm button[type="submit"]:hover {
+    background: #023636;
+}
+
+.addItemForm button[type="button"] {
+    background: #6c757d;
+    color: white;
+}
+
+.addItemForm button[type="button"]:hover {
+    background: #5a6268;
+}
+
+.categoryHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #023636;
+}
+
+.categoryHeader h4 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #023636;
+    font-weight: 600;
+}
+
+.addCategoryButton {
+    background: #023636;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
+}
+
+.addCategoryButton:hover {
+    background: #034a4a;
+    transform: translateY(-1px);
 }
 
 .totalIncome {
-    margin-top: 1.5rem;
-    padding-top: 1rem;
-    border-top: 2px solid #023636;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #e8f8f8 0%, #d1f2f2 100%);
+    border-radius: 8px;
+    border: 2px solid #023636;
+    position: relative;
+    overflow: hidden;
+}
+
+.totalIncome::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #023636 0%, #034f4f 100%);
+}
+
+.totalIncome h3 {
+    margin: 0 0 1rem 0;
+    color: #023636;
+    font-weight: 600;
+    font-size: 1.2rem;
 }
 
 .totalIncome p {
-  text-align: justify;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #023636;
+    margin: 0;
+    font-family: 'Courier New', monospace;
 }
 
 .error {
     color: #dc3545;
     padding: 1rem;
-    background-color: #fee;
-    border-radius: 4px;
-  text-align: justify;
+    margin: 1rem 0;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.error::before {
+    content: '⚠️';
+    font-size: 1.2rem;
+}
+
+.footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 2rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.autoFillButton {
+    background: linear-gradient(135deg, #023636 0%, #034f4f 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(2, 54, 54, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.autoFillButton::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.autoFillButton:hover::before {
+    left: 100%;
+}
+
+.autoFillButton:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(2, 54, 54, 0.4);
+}
+
+.autoFillButton:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.autoFillButton:disabled::before {
+    display: none;
+}
+
+.autoFillButton:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 12px rgba(2, 54, 54, 0.3);
 }
 
 .categorySection {
-    margin: 20px 0;
-    padding: 15px;
+    margin-bottom: 2rem;
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
     border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    background-color: #f8f9fa;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
-.categorySection h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #3498db;
-    padding-bottom: 5px;
+/* Table Header Styles */
+.tableHeader {
+    display: grid;
+    grid-template-columns: 300px 1fr 180px 80px;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.75rem;
+    background: #023636;
+    color: white;
+    border-radius: 6px 6px 0 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 0;
+    grid-template-areas: "type description amount actions";
 }
 
-.summary {
-    margin-top: 30px;
-    padding: 20px;
-    background-color: #e8f4f8;
-    border-radius: 5px;
+.headerType {
+    font-weight: 600;
+    color: white;
+    padding-left: 0.5rem;
+    min-width: 200px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.summary p {
-    font-size: 1.1em;
-    margin: 10px 0;
-    color: #2c3e50;
+.headerDescription {
+    font-weight: 600;
+    color: white;
+    padding-left: 1.5rem;
+    text-align: left;
+}
+
+.headerAmount {
+    font-weight: 600;
+    color: white;
+    text-align: right;
+    padding-right: 0.5rem;
+}
+
+.headerActions {
+    font-weight: 600;
+    color: white;
+    text-align: center;
+}
+
+.typeSelect {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.descriptionInput {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    text-align: left;
+    min-width: 0;
+}
+
+@media (max-width: 1024px) {
+    .container {
+        padding: 1.5rem;
+        max-width: 95%;
+    }
+
+    .header h1 {
+        font-size: 1.8rem;
+    }
+
+    .resultCard {
+        padding: 1.25rem;
+    }
+
+    .resultCard h2 {
+        font-size: 1.2rem;
+    }
+
+    .totalIncome p {
+        font-size: 1.3rem;
+    }
+
+    .autoFillButton {
+        padding: 0.875rem 1.75rem;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .overlay {
+        padding: 0.5rem;
+    }
+
+    .container {
+        padding: 1rem;
+        max-height: 95vh;
+    }
+
+    .header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .header h1 {
+        font-size: 1.5rem;
+    }
+
+    .headerActions {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .undoButton,
+    .redoButton {
+        font-size: 1.25rem;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .closeButton {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 1.5rem;
+    }
+
+    .resultCard {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .resultCard h2 {
+        font-size: 1.1rem;
+    }
+
+    .section {
+        padding: 0.75rem;
+    }
+
+    .section h3 {
+        font-size: 1rem;
+    }
+
+    .section li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .totalIncome {
+        padding: 1rem;
+    }
+
+    .totalIncome h3 {
+        font-size: 1.1rem;
+    }
+
+    .totalIncome p {
+        font-size: 1.2rem;
+    }
+
+    .autoFillButton {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    .categorySection {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+
+    .categorySection h4 {
+        font-size: 1rem;
+    }
+
+    .addItemForm {
+        grid-template-columns: 1fr;
+    }
+
+    /* Responsive table headers */
+    .tableHeader {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .headerType,
+    .headerDescription,
+    .headerAmount,
+    .headerActions {
+        text-align: left;
+    }
+
+    li {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .itemType {
+        min-width: auto;
+        padding-left: 0;
+        padding-right: 0;
+        font-weight: 600;
+        color: #023636;
+    }
+
+    .itemDescription {
+        padding-left: 0;
+        padding-right: 0;
+        text-align: left;
+        justify-content: flex-start;
+    }
+
+    .itemDescription > span {
+        text-align: left;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .itemAmount {
+        min-width: auto;
+        justify-content: flex-start;
+        padding-right: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .overlay {
+        padding: 0.25rem;
+    }
+
+    .container {
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .header h1 {
+        font-size: 1.3rem;
+    }
+
+    .closeButton {
+        top: 0.75rem;
+        right: 0.75rem;
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.25rem;
+    }
+
+    .resultCard {
+        padding: 0.75rem;
+    }
+
+    .resultCard h2 {
+        font-size: 1rem;
+    }
+
+    .section {
+        padding: 0.5rem;
+    }
+
+    .section h3 {
+        font-size: 0.95rem;
+    }
+
+    .section li {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .totalIncome {
+        padding: 0.75rem;
+    }
+
+    .totalIncome h3 {
+        font-size: 1rem;
+    }
+
+    .totalIncome p {
+        font-size: 1.1rem;
+    }
+
+    .autoFillButton {
+        padding: 0.875rem;
+        font-size: 0.95rem;
+    }
+
+    .categorySection {
+        padding: 0.75rem;
+    }
+
+    .categorySection h4 {
+        font-size: 0.95rem;
+    }
+
+    /* Responsive table headers for small screens */
+    .tableHeader {
+        font-size: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .summary {
+        padding: 1rem;
+    }
+
+    .summary p {
+        font-size: 0.9rem;
+    }
+
+    .error {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
 }

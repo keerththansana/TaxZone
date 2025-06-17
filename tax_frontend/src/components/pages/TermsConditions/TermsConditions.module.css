@@ -1,0 +1,474 @@
+.container {
+    min-height: 100vh;
+    max-width: 250vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e0 100%);
+    padding: 0;
+    display: flex;
+    text-align: left;
+    align-items: flex-start;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.content {
+    background: white;
+    border-radius: 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background: linear-gradient(135deg, #023636 0%, #045a5a 50%, #067a7a 100%);
+    color: white;
+    padding: 60px 80px 40px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="10" cy="60" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="0.5" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+}
+
+.header h2 {
+    margin: 0 0 16px 0;
+    font-size: 3.5rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    position: relative;
+    z-index: 1;
+}
+
+.lastUpdated {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 1.1rem;
+    font-weight: 400;
+    position: relative;
+    z-index: 1;
+}
+
+.termsContent {
+    padding: 60px 80px;
+    flex: 1;
+    max-height: none;
+    overflow-y: visible;
+    background: #ffffff;
+    line-height: 1.8;
+}
+
+.section {
+    margin-bottom: 48px;
+    page-break-inside: avoid;
+}
+
+.section:last-child {
+    margin-bottom: 0;
+}
+
+.section h3 {
+    color: #023636;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #e8f8f8;
+    position: relative;
+    letter-spacing: -0.5px;
+    
+}
+
+.section h3::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #023636, #045a5a);
+    border-radius: 2px;
+}
+
+.section p {
+    color: #374151;
+    line-height: 1.7;
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+    font-weight: 400;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.section ul {
+    margin: 20px 0;
+    padding-left: 28px;
+}
+
+.section li {
+    color: #374151;
+    line-height: 1.7;
+    margin-bottom: 14px;
+    font-size: 0.95rem;
+    font-weight: 400;
+    position: relative;
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+.section li strong {
+    color: #023636;
+    font-weight: 600;
+}
+
+.section li::marker {
+    color: #023636;
+    font-weight: 600;
+}
+
+.contactInfo {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 32px;
+    border-radius: 12px;
+    border-left: 6px solid #023636;
+    margin-top: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.contactInfo p {
+    margin: 12px 0;
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.contactInfo strong {
+    color: #023636;
+    font-weight: 600;
+}
+
+.actionSection {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    padding: 48px 80px;
+    border-top: 1px solid #e5e7eb;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.checkboxContainer {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: white;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.checkboxContainer:hover {
+    border-color: #023636;
+    box-shadow: 0 4px 16px rgba(2, 54, 54, 0.1);
+    transform: translateY(-1px);
+}
+
+.checkbox {
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
+    margin-top: 2px;
+    accent-color: #023636;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkboxLabel {
+    color: #1f2937;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    line-height: 1.6;
+    user-select: none;
+    margin: 0;
+}
+
+.buttonContainer {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.button {
+    padding: 16px 32px;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 140px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    font-family: inherit;
+}
+
+.cancelButton {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 2px solid #e5e7eb;
+}
+
+.cancelButton:hover {
+    background: #e5e7eb;
+    color: #374151;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border-color: #d1d5db;
+}
+
+.acceptButton {
+    background: linear-gradient(135deg, #023636 0%, #045a5a 100%);
+    color: white;
+    border: 2px solid #023636;
+    box-shadow: 0 4px 12px rgba(2, 54, 54, 0.3);
+}
+
+.acceptButton:hover:not(.disabled) {
+    background: linear-gradient(135deg, #045a5a 0%, #067a7a 100%);
+    border-color: #045a5a;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(2, 54, 54, 0.4);
+}
+
+.acceptButton.disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .header {
+        padding: 50px 60px 35px 60px;
+    }
+
+    .header h1 {
+        font-size: 3rem;
+    }
+
+    .termsContent {
+        padding: 50px 60px;
+    }
+
+    .actionSection {
+        padding: 40px 60px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .header {
+        padding: 40px 50px 30px 50px;
+    }
+
+    .header h2 {
+        font-size: 2.5rem;
+    }
+
+    .termsContent {
+        padding: 40px 50px;
+    }
+
+    .section h3 {
+        font-size: 1.6rem;
+    }
+
+    .section p,
+    .section li {
+        font-size: 0.9rem;
+    }
+
+    .actionSection {
+        padding: 35px 50px;
+    }
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 30px 30px 25px 30px;
+    }
+
+    .header h2 {
+        font-size: 2.2rem;
+        letter-spacing: -0.5px;
+    }
+
+    .lastUpdated {
+        font-size: 1rem;
+    }
+
+    .termsContent {
+        padding: 30px 30px;
+    }
+
+    .section {
+        margin-bottom: 36px;
+    }
+
+    .section h3 {
+        font-size: 1.4rem;
+        margin-bottom: 20px;
+    }
+
+    .section p,
+    .section li {
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+    .contactInfo {
+        padding: 24px;
+        margin-top: 20px;
+    }
+
+    .actionSection {
+        padding: 30px 30px;
+    }
+
+    .checkboxContainer {
+        padding: 20px;
+        margin-bottom: 28px;
+    }
+
+    .checkboxLabel {
+        font-size: 1rem;
+    }
+
+    .buttonContainer {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .button {
+        width: 100%;
+        padding: 18px 24px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        padding: 25px 20px 20px 20px;
+    }
+
+    .header h2 {
+        font-size: 1.8rem;
+    }
+
+    .lastUpdated {
+        font-size: 0.9rem;
+    }
+
+    .termsContent {
+        padding: 25px 20px;
+    }
+
+    .section {
+        margin-bottom: 30px;
+    }
+
+    .section h3 {
+        font-size: 1.3rem;
+        margin-bottom: 16px;
+    }
+
+    .section p,
+    .section li {
+        font-size: 0.8rem;
+        line-height: 1.5;
+    }
+
+    .contactInfo {
+        padding: 20px;
+        margin-top: 16px;
+    }
+
+    .actionSection {
+        padding: 25px 20px;
+    }
+
+    .checkboxContainer {
+        padding: 16px;
+        margin-bottom: 24px;
+    }
+
+    .checkboxLabel {
+        font-size: 0.95rem;
+    }
+
+    .button {
+        font-size: 0.95rem;
+        padding: 16px 20px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .container {
+        background: white;
+        padding: 0;
+    }
+
+    .content {
+        box-shadow: none;
+        border-radius: 0;
+    }
+
+    .header {
+        background: #023636 !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    .actionSection {
+        display: none;
+    }
+
+    .termsContent {
+        max-height: none;
+        overflow: visible;
+        padding: 40px 60px;
+    }
+
+    .section {
+        page-break-inside: avoid;
+        margin-bottom: 30px;
+    }
+
+    .section h2 {
+        color: #023636 !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    .section p,
+    .section li {
+        color: #000 !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+} 

@@ -2,10 +2,11 @@
 .assistant-layout {
     display: flex;
     width: 100%;
-    height: 100vh;
+    height: calc(100vh - 80px); /* Subtract navigation bar height */
     background-color: #e8f8f8; /* Match chat box background */
     gap: 0; /* Remove gap */
     overflow: hidden; /* Prevent page scroll */
+    margin-top: 0; /* Remove margin to eliminate white space */
 }
 
 /* Chat History Sidebar */
@@ -15,10 +16,10 @@
     border-right: 1px solid #034747;
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100vh - 80px); /* Subtract navigation bar height */
     position: fixed;
     left: 0;
-    top: 0;
+    top: 80px; /* Position directly below navigation bar */
 }
 
 /* New Chat Button */
@@ -115,7 +116,7 @@
 .assistant-container {
     flex: 1;
     margin-left: 260px; /* Match sidebar width */
-    height: calc(100vh - 100px); /* Decreased height to leave space for input */
+    height: calc(100vh - 180px); /* Subtract navigation bar height and input container height */
     position: relative;
     overflow-y: auto;
     scroll-behavior: smooth;
@@ -723,4 +724,21 @@
     border-radius: 4px;
     color: #023636;
     font-weight: 500;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+    .assistant-layout {
+        height: calc(100vh - 70px); /* Mobile navigation height */
+        margin-top: 0; /* Remove margin for mobile too */
+    }
+    
+    .chat-history-sidebar {
+        height: calc(100vh - 70px);
+        top: 70px;
+    }
+    
+    .assistant-container {
+        height: calc(100vh - 170px);
+    }
 }

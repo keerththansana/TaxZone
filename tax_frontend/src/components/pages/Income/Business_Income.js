@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import Header from '../../common/Header/Header';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { useFormPersist } from './Data_Persistence';
+import { AutoFillHelper } from '../../../utils/autoFillHelper';
 
 const BusinessIncome = () => {
     const [openDescription, setOpenDescription] = useState(null);
     const [selectedDeductions, setSelectedDeductions] = useState([]);
+    const [showForm, setShowForm] = useState(false);
 
     // Initialize form data with persistence
     const [formData, setFormData] = useFormPersist('businessIncomeData', {
@@ -89,6 +92,221 @@ const BusinessIncome = () => {
         updateFormData({ totalBusinessIncome: total });
     }, [soleProprietorshipEntries, partnershipEntries, trustEntries, bettingEntries, otherEntries]);
 
+    // Add event listener for auto-fill data
+    useEffect(() => {
+        const fetchAutoFillData = async () => {
+            try {
+                // First check if we have analysis data in session storage
+                const storedAnalysis = sessionStorage.getItem('last_analysis');
+                if (storedAnalysis) {
+                    try {
+                        const analysisData = JSON.parse(storedAnalysis);
+                        console.log('Found analysis data in session:', analysisData);
+                        
+                        // Store the data in localStorage for persistence
+                        localStorage.setItem('last_analysis', JSON.stringify(analysisData));
+                        
+                        // Format the data for the business form
+                        const formattedData = {
+                            soleProprietorshipEntries: [],
+                            partnershipEntries: [],
+                            trustEntries: [],
+                            bettingEntries: [],
+                            otherEntries: [],
+                            selectedTypes: [],
+                            deductionEntries: {},
+                            totalBusinessIncome: 0,
+                            totalDeductions: 0
+                        };
+
+                        // Process income items from each result
+                        analysisData.forEach(result => {
+                            if (result.analysis && result.analysis.income_items) {
+                                result.analysis.income_items.forEach(item => {
+                                    const description = (item.description || '').toLowerCase();
+                                    const amount = item.amount || 0;
+                                    let category = item.category || '';
+
+                                    // Re-categorize trust beneficiary income as business income
+                                    if (description.includes('trust') || 
+                                        description.includes('beneficiary') || 
+                                        description.includes('samurdhi')) {
+                                        category = 'Business Income';
+                                    }
+
+                                    if (category === 'Business Income') {
+                                        if (description.includes('sole') || description.includes('proprietorship')) {
+                                            formattedData.soleProprietorshipEntries.push({
+                                                name: 'Sole Proprietorship',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('sole-proprietorship')) {
+                                                formattedData.selectedTypes.push('sole-proprietorship');
+                                            }
+                                        } else if (description.includes('partnership')) {
+                                            formattedData.partnershipEntries.push({
+                                                name: 'Partnership',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('partnership')) {
+                                                formattedData.selectedTypes.push('partnership');
+                                            }
+                                        } else if (description.includes('trust') || 
+                                                description.includes('beneficiary') || 
+                                                description.includes('samurdhi')) {
+                                            formattedData.trustEntries.push({
+                                                name: item.description || 'Trust Beneficiary',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('trust-beneficiary')) {
+                                                formattedData.selectedTypes.push('trust-beneficiary');
+                                            }
+                                        } else if (description.includes('betting') || description.includes('gambling')) {
+                                            formattedData.bettingEntries.push({
+                                                name: 'Betting',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('betting-gaming')) {
+                                                formattedData.selectedTypes.push('betting-gaming');
+                                            }
+                                        } else {
+                                            formattedData.otherEntries.push({
+                                                name: item.description || 'Other Business Income',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('other-business')) {
+                                                formattedData.selectedTypes.push('other-business');
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+
+                            // Process deductions
+                            if (result.analysis && result.analysis.deductions) {
+                                result.analysis.deductions.forEach(deduction => {
+                                    const type = (deduction.type || '').toLowerCase();
+                                    const source = (deduction.source || '').toLowerCase();
+                                    const amount = deduction.amount || 0;
+
+                                    if (type.includes('business') || source.includes('business')) {
+                                        formattedData.deductionEntries[deduction.type || 'AIT'] = {
+                                            type: deduction.type || 'AIT',
+                                            source: deduction.source || 'Business Income',
+                                            name: deduction.description || 'Business Tax Deduction',
+                                            amount: amount.toString(),
+                                            selected: true
+                                        };
+                                    }
+                                });
+                            }
+                        });
+
+                        // Calculate totals
+                        formattedData.totalBusinessIncome = 
+                            formattedData.soleProprietorshipEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.partnershipEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.trustEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.bettingEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+                        formattedData.totalDeductions = Object.values(formattedData.deductionEntries)
+                            .reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+                        // Only update if we have data
+                        if (formattedData.soleProprietorshipEntries.length > 0 || 
+                            formattedData.partnershipEntries.length > 0 || 
+                            formattedData.trustEntries.length > 0 || 
+                            formattedData.bettingEntries.length > 0 || 
+                            formattedData.otherEntries.length > 0 || 
+                            Object.keys(formattedData.deductionEntries).length > 0) {
+                            console.log('Formatted data for business form:', formattedData);
+
+                            // Update the form with the formatted data
+                            updateFormData(formattedData);
+
+                            // Store the formatted data in session storage
+                            sessionStorage.setItem('businessIncomeData', JSON.stringify(formattedData));
+                        } else {
+                            console.log('No relevant business data found in analysis');
+                        }
+                    } catch (error) {
+                        console.error('Error processing stored analysis data:', error);
+                    }
+                } else {
+                    console.log('No analysis data found in session storage - using default form');
+                }
+            } catch (error) {
+                console.error('Error fetching auto-fill data:', error);
+            }
+        };
+
+        // Check session storage first
+        const storedData = sessionStorage.getItem('businessIncomeData');
+        if (storedData) {
+            try {
+                const parsedData = JSON.parse(storedData);
+                updateFormData(parsedData);
+            } catch (error) {
+                console.error('Error parsing stored data:', error);
+            }
+        }
+
+        // Then try to fetch auto-fill data
+        fetchAutoFillData();
+
+        // Listen for auto-fill data updates
+        const handleAutoFillUpdate = (event) => {
+            console.log('Received auto-fill event in Business Income:', event);
+            if (event.data && event.data.type === 'autoFillUpdate') {
+                const data = event.data.payload;
+                console.log('Processing auto-fill data in Business Income:', data);
+                if (data.BusinessIncome) {
+                    console.log('Updating business form with data:', data.BusinessIncome);
+                    updateFormData({
+                        soleProprietorshipEntries: data.BusinessIncome.soleProprietorshipEntries || [],
+                        partnershipEntries: data.BusinessIncome.partnershipEntries || [],
+                        trustEntries: data.BusinessIncome.trustEntries || [],
+                        bettingEntries: data.BusinessIncome.bettingEntries || [],
+                        otherEntries: data.BusinessIncome.otherEntries || [],
+                        selectedTypes: data.BusinessIncome.selectedTypes || [],
+                        deductionEntries: data.BusinessIncome.deductionEntries || {},
+                        totalBusinessIncome: data.BusinessIncome.totalBusinessIncome || 0,
+                        totalDeductions: data.BusinessIncome.totalDeductions || 0
+                    });
+                }
+            }
+        };
+
+        // Listen for custom auto-fill event as fallback
+        const handleCustomAutoFillUpdate = (event) => {
+            console.log('Received custom auto-fill event in Business Income:', event);
+            const data = event.detail;
+            if (data && data.BusinessIncome) {
+                console.log('Updating business form with custom event data:', data.BusinessIncome);
+                updateFormData({
+                    soleProprietorshipEntries: data.BusinessIncome.soleProprietorshipEntries || [],
+                    partnershipEntries: data.BusinessIncome.partnershipEntries || [],
+                    trustEntries: data.BusinessIncome.trustEntries || [],
+                    bettingEntries: data.BusinessIncome.bettingEntries || [],
+                    otherEntries: data.BusinessIncome.otherEntries || [],
+                    selectedTypes: data.BusinessIncome.selectedTypes || [],
+                    deductionEntries: data.BusinessIncome.deductionEntries || {},
+                    totalBusinessIncome: data.BusinessIncome.totalBusinessIncome || 0,
+                    totalDeductions: data.BusinessIncome.totalDeductions || 0
+                });
+            }
+        };
+
+        window.addEventListener('message', handleAutoFillUpdate);
+        window.addEventListener('autoFillDataUpdate', handleCustomAutoFillUpdate);
+        
+        return () => {
+            window.removeEventListener('message', handleAutoFillUpdate);
+            window.removeEventListener('autoFillDataUpdate', handleCustomAutoFillUpdate);
+        };
+    }, []);
+
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -143,28 +361,28 @@ const BusinessIncome = () => {
     const businessTypes = [
         {
             id: 'sole-proprietorship',
-            label: 'Sole Proprietorship Income',
-            description: 'Profit from a business owned and operated by you.'
+            label: 'Sole Proprietorship',
+            description: 'Income from a business owned and operated by a single individual.'
         },
         {
             id: 'partnership',
-            label: 'Partnership Business Income',
-            description: 'Your share of income from a business partnership.'
+            label: 'Partnership',
+            description: 'Income from a business owned by two or more individuals.'
         },
         {
             id: 'trust-beneficiary',
-            label: 'Trust Beneficiary Business Income',
-            description: 'Business income received as a beneficiary of a trust.'
+            label: 'Trust Beneficiary',
+            description: 'Income received as a beneficiary of a trust.'
         },
         {
             id: 'betting-gaming',
-            label: 'Betting, Gaming, Liquor & Tobacco Business Income',
-            description: 'Income from gambling, alcohol, or tobacco businesses.'
+            label: 'Betting, Gaming, Liquor & Tobacco',
+            description: 'Income from betting, gaming, liquor, or tobacco related activities.'
         },
         {
             id: 'other-business',
             label: 'Other Business Income',
-            description: 'Any other type of business income not listed above.'
+            description: 'Any other type of business income not covered above.'
         }
     ];
 
@@ -305,7 +523,8 @@ const BusinessIncome = () => {
     };
 
     return (
-        <>
+        <div className="business-income-page">
+            <Header />
             <TaxationMenu />
             <div className={styles.container}>
                 <div className={styles.header}>
@@ -398,7 +617,7 @@ const BusinessIncome = () => {
                     </div>
                 </form>
             </div>
-        </>
+        </div>
     );
 };
 

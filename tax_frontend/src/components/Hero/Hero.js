@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from '../common/Button/Button';
 import image1 from '../../assets/Home_Image.png';
 import image2 from '../../assets/home image.jpg';
@@ -7,6 +8,7 @@ import image4 from '../../assets/home7.jpg';
 import './Hero.css';
 
 const Hero = () => {
+  const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState('left');
 
@@ -16,6 +18,10 @@ const Hero = () => {
     { image: image3, alt: "Tax Filing" },
     { image: image4, alt: "AI Assistant" }
   ];
+
+  const handleGetStarted = () => {
+    navigate('/taxation');
+  };
 
   const nextSlide = () => {
     setCurrentSlide((current) => (current + 1) % slides.length);
@@ -56,7 +62,12 @@ const Hero = () => {
             Simplify your tax filing process with automated calculations, exemption insights, and timely 
             due date notifications, all in one seamless platform.
           </p>
-          <Button className="get-started-button">Get Started</Button>
+          <Button 
+            className="get-started-button"
+            onClick={handleGetStarted}
+          >
+            Get Started
+          </Button>
         </div>
         <div className="hero-slider">
           <div className="slider-container">

@@ -50,6 +50,7 @@ def calculate_tax(request):
         period = data.get('period', '').lower()
         amount = Decimal(str(data.get('amount', 0)))
         business_type = data.get('businessType')
+        foreign_type = data.get('foreignType')
 
         # Convert tax_type to match table name format
         tax_type_mapping = {
@@ -120,6 +121,10 @@ def calculate_tax(request):
                     query += " AND business_type = %s"
                     params.append(business_type)
                 
+                if tax_type == 'foreign' and foreign_type:
+                    query += " AND foreign_type = %s"
+                    params.append(foreign_type)
+                
                 query += " ORDER BY bracket_order"
                 
                 cursor.execute(query, params)
@@ -187,6 +192,7 @@ def calculate_tax(request):
                     'period': period,
                     'tax_type': tax_type,
                     'business_type': business_type if tax_type == 'business' else None,
+                    'foreignType': foreign_type if tax_type == 'foreign' else None,
                     'success': True
                 })
 
@@ -247,19 +253,28 @@ def calculate_rental_tax(request):
         year = tax_year.split('/')[0]
 
         with connection.cursor() as cursor:
-            # Get rental relief rate
-            cursor.execute("""
-                SELECT parameter_value 
-                FROM rental_tax_parameters_%s 
-                WHERE parameter_name = 'rental_relief_rate'
-                AND is_active = TRUE
-            """, [year])
+            # Calculate standard deduction (25%)
+            standard_deduction = amount * Decimal('0.25')
             
-            relief_rate = cursor.fetchone()[0]
-            relief_amount = amount * (relief_rate / Decimal('100'))
-            taxable_income = amount - relief_amount
+            # Get tax-free allowance
+            cursor.execute("""
+                SELECT relief_amount
+                FROM rental_tax_rates_%s 
+                WHERE period_type = %s 
+                AND is_active = TRUE 
+                ORDER BY bracket_order
+                LIMIT 1
+            """, [year, period])
+            
+            tax_free_allowance = cursor.fetchone()[0] or Decimal('0')
+            
+            # Calculate net income after standard deduction
+            net_income = amount - standard_deduction
+            
+            # Calculate taxable income by subtracting tax-free allowance from net income
+            taxable_income = max(net_income - tax_free_allowance, Decimal('0'))
 
-            # Get tax rates with corrected column names
+            # Get tax rates
             cursor.execute("""
                 SELECT rate, bracket_limit, relief_amount, is_flat_rate
                 FROM rental_tax_rates_%s 
@@ -275,7 +290,7 @@ def calculate_rental_tax(request):
             brackets = []
             remaining_income = taxable_income
 
-            for rate, bracket_limit, relief, is_flat in rates:
+            for rate, bracket_limit, _, is_flat in rates:
                 rate = Decimal(str(rate))
                 bracket_limit = Decimal(str(bracket_limit))
                 
@@ -292,11 +307,13 @@ def calculate_rental_tax(request):
 
             return Response({
                 'gross_income': float(amount),
-                'relief_rate': float(relief_rate),
-                'relief_amount': float(relief_amount),
+                'standard_deduction': float(standard_deduction),
+                'net_income': float(net_income),
+                'tax_free_allowance': float(tax_free_allowance),
                 'taxable_income': float(taxable_income),
                 'total_tax': float(total_tax),
                 'brackets': brackets,
+                'period': period,
                 'success': True
             })
 

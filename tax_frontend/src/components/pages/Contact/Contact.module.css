@@ -7,7 +7,7 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     margin: 40px auto;
-    min-height: 600px;
+    min-height: 300px;
 }
 
 .leftSection {
@@ -32,37 +32,40 @@
 }
 
 .leftSection .contactInfo p {
-    color: #4a4a4a;
     line-height: 1.8;
     margin-bottom: 40px;
-    font-size: 1.1rem;
+    font-size: 1rem;
     max-width: 90%;
 }
 
 .leftSection .infoDetails {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 15px;
 }
 
 .leftSection .infoItem {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     color: #023636;
-    padding: 16px;
-    background-color: #f8f8f8;
-    border-radius: 12px;
-    transition: transform 0.3s ease;
+    padding: px;
+    background-color: white;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
 .leftSection .infoItem:hover {
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: #6ebaf9;
 }
 
 .leftSection .infoItem img {
-    width: 32px;
-    height: 32px;
-    margin-right: 16px;
+    width: 35px;
+    height: 35px;
+    margin-right: 15px;
     padding: 8px;
     background-color: #e8f8f8;
     border-radius: 8px;
@@ -71,11 +74,13 @@
 .leftSection .infoItem p {
     margin: 0;
     font-size: 1rem;
-    line-height: 1.6;
+    line-height: 1.5;
+    color: #2d3748;
 }
 
 .leftSection .infoItem p br {
-    margin-top: 4px;
+    margin-top: 5px;
+    display: block;
 }
 
 .rightSection {

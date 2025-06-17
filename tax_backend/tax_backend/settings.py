@@ -282,3 +282,12 @@ LOGGING = {
     },
 }
 
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'venuja2001@gmail.com'  # Your Gmail address
+EMAIL_HOST_PASSWORD = 'qtby mgcm gaey xfnb'  # Replace with the 16-character app password from Google
+DEFAULT_FROM_EMAIL = 'venuja2001@gmail.com'
+

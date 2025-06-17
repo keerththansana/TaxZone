@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
+import Header from '../../common/Header/Header';
 import './ReviewFrom.css';
 
 const ReviewForm = () => {
@@ -62,76 +63,79 @@ const ReviewForm = () => {
     };
 
     return (
-        <div className="review-form-container">
-            <div className="review-form-content">
-                <h1>Share Your Experience</h1>
-                <p>We value your feedback! Please take a moment to rate our service and share your thoughts.</p>
+        <div className="review-form-page">
+            <Header />
+            <div className="review-form-container">
+                <div className="review-form-content">
+                    <h1>Share Your Experience</h1>
+                    <p>We value your feedback! Please take a moment to rate our service and share your thoughts.</p>
 
-                {!submitted ? (
-                    <form onSubmit={handleSubmit} className="review-form">
-                        <div className="form-group">
-                            <label>Your Name:</label>
-                            <input
-                                type="text"
-                                value={userName}
-                                onChange={(e) => setUserName(e.target.value)}
-                                required
-                                placeholder="Enter your name"
-                                disabled={userName !== ''} // Disable if name is pre-filled
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Your Position:</label>
-                            <input
-                                type="text"
-                                value={position}
-                                onChange={(e) => setPosition(e.target.value)}
-                                required
-                                placeholder="e.g., Small Business Owner, Freelancer, Corporate Employee"
-                            />
-                        </div>
-
-                        <div className="form-group">
-                            <label>Your Rating:</label>
-                            <div className="stars-container">
-                                {[...Array(5)].map((_, index) => {
-                                    const ratingValue = index + 1;
-                                    return (
-                                        <FaStar
-                                            key={index}
-                                            className="star"
-                                            color={ratingValue <= (hover || rating) ? "#023636" : "#e4e5e9"}
-                                            size={30}
-                                            onClick={() => setRating(ratingValue)}
-                                            onMouseEnter={() => setHover(ratingValue)}
-                                            onMouseLeave={() => setHover(0)}
-                                        />
-                                    );
-                                })}
+                    {!submitted ? (
+                        <form onSubmit={handleSubmit} className="review-form">
+                            <div className="form-group">
+                                <label>Your Name:</label>
+                                <input
+                                    type="text"
+                                    value={userName}
+                                    onChange={(e) => setUserName(e.target.value)}
+                                    required
+                                    placeholder="Enter your name"
+                                    disabled={userName !== ''} // Disable if name is pre-filled
+                                />
                             </div>
-                        </div>
 
-                        <div className="form-group">
-                            <label>Your Feedback:</label>
-                            <textarea
-                                value={feedback}
-                                onChange={(e) => setFeedback(e.target.value)}
-                                placeholder="Share your experience with us..."
-                                required
-                            />
-                        </div>
+                            <div className="form-group">
+                                <label>Your Position:</label>
+                                <input
+                                    type="text"
+                                    value={position}
+                                    onChange={(e) => setPosition(e.target.value)}
+                                    required
+                                    placeholder="e.g., Small Business Owner, Freelancer, Corporate Employee"
+                                />
+                            </div>
 
-                        <button type="submit" className="submit-button">
-                            Submit Review
-                        </button>
-                    </form>
-                ) : (
-                    <div className="thank-you-message">
-                        <h2>Thank You for Your Feedback!</h2>
-                        <p>Your review has been submitted successfully.</p>
-                    </div>
-                )}
+                            <div className="form-group">
+                                <label>Your Rating:</label>
+                                <div className="stars-container">
+                                    {[...Array(5)].map((_, index) => {
+                                        const ratingValue = index + 1;
+                                        return (
+                                            <FaStar
+                                                key={index}
+                                                className="star"
+                                                color={ratingValue <= (hover || rating) ? "#023636" : "#e4e5e9"}
+                                                size={30}
+                                                onClick={() => setRating(ratingValue)}
+                                                onMouseEnter={() => setHover(ratingValue)}
+                                                onMouseLeave={() => setHover(0)}
+                                            />
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label>Your Feedback:</label>
+                                <textarea
+                                    value={feedback}
+                                    onChange={(e) => setFeedback(e.target.value)}
+                                    placeholder="Share your experience with us..."
+                                    required
+                                />
+                            </div>
+
+                            <button type="submit" className="submit-button">
+                                Submit Review
+                            </button>
+                        </form>
+                    ) : (
+                        <div className="thank-you-message">
+                            <h2>Thank You for Your Feedback!</h2>
+                            <p>Your review has been submitted successfully.</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

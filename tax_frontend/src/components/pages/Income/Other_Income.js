@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import Header from '../../common/Header/Header';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
+import { AutoFillHelper } from '../../../utils/autoFillHelper';
 
 const OtherIncome = () => {
     const [selectedTypes, setSelectedTypes] = useState([]);
@@ -15,6 +17,16 @@ const OtherIncome = () => {
     const [whtEntries, setWhtEntries] = useState([]);
     const [totalOtherIncome, setTotalOtherIncome] = useState(0);
     const [totalWhtDeductions, setTotalWhtDeductions] = useState(0);
+    const [formData, setFormData] = useState({
+        serviceEntries: [],
+        royaltyEntries: [],
+        resourceEntries: [],
+        gemEntries: [],
+        otherEntries: [],
+        selectedTypes: [],
+        totalOtherIncome: 0
+    });
+    const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
     const otherIncomeTypes = [
@@ -179,19 +191,183 @@ const OtherIncome = () => {
         setEntries(entries.filter((_, i) => i !== index));
     };
 
-    // Add this useEffect for data persistence
+    // Add event listener for auto-fill data
     useEffect(() => {
-        const savedData = sessionStorage.getItem('otherIncomeData');
-        if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            setServiceEntries(parsedData.serviceEntries || [{ name: 'Service Income', amount: '' }]);
-            setRoyaltyEntries(parsedData.royaltyEntries || [{ name: 'Royalty Income', amount: '' }]);
-            setResourceEntries(parsedData.resourceEntries || [{ name: 'Natural Resource Payment', amount: '' }]);
-            setGemEntries(parsedData.gemEntries || [{ name: 'Auctioned Gem Sale', amount: '' }]);
-            setOtherEntries(parsedData.otherEntries || [{ name: 'Other Income', amount: '' }]);
-            setWhtEntries(parsedData.whtEntries || []);
-            setSelectedTypes(parsedData.selectedTypes || []);
+        const fetchAutoFillData = async () => {
+            try {
+                // First check if we have analysis data in session storage
+                const storedAnalysis = sessionStorage.getItem('last_analysis');
+                if (storedAnalysis) {
+                    try {
+                        const analysisData = JSON.parse(storedAnalysis);
+                        console.log('Found analysis data in session:', analysisData);
+                        
+                        // Format the data for the other income form
+                        const formattedData = {
+                            serviceEntries: [],
+                            royaltyEntries: [],
+                            resourceEntries: [],
+                            gemEntries: [],
+                            otherEntries: [],
+                            selectedTypes: [],
+                            totalOtherIncome: 0
+                        };
+
+                        // Process income items from each result
+                        analysisData.forEach(result => {
+                            if (result.analysis && result.analysis.income_items) {
+                                result.analysis.income_items.forEach(item => {
+                                    const description = (item.description || '').toLowerCase();
+                                    const amount = item.amount || 0;
+                                    let category = item.category || '';
+
+                                    // Process Other Income
+                                    if (category === 'Other Income') {
+                                        if (description.includes('service') || description.includes('consulting')) {
+                                            formattedData.serviceEntries.push({
+                                                name: item.description || 'Service Income',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('service')) {
+                                                formattedData.selectedTypes.push('service');
+                                            }
+                                        } else if (description.includes('royalty')) {
+                                            formattedData.royaltyEntries.push({
+                                                name: item.description || 'Royalty Income',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('royalty')) {
+                                                formattedData.selectedTypes.push('royalty');
+                                            }
+                                        } else if (description.includes('resource') || description.includes('natural')) {
+                                            formattedData.resourceEntries.push({
+                                                name: item.description || 'Natural Resource Payment',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('resource')) {
+                                                formattedData.selectedTypes.push('resource');
+                                            }
+                                        } else if (description.includes('gem') || description.includes('jewelry')) {
+                                            formattedData.gemEntries.push({
+                                                name: item.description || 'Auctioned Gem Sale',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('gem')) {
+                                                formattedData.selectedTypes.push('gem');
+                                            }
+                                        } else {
+                                            formattedData.otherEntries.push({
+                                                name: item.description || 'Other Income',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('other')) {
+                                                formattedData.selectedTypes.push('other');
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                        // Calculate total other income
+                        formattedData.totalOtherIncome = 
+                            formattedData.serviceEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.royaltyEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.resourceEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.gemEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+                        // Only update if we have data
+                        if (formattedData.serviceEntries.length > 0 || 
+                            formattedData.royaltyEntries.length > 0 || 
+                            formattedData.resourceEntries.length > 0 || 
+                            formattedData.gemEntries.length > 0 || 
+                            formattedData.otherEntries.length > 0) {
+                            console.log('Formatted data for other income form:', formattedData);
+
+                            // Update the form with the formatted data
+                            setFormData(formattedData);
+                            setShowForm(true);
+
+                            // Update individual state variables
+                            setServiceEntries(formattedData.serviceEntries);
+                            setRoyaltyEntries(formattedData.royaltyEntries);
+                            setResourceEntries(formattedData.resourceEntries);
+                            setGemEntries(formattedData.gemEntries);
+                            setOtherEntries(formattedData.otherEntries);
+                            setSelectedTypes(formattedData.selectedTypes);
+
+                            // Store the formatted data in session storage
+                            sessionStorage.setItem('otherIncomeData', JSON.stringify(formattedData));
+                        } else {
+                            console.log('No relevant other income data found in analysis');
+                        }
+                    } catch (error) {
+                        console.error('Error processing stored analysis data:', error);
+                    }
+                } else {
+                    console.log('No analysis data found in session storage - using default form');
+                }
+            } catch (error) {
+                console.error('Error fetching auto-fill data:', error);
+            }
+        };
+
+        // Check session storage first
+        const storedData = sessionStorage.getItem('otherIncomeData');
+        if (storedData) {
+            try {
+                const parsedData = JSON.parse(storedData);
+                setFormData(parsedData);
+                setShowForm(true);
+            } catch (error) {
+                console.error('Error parsing stored data:', error);
+            }
         }
+
+        // Then try to fetch auto-fill data
+        fetchAutoFillData();
+
+        // Listen for auto-fill data updates
+        const handleAutoFillUpdate = (event) => {
+            if (event.data && event.data.type === 'autoFillUpdate') {
+                const data = event.data.payload;
+                if (data.OtherIncome) {
+                    const formattedData = {
+                        serviceEntries: data.OtherIncome.serviceEntries || [],
+                        royaltyEntries: data.OtherIncome.royaltyEntries || [],
+                        resourceEntries: data.OtherIncome.resourceEntries || [],
+                        gemEntries: data.OtherIncome.gemEntries || [],
+                        otherEntries: data.OtherIncome.otherEntries || [],
+                        selectedTypes: data.OtherIncome.selectedTypes || [],
+                        totalOtherIncome: data.OtherIncome.totalOtherIncome || 0
+                    };
+
+                    // Calculate total other income
+                    formattedData.totalOtherIncome = 
+                        formattedData.serviceEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.royaltyEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.resourceEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.gemEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+                    console.log('Setting new form data:', formattedData);
+                    setFormData(formattedData);
+                    setShowForm(true);
+
+                    // Update individual state variables
+                    setServiceEntries(formattedData.serviceEntries);
+                    setRoyaltyEntries(formattedData.royaltyEntries);
+                    setResourceEntries(formattedData.resourceEntries);
+                    setGemEntries(formattedData.gemEntries);
+                    setOtherEntries(formattedData.otherEntries);
+                    setSelectedTypes(formattedData.selectedTypes);
+                }
+            }
+        };
+
+        window.addEventListener('message', handleAutoFillUpdate);
+        return () => window.removeEventListener('message', handleAutoFillUpdate);
     }, []);
 
     // Modify the handleSubmit function to save all state
@@ -244,7 +420,8 @@ const OtherIncome = () => {
     };
 
     return (
-        <>
+        <div className="other-income-page">
+            <Header />
             <TaxationMenu />
             <div className={styles.container}>
                 <div className={styles.header}>
@@ -529,7 +706,7 @@ const OtherIncome = () => {
                     </div>
                 </form>
             </div>
-        </>
+        </div>
     );
 };
 

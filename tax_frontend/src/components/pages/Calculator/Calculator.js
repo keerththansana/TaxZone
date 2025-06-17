@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calculator as CalcIcon } from "lucide-react";
+import Header from '../../common/Header/Header';
 import styles from './Calculator.module.css';
 import CalculatorResponse from './Calculator_Response.js';
 //import AuthPrompt from '../../common/AuthPrompt/AuthPrompt';
@@ -11,7 +12,8 @@ const Calculator = () => {
         taxType: '',
         period: '',
         amount: '',
-        businessType: ''
+        businessType: '',
+        foreignType: ''
     });
     const [results, setResults] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -68,7 +70,8 @@ const Calculator = () => {
                 body: JSON.stringify({
                     ...formData,
                     amount: Number(formData.amount),
-                    taxYear: formData.taxYear // Include selected tax year
+                    taxYear: formData.taxYear,
+                    foreignType: formData.foreignType
                 })
             });
 
@@ -88,134 +91,137 @@ const Calculator = () => {
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.calculatorWrapper}>
-                <div className={styles.calculator}>
-                    <div className={styles.header}>
-                        <CalcIcon className={styles.icon} />
-                        <h1>Tax Calculator</h1>
-                    </div>
-
-                    <form className={styles.form} onSubmit={handleSubmit}>
-                        <div className={styles.formGroup}>
-                            <label>Tax Year</label>
-                            <select
-                                name="taxYear"
-                                value={formData.taxYear}
-                                onChange={handleChange}
-                                required
-                            >
-                                {taxYears.map(year => (
-                                    <option key={year.id} value={year.id}>
-                                        {year.label}
-                                    </option>
-                                ))}
-                            </select>
+        <div className="calculator-page">
+            <Header />
+            <div className={styles.container}>
+                <div className={styles.calculatorWrapper}>
+                    <div className={styles.calculator}>
+                        <div className={styles.header}>
+                            <CalcIcon className={styles.icon} />
+                            <h1>Tax Calculator</h1>
                         </div>
 
-                        <div className={styles.formGroup}>
-                            <label>Income Type</label>
-                            <select 
-                                name="taxType"
-                                value={formData.taxType}
-                                onChange={handleChange}
-                                required
-                            >
-                                <option value="">Select Income Type</option>
-                                {taxTypes.map(type => (
-                                    <option key={type.id} value={type.id}>
-                                        {type.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Business type selection */}
-                        {formData.taxType === 'business' && (
+                        <form className={styles.form} onSubmit={handleSubmit}>
                             <div className={styles.formGroup}>
-                                <label>Business Type</label>
+                                <label>Tax Year</label>
                                 <select
-                                    name="businessType"
-                                    value={formData.businessType}
+                                    name="taxYear"
+                                    value={formData.taxYear}
                                     onChange={handleChange}
                                     required
                                 >
-                                    <option value="">Select Business Type</option>
-                                    <option value="general">General Business</option>
-                                    <option value="special">Betting/Gaming/Liquor/Tobacco</option>
-                                </select>
-                            </div>
-                        )}
-
-                        {/* Foreign income type selection - moved before period */}
-                        {formData.taxType === 'foreign' && (
-                            <div className={styles.formGroup}>
-                                <label>Foreign Income Type</label>
-                                <select
-                                    name="foreignType"
-                                    value={formData.foreignType}
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value="">Select Foreign Income Type</option>
-                                    <option value="remitted">Foreign Currency Remitted through Bank</option>
-                                    <option value="other">Other Foreign Income</option>
-                                </select>
-                            </div>
-                        )}
-
-                        {/* Period selection */}
-                        {formData.taxType && taxTypes.find(t => t.id === formData.taxType)?.hasPeriod && (
-                            <div className={styles.formGroup}>
-                                <label>Period</label>
-                                <select
-                                    name="period"
-                                    value={formData.period}
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value="">Select Period</option>
-                                    {periods.map(period => (
-                                        <option key={period.id} value={period.id}>
-                                            {period.label}
+                                    {taxYears.map(year => (
+                                        <option key={year.id} value={year.id}>
+                                            {year.label}
                                         </option>
                                     ))}
                                 </select>
                             </div>
-                        )}
 
-                        <div className={styles.formGroup}>
-                            <label>Amount (LKR)</label>
-                            <input
-                                type="number"
-                                name="amount"
-                                value={formData.amount}
-                                onChange={handleChange}
-                                placeholder="Enter amount"
-                                required
-                                min="0"
-                            />
-                        </div>
-
-                        {error && (
-                            <div className={styles.error}>
-                                {error}
+                            <div className={styles.formGroup}>
+                                <label>Income Type</label>
+                                <select 
+                                    name="taxType"
+                                    value={formData.taxType}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Select Income Type</option>
+                                    {taxTypes.map(type => (
+                                        <option key={type.id} value={type.id}>
+                                            {type.label}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
-                        )}
 
-                        <div className={styles.buttonContainer}>
-                            <button 
-                                type="submit" 
-                                className={styles.button}
-                                disabled={loading}
-                            >
-                                {loading ? 'Calculating...' : 'Calculate Tax'}
-                            </button>
-                        </div>
-                    </form>
+                            {/* Business type selection */}
+                            {formData.taxType === 'business' && (
+                                <div className={styles.formGroup}>
+                                    <label>Business Type</label>
+                                    <select
+                                        name="businessType"
+                                        value={formData.businessType}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">Select Business Type</option>
+                                        <option value="general">General Business</option>
+                                        <option value="special">Betting/Gaming/Liquor/Tobacco</option>
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* Foreign income type selection - moved before period */}
+                            {formData.taxType === 'foreign' && (
+                                <div className={styles.formGroup}>
+                                    <label>Foreign Income Type</label>
+                                    <select
+                                        name="foreignType"
+                                        value={formData.foreignType}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">Select Foreign Income Type</option>
+                                        <option value="remitted">Foreign Currency Remitted through Bank</option>
+                                        <option value="other">Other Foreign Income</option>
+                                    </select>
+                                </div>
+                            )}
+
+                            {/* Period selection */}
+                            {formData.taxType && taxTypes.find(t => t.id === formData.taxType)?.hasPeriod && (
+                                <div className={styles.formGroup}>
+                                    <label>Period</label>
+                                    <select
+                                        name="period"
+                                        value={formData.period}
+                                        onChange={handleChange}
+                                        required
+                                    >
+                                        <option value="">Select Period</option>
+                                        {periods.map(period => (
+                                            <option key={period.id} value={period.id}>
+                                                {period.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            <div className={styles.formGroup}>
+                                <label>Amount (LKR)</label>
+                                <input
+                                    type="number"
+                                    name="amount"
+                                    value={formData.amount}
+                                    onChange={handleChange}
+                                    placeholder="Enter amount"
+                                    required
+                                    min="0"
+                                />
+                            </div>
+
+                            {error && (
+                                <div className={styles.error}>
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className={styles.buttonContainer}>
+                                <button 
+                                    type="submit" 
+                                    className={styles.button}
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Calculating...' : 'Calculate Tax'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    {results && <CalculatorResponse results={results} />}
                 </div>
-
-                {results && <CalculatorResponse results={results} />}
             </div>
         </div>
     );

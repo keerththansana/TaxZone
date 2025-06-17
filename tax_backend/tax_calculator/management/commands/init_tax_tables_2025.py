@@ -280,21 +280,31 @@ class Command(BaseCommand):
                 cursor.execute("""
                     CREATE TABLE dividend_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
+                        period_type VARCHAR(10) NOT NULL,
+                        bracket_order INT NOT NULL,
                         rate DECIMAL(5,2) NOT NULL,
+                        bracket_limit DECIMAL(12,2) NOT NULL,
+                        relief_amount DECIMAL(12,2),
                         is_active BOOLEAN DEFAULT TRUE,
-                        effective_from DATE DEFAULT (CURRENT_DATE),
+                        is_flat_rate BOOLEAN DEFAULT TRUE,
+                        effective_from DATE DEFAULT '2025-04-01',
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        UNIQUE KEY rate_effective (rate, effective_from)
+                        UNIQUE KEY period_bracket (period_type, bracket_order)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                 """)
 
-                # Insert dividend tax rate (15%)
+                # Insert dividend tax rates (15% flat rate for 2025)
                 cursor.execute("""
-                    INSERT INTO dividend_tax_rates_2025 
-                    (rate, is_active, effective_from)
+                    INSERT INTO dividend_tax_rates_2025
+                    (period_type, bracket_order, rate, bracket_limit, relief_amount)
                     VALUES 
-                    (15.00, 1, '2025-04-01')
+                    -- Monthly rates
+                    ('monthly', 1, 15.00, 99999999.99, 0.00),
+                    -- Quarterly rates
+                    ('quarterly', 1, 15.00, 99999999.99, 0.00),
+                    -- Annual rates
+                    ('annually', 1, 15.00, 99999999.99, 0.00)
                 """)
 
                 # Create interest tax rates table
@@ -302,32 +312,32 @@ class Command(BaseCommand):
                     CREATE TABLE interest_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
+                        bracket_order INT NOT NULL,
                         rate DECIMAL(5,2) NOT NULL,
                         bracket_limit DECIMAL(12,2) NOT NULL,
                         relief_amount DECIMAL(12,2),
-                        wht_rate DECIMAL(5,2) NOT NULL,
-                        exemption_limit DECIMAL(12,2) NOT NULL,
+                        wht_rate DECIMAL(5,2),
+                        wht_threshold DECIMAL(12,2),
                         is_active BOOLEAN DEFAULT TRUE,
-                        effective_from DATE DEFAULT (CURRENT_DATE),
+                        is_flat_rate BOOLEAN DEFAULT TRUE,
+                        effective_from DATE DEFAULT '2025-04-01',
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        UNIQUE KEY period_rate (period_type, rate)
+                        UNIQUE KEY period_bracket (period_type, bracket_order)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                 """)
 
-                # Insert interest tax parameters (effective April 1, 2025)
+                # Insert interest tax rates (10% flat rate for 2025)
                 cursor.execute("""
                     INSERT INTO interest_tax_rates_2025
-                    (period_type, rate, bracket_limit, relief_amount, wht_rate, exemption_limit, effective_from)
+                    (period_type, bracket_order, rate, bracket_limit, relief_amount, wht_rate, wht_threshold)
                     VALUES 
                     -- Monthly rates
-                    ('monthly', 10.00, 99999999.99, 150000.00, 10.00, 150000.00, '2025-04-01'),
-                    
+                    ('monthly', 1, 10.00, 99999999.99, 0.00, 10.00, 150000.00),
                     -- Quarterly rates
-                    ('quarterly', 10.00, 99999999.99, 450000.00, 10.00, 450000.00, '2025-04-01'),
-                    
+                    ('quarterly', 1, 10.00, 99999999.99, 0.00, 10.00, 450000.00),
                     -- Annual rates
-                    ('annually', 10.00, 99999999.99, 1800000.00, 10.00, 1800000.00, '2025-04-01')
+                    ('annually', 1, 10.00, 99999999.99, 0.00, 10.00, 1800000.00)
                 """)
 
                 # Create royalty tax rates table
@@ -340,36 +350,39 @@ class Command(BaseCommand):
                         bracket_limit DECIMAL(12,2) NOT NULL,
                         relief_amount DECIMAL(12,2),
                         is_active BOOLEAN DEFAULT TRUE,
-                        effective_from DATE DEFAULT (CURRENT_DATE),
+                        is_flat_rate BOOLEAN DEFAULT FALSE,
+                        effective_from DATE DEFAULT '2025-04-01',
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         UNIQUE KEY period_bracket (period_type, bracket_order)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                 """)
 
-                # Insert progressive tax rates for royalty income
+                # Insert royalty tax rates (same as employment income)
                 cursor.execute("""
                     INSERT INTO royalty_tax_rates_2025 
                     (period_type, bracket_order, rate, bracket_limit, relief_amount)
-                    VALUES
-                    ('monthly', 1, 0, 100000, 100000),
-                    ('monthly', 2, 6, 41667, NULL),
-                    ('monthly', 3, 12, 41667, NULL),
-                    ('monthly', 4, 18, 41667, NULL),
-                    ('monthly', 5, 24, 41667, NULL),
-                    ('monthly', 6, 30, 41667, NULL),
-                    ('quarterly', 1, 0, 300000, 300000),
-                    ('quarterly', 2, 6, 125000, NULL),
-                    ('quarterly', 3, 12, 125000, NULL),
-                    ('quarterly', 4, 18, 125000, NULL),
-                    ('quarterly', 5, 24, 125000, NULL),
-                    ('quarterly', 6, 30, 125000, NULL),
-                    ('annually', 1, 0, 1200000, 1200000),
-                    ('annually', 2, 6, 500000, NULL),
-                    ('annually', 3, 12, 500000, NULL),
-                    ('annually', 4, 18, 500000, NULL),
-                    ('annually', 5, 24, 500000, NULL),
-                    ('annually', 6, 30, 500000, NULL)
+                    VALUES 
+                    -- Monthly rates
+                    ('monthly', 1, 6.00, 83333.33, 150000.00),
+                    ('monthly', 2, 18.00, 41666.67, NULL),
+                    ('monthly', 3, 24.00, 41666.67, NULL),
+                    ('monthly', 4, 30.00, 41666.67, NULL),
+                    ('monthly', 5, 36.00, 99999999.99, NULL),
+                    
+                    -- Quarterly rates
+                    ('quarterly', 1, 6.00, 250000.00, 450000.00),
+                    ('quarterly', 2, 18.00, 125000.00, NULL),
+                    ('quarterly', 3, 24.00, 125000.00, NULL),
+                    ('quarterly', 4, 30.00, 125000.00, NULL),
+                    ('quarterly', 5, 36.00, 99999999.99, NULL),
+                    
+                    -- Annual rates
+                    ('annually', 1, 6.00, 1000000.00, 1800000.00),
+                    ('annually', 2, 18.00, 500000.00, NULL),
+                    ('annually', 3, 24.00, 500000.00, NULL),
+                    ('annually', 4, 30.00, 500000.00, NULL),
+                    ('annually', 5, 36.00, 99999999.99, NULL)
                 """)
 
                 # Create pension tax rates table
@@ -382,36 +395,33 @@ class Command(BaseCommand):
                         bracket_limit DECIMAL(12,2) NOT NULL,
                         relief_amount DECIMAL(12,2),
                         is_active BOOLEAN DEFAULT TRUE,
-                        effective_from DATE DEFAULT (CURRENT_DATE),
+                        is_flat_rate BOOLEAN DEFAULT FALSE,
+                        effective_from DATE DEFAULT '2025-04-01',
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                         UNIQUE KEY period_bracket (period_type, bracket_order)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                 """)
 
-                # Insert progressive tax rates for pension income
+                # Insert pension tax rates for 2025/2026
                 cursor.execute("""
                     INSERT INTO pension_tax_rates_2025 
                     (period_type, bracket_order, rate, bracket_limit, relief_amount)
-                    VALUES
-                    ('monthly', 1, 0, 100000, 100000),
-                    ('monthly', 2, 6, 41667, NULL),
-                    ('monthly', 3, 12, 41667, NULL),
-                    ('monthly', 4, 18, 41667, NULL),
-                    ('monthly', 5, 24, 41667, NULL),
-                    ('monthly', 6, 30, 41667, NULL),
-                    ('quarterly', 1, 0, 300000, 300000),
-                    ('quarterly', 2, 6, 125000, NULL),
-                    ('quarterly', 3, 12, 125000, NULL),
-                    ('quarterly', 4, 18, 125000, NULL),
-                    ('quarterly', 5, 24, 125000, NULL),
-                    ('quarterly', 6, 30, 125000, NULL),
-                    ('annually', 1, 0, 1200000, 1200000),
-                    ('annually', 2, 6, 500000, NULL),
-                    ('annually', 3, 12, 500000, NULL),
-                    ('annually', 4, 18, 500000, NULL),
-                    ('annually', 5, 24, 500000, NULL),
-                    ('annually', 6, 30, 500000, NULL)
+                    VALUES 
+                    -- Monthly rates (2025/2026)
+                    ('monthly', 1, 0.00, 833333.33, 0.00),    -- Up to LKR 833,333
+                    ('monthly', 2, 6.00, 833333.33, NULL),    -- LKR 833,334 – 1,666,666
+                    ('monthly', 3, 12.00, 99999999.99, NULL), -- Above LKR 1,666,666
+                    
+                    -- Quarterly rates (2025/2026)
+                    ('quarterly', 1, 0.00, 2500000.00, 0.00),  -- Up to LKR 2.5 million
+                    ('quarterly', 2, 6.00, 2500000.00, NULL),  -- LKR 2.5M – 5M
+                    ('quarterly', 3, 12.00, 99999999.99, NULL), -- Above LKR 5 million
+                    
+                    -- Annual rates (2025/2026)
+                    ('annually', 1, 0.00, 10000000.00, 0.00),  -- Up to LKR 10 million
+                    ('annually', 2, 6.00, 10000000.00, NULL),  -- LKR 10M – 20M
+                    ('annually', 3, 12.00, 99999999.99, NULL)  -- Above LKR 20 million
                 """)
 
                 # Insert rental parameters
@@ -429,31 +439,30 @@ class Command(BaseCommand):
                     CREATE TABLE capital_gain_tax_rates_2025 (
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         period_type VARCHAR(10) NOT NULL,
+                        bracket_order INT NOT NULL,
                         rate DECIMAL(5,2) NOT NULL,
-                        bracket_limit DECIMAL(12,2) NOT NULL DEFAULT 99999999.99,
-                        relief_amount DECIMAL(12,2) DEFAULT 0.00,
-                        is_flat_rate BOOLEAN DEFAULT TRUE,
+                        bracket_limit DECIMAL(12,2) NOT NULL,
+                        relief_amount DECIMAL(12,2),
                         is_active BOOLEAN DEFAULT TRUE,
-                        effective_from DATE DEFAULT (CURRENT_DATE),
+                        is_flat_rate BOOLEAN DEFAULT TRUE,
+                        effective_from DATE DEFAULT '2025-04-01',
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                        UNIQUE KEY period_rate_effective (period_type, rate, effective_from)
+                        UNIQUE KEY period_bracket (period_type, bracket_order)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
                 """)
 
-                # Insert capital gains tax rates (15% flat rate for all periods)
+                # Insert capital gains tax rates for 2025/2026 (15% flat rate)
                 cursor.execute("""
-                    INSERT INTO capital_gain_tax_rates_2025 
-                    (period_type, rate, bracket_limit, relief_amount, is_flat_rate, effective_from)
+                    INSERT INTO capital_gain_tax_rates_2025
+                    (period_type, bracket_order, rate, bracket_limit, relief_amount, is_active, is_flat_rate)
                     VALUES 
                     -- Monthly rates
-                    ('monthly', 15.00, 99999999.99, 0.00, TRUE, '2025-04-01'),
-                    
+                    ('monthly', 1, 15.00, 99999999.99, 0.00, TRUE, TRUE),
                     -- Quarterly rates
-                    ('quarterly', 15.00, 99999999.99, 0.00, TRUE, '2025-04-01'),
-                    
+                    ('quarterly', 1, 15.00, 99999999.99, 0.00, TRUE, TRUE),
                     -- Annual rates
-                    ('annually', 15.00, 99999999.99, 0.00, TRUE, '2025-04-01')
+                    ('annually', 1, 15.00, 99999999.99, 0.00, TRUE, TRUE)
                 """)
 
                 self.stdout.write(self.style.SUCCESS('Successfully initialized tax rates tables'))

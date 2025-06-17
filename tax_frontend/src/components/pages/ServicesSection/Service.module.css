@@ -1,0 +1,227 @@
+.servicePageContainer {
+  display: flex;
+  min-height: 100vh; /* Ensures the container takes at least the full viewport height */
+  width: 100%; /* Ensures the container takes the full viewport width */
+  align-items: stretch; /* Stretches items to fill the container height */
+  font-family: 'Arial', sans-serif;
+  overflow: hidden; /* Hide overflow during initial animation */
+}
+
+.servicePageContainer.reverse {
+  flex-direction: row-reverse; /* Reverses the order for image on right, content on left */
+}
+
+.serviceImageWrapper {
+  flex: 1;
+  width: 50%;
+  overflow: hidden;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  animation: slideInLeft 1s ease-out forwards;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px; /* Consistent padding */
+  border-radius: 8px; /* Consistent border-radius */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Consistent shadow */
+  background-color: #e8f8f8; /* Image background */
+}
+
+.servicePageContainer.reverse .serviceImageWrapper {
+  animation: slideInRight 1s ease-out forwards;
+}
+
+.serviceImageWrapper:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.serviceImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px; /* Image specific border-radius */
+  box-shadow: none;
+}
+
+.serviceImageContentContainer {
+  /* Removed styles as this div is being removed from JSX */
+}
+
+.serviceContentWrapper {
+  flex: 1;
+  width: 50%;
+  padding: 20px; /* Consistent padding */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  background: linear-gradient(85deg, #e8f8f8, #c9eded, #c5f8f8); /* Gradient background with animations */
+  background-size: 200% 200%;
+  animation: backgroundPan 10s ease infinite alternate, slideInRight 1s ease-out forwards;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  border-radius: 8px; /* Consistent border-radius */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Consistent shadow */
+  /* No background-color here to preserve gradient/bubble animation */
+}
+
+.serviceTextContainer {
+  /* Removed styles as this div is being removed from JSX */
+}
+
+.servicePageContainer.reverse .serviceContentWrapper {
+  animation: backgroundPan 10s ease infinite alternate, slideInLeft 1s ease-out forwards; /* Content slides in from left when reversed */
+}
+
+.serviceContentWrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  box-shadow: 
+    0 0 0 10px rgba(255, 255, 255, 0.1), /* Smaller, subtle bubble */
+    20px 20px 0 30px rgba(255, 255, 255, 0.05), /* Larger bubble */
+    -30px -30px 0 50px rgba(255, 255, 255, 0.03), /* Even larger bubble */
+    40px -10px 0 20px rgba(255, 255, 255, 0.08); /* Another subtle bubble */
+  animation: bubbleFloat 15s linear infinite;
+  z-index: -1; /* Place behind content */
+}
+
+@keyframes backgroundPan {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes bubbleFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translate(10%, -10%) scale(1.1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-10%, 10%) scale(0.9);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translate(15%, -15%) scale(1.05);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+}
+
+.serviceHeading {
+  font-size: 2.5em;
+  color: #023636;
+  margin-bottom: 10px;
+}
+
+.serviceSubheading {
+  font-size: 1.2em;
+  color:  #023636;
+  line-height: 1.6;
+}
+
+.serviceList {
+  list-style-type: disc;
+  margin-left: 20px;
+  color: black;
+  align-self: flex-start; /* Aligns the list to the left within its flex container */
+  width: 100%; /* Ensure it takes full width to allow text alignment */
+}
+
+.serviceList li {
+  margin-bottom: 8px;
+  font-size: 1.1em;
+  text-align: left; /* Ensures text within list items is aligned to the left */
+}
+
+.serviceWhyMattersHeading {
+  font-size: 1.8em;
+  color: #023636;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .servicePageContainer {
+    flex-direction: column;
+  }
+
+  .servicePageContainer.reverse {
+    flex-direction: column; /* On mobile, keep it column for both */
+  }
+
+  .serviceImageWrapper {
+    width: 100%; /* Full width on smaller screens */
+    height: 300px; /* Fixed height for image on mobile */
+    margin-bottom: 30px;
+    animation: slideInUp 1s ease-out forwards; /* Adjust animation for mobile */
+  }
+
+  .serviceContentWrapper {
+    width: 100%; /* Full width on smaller screens */
+    padding: 30px;
+    animation: slideInUp 1s ease-out forwards; /* Adjust animation for mobile */
+  }
+
+  @keyframes slideInUp {
+    0% {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .serviceHeading {
+    font-size: 2em;
+  }
+
+  .serviceSubheading {
+    font-size: 1em;
+  }
+
+  .serviceWhyMattersHeading {
+    font-size: 1.5em;
+  }
+}

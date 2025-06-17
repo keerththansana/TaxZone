@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import Header from '../../common/Header/Header';
 import './Assistant.css';
 import assistantImage from '../../../assets/Assistant.png';
 import userImage from '../../../assets/User.jpg';
@@ -299,86 +300,89 @@ const Assistant = () => {
     );
 
     return (
-        <div className="assistant-layout">
-            <div className="chat-history-sidebar">
-                <button className="new-chat-button" onClick={startNewChat}>
-                    + New Chat
-                </button>
-                <div className="chat-history-list">
-                    {chatHistory.map((chat) => (
-                        <div
-                            key={chat.id}
-                            className={`chat-history-item ${selectedChat === chat.id ? 'selected' : ''}`}
-                        >
-                            <div 
-                                className="chat-history-content"
-                                onClick={() => handleChatSelect(chat)}
+        <div className="assistant-page">
+            <Header />
+            <div className="assistant-layout">
+                <div className="chat-history-sidebar">
+                    <button className="new-chat-button" onClick={startNewChat}>
+                        + New Chat
+                    </button>
+                    <div className="chat-history-list">
+                        {chatHistory.map((chat) => (
+                            <div
+                                key={chat.id}
+                                className={`chat-history-item ${selectedChat === chat.id ? 'selected' : ''}`}
                             >
-                                <div className="chat-history-title">{chat.title}</div>
-                                <div className="chat-history-date">{chat.date}</div>
+                                <div 
+                                    className="chat-history-content"
+                                    onClick={() => handleChatSelect(chat)}
+                                >
+                                    <div className="chat-history-title">{chat.title}</div>
+                                    <div className="chat-history-date">{chat.date}</div>
+                                </div>
+                                <button
+                                    className="delete-button"
+                                    onClick={(e) => handleDeleteConversation(chat.id, e)}
+                                    title="Delete conversation"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M3 6h18" strokeWidth="2" strokeLinecap="round"/>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" strokeWidth="2"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" strokeWidth="2"/>
+                                    </svg>
+                                </button>
                             </div>
-                            <button
-                                className="delete-button"
-                                onClick={(e) => handleDeleteConversation(chat.id, e)}
-                                title="Delete conversation"
-                            >
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M3 6h18" strokeWidth="2" strokeLinecap="round"/>
-                                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" strokeWidth="2"/>
-                                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" strokeWidth="2"/>
-                                </svg>
-                            </button>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            <div className="assistant-container">
-                <div className="chat-box">
-                    {messages.length === 0 ? (
-                        <div className="welcome-container">
-                            <div className="assistant-welcome">
-                                <img src={assistantImage} alt="AI Assistant" className="assistant-image" />
-                                <h1 className="assistant-title">Tax Assistant</h1>
+                <div className="assistant-container">
+                    <div className="chat-box">
+                        {messages.length === 0 ? (
+                            <div className="welcome-container">
+                                <div className="assistant-welcome">
+                                    <img src={assistantImage} alt="AI Assistant" className="assistant-image" />
+                                    <h1 className="assistant-title">Tax Assistant</h1>
+                                </div>
+                                <div className="empty-state">
+                                    <p>Hi! I'm your Tax Assistant. How can I help you today?</p>
+                                </div>
                             </div>
-                            <div className="empty-state">
-                                <p>Hi! I'm your Tax Assistant. How can I help you today?</p>
-                            </div>
-                        </div>
-                    ) : (
-                        messages.map((msg, index) => (
-                            <ChatMessage key={index} message={msg} />
-                        ))
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-                <form
-                    className="assistant-input-container"
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        handleSubmit(e);
-                    }}
-                >
-                    <input
-                        type="text"
-                        placeholder="Enter Your Questions Here..."
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        className="assistant-input"
-                    />
-                    <button
-                        type="button"
-                        className={`mic-button ${isRecording ? 'recording' : ''}`}
-                        onClick={handleVoiceInput}
-                        title={recognition ? 'Click to speak' : 'Speech recognition not supported'}
-                        disabled={!recognition}
+                        ) : (
+                            messages.map((msg, index) => (
+                                <ChatMessage key={index} message={msg} />
+                            ))
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+                    <form
+                        className="assistant-input-container"
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSubmit(e);
+                        }}
                     >
-                        <VoiceIcon isRecording={isRecording} />
-                    </button>
-                    <button type="submit" className="assistant-button" disabled={!query.trim()}>
-                        &#x2191;
-                    </button>
-                </form>
+                        <input
+                            type="text"
+                            placeholder="Enter Your Questions Here..."
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            className="assistant-input"
+                        />
+                        <button
+                            type="button"
+                            className={`mic-button ${isRecording ? 'recording' : ''}`}
+                            onClick={handleVoiceInput}
+                            title={recognition ? 'Click to speak' : 'Speech recognition not supported'}
+                            disabled={!recognition}
+                        >
+                            <VoiceIcon isRecording={isRecording} />
+                        </button>
+                        <button type="submit" className="assistant-button" disabled={!query.trim()}>
+                            &#x2191;
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from .models import AuthNewUser
+from .models import ContactUser
+
 
 class UserSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)
@@ -32,3 +35,18 @@ class LoginSerializer(serializers.Serializer):
         if not attrs.get('username') or not attrs.get('password'):
             raise serializers.ValidationError('Both username and password are required')
         return attrs
+
+class AuthNewUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuthNewUser
+        fields = ['username', 'email', 'password', 'created_at', 'updated_at']
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'created_at': {'read_only': True},
+            'updated_at': {'read_only': True}
+        }
+# Add to users/serializers.py
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactUser
+        fields = ['name', 'email', 'phone', 'message']

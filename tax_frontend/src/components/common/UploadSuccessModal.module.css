@@ -1,0 +1,100 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.icon {
+    font-size: 3rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+    background: #e8f5e9;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.modal h3 {
+    color: #023636;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.5rem;
+}
+
+.modal p {
+    color: #666;
+    margin: 0 0 1.5rem 0;
+    font-size: 1.1rem;
+    line-height: 1.5;
+}
+
+.closeButton {
+    background: #023636;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+    background: #034f4f;
+}
+
+@media (max-width: 480px) {
+    .modal {
+        padding: 1.5rem;
+    }
+
+    .icon {
+        font-size: 2.5rem;
+        width: 60px;
+        height: 60px;
+    }
+
+    .modal h3 {
+        font-size: 1.3rem;
+    }
+
+    .modal p {
+        font-size: 1rem;
+    }
+
+    .closeButton {
+        padding: 0.6rem 1.5rem;
+    }
+} 

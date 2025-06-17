@@ -1,8 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import Header from '../../common/Header/Header';
 import styles from './Preview.module.css';
 import TaxationMenu from './Taxation_Menu';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import html2canvas from 'html2canvas';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import docx from 'docx';
+import { useFormPersist } from './Data_Persistence';
 
 // First, add a constant for category order
 const CATEGORY_ORDER = [
@@ -114,6 +122,12 @@ const Preview = () => {
     const [totalTaxPayable, setTotalTaxPayable] = useState(0);
     const [taxYear, setTaxYear] = useState('2024/2025');
     const [balanceTaxPayable, setBalanceTaxPayable] = useState(0);
+    const [userDetails, setUserDetails] = useState({
+        fullName: '',
+        tinNumber: '',
+        date: '',
+        time: ''
+    });
 
     // Add state for relief entries
     const [reliefEntries, setReliefEntries] = useState([
@@ -146,6 +160,28 @@ const Preview = () => {
     const [history, setHistory] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(-1);
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+    // Add these new states for download menu
+    const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+    const downloadMenuRef = useRef(null);
+
+    // Add useEffect to load user details and set current date/time
+    useEffect(() => {
+        const fullName = sessionStorage.getItem('taxationFullName') || 'N/A';
+        const tinNumber = sessionStorage.getItem('taxationTinNumber') || 'N/A';
+        const now = new Date();
+        const date = now.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const time = now.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+        setUserDetails({ fullName, tinNumber, date, time });
+    }, []);
 
     // Add these handlers in the Preview component
     const handleAddRow = (categoryIndex) => {
@@ -966,8 +1002,7 @@ const Preview = () => {
                     sum + (Number(entry.amount) || 0), 0) || 0;
 
                 const qualifyingPayments = summaryData.find(cat => cat.category === 'Qualifying Payments & Relief');
-                const qualifyingPaymentsTotal = qualifyingPayments?.entries?.reduce((sum, entry) => 
-                    sum + (Number(entry.amount) || 0), 0) || 0;
+                const qualifyingPaymentsTotal = calculateTotalAmount(qualifyingPayments);
 
                 // Calculate total deductions
                 const totalDeductions = terminalBenefitsTotal + qualifyingPaymentsTotal;
@@ -982,8 +1017,7 @@ const Preview = () => {
                 const taxLiability = calculateTaxLiability(calculatedTaxableIncome, selectedYear);
 
                 // Calculate total tax credits
-                const totalTaxCredits = Object.values(deductions).reduce((sum, value) => 
-                    sum + (Number(value) || 0), 0);
+                const totalTaxCredits = calculateTotalTaxCredits();
 
                 // Calculate balance tax payable
                 const calculatedBalanceTaxPayable = Math.max(0, taxLiability - totalTaxCredits);
@@ -1103,8 +1137,7 @@ const Preview = () => {
             sum + (Number(entry.amount) || 0), 0) || 0;
 
         const qualifyingPayments = summaryData.find(cat => cat.category === 'Qualifying Payments & Relief');
-        const qualifyingPaymentsTotal = qualifyingPayments?.entries?.reduce((sum, entry) => 
-            sum + (Number(entry.amount) || 0), 0) || 0;
+        const qualifyingPaymentsTotal = calculateTotalAmount(qualifyingPayments);
 
         // Sum up all deductions
         totalDeductions = terminalBenefitsTotal + qualifyingPaymentsTotal;
@@ -1150,335 +1183,1316 @@ const Preview = () => {
         loadDeductions();
     }, []); // Empty dependency array means this runs once when component mounts
 
-    // Rest of your component remains the same...
-    const handleDownload = () => {
-        const docContent = {
+    // Add click outside handler for download menu
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (downloadMenuRef.current && !downloadMenuRef.current.contains(event.target)) {
+                setShowDownloadMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const handleDownload = async (format) => {
+        try {
+          const element = document.querySelector(`.${styles.documentContainer}`);
+          if (!element) {
+            console.error('Preview container not found');
+            return;
+          }
+      
+          // Create a clone of the element to modify for download
+          const clone = element.cloneNode(true);
+          clone.style.width = '210mm';
+          clone.style.padding = '20mm';
+          clone.style.backgroundColor = 'white';
+          document.body.appendChild(clone);
+          clone.style.position = 'absolute';
+          clone.style.left = '-9999px';
+      
+          // Capture the content
+          const canvas = await html2canvas(clone, {
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            backgroundColor: '#ffffff'
+          });
+      
+          // Remove the clone
+          document.body.removeChild(clone);
+      
+          // Prepare document data for database
+          const documentData = {
+            taxYear,
             assessableIncome,
             taxableIncome,
             totalTaxPayable,
-            summaryData
-        };
+            balanceTaxPayable,
+            userDetails,
+            summaryData,
+            taxBracketBreakdown,
+            deductions
+          };
+      
+          switch (format) {
+            case 'pdf':
+              await downloadAsPDF(canvas);
+              await saveToDatabase('pdf', documentData);
+              break;
+            case 'excel':
+              await downloadAsExcel();
+              await saveToDatabase('excel', documentData);
+              break;
+            case 'word':
+              await downloadAsWord(canvas);
+              await saveToDatabase('word', documentData);
+              break;
+            default:
+              console.error('Unsupported format');
+          }
+        } catch (error) {
+          console.error('Error downloading document:', error);
+        }
+      };
+
+    const downloadAsPDF = async (canvas) => {
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgWidth = 210;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const pageHeight = 297; // A4 height in mm
+        const margin = 20; // Top and bottom margin in mm
+        const contentHeight = pageHeight - (2 * margin); // Available space for content
+
+        // Calculate number of pages needed
+        const pageCount = Math.ceil(imgHeight / contentHeight);
+
+        for (let i = 0; i < pageCount; i++) {
+            // Add new page if not the first page
+            if (i > 0) {
+                pdf.addPage();
+            }
+
+            // Calculate position for this page
+            const position = -(i * contentHeight);
+            
+            // Add image to page
+            pdf.addImage(
+                canvas.toDataURL('image/jpeg', 1.0),
+                'JPEG',
+                0,
+                position,
+                imgWidth,
+                imgHeight
+            );
+        }
+
+        pdf.save(`Tax_Calculation_${taxYear.replace('/', '_')}.pdf`);
+    };
+
+    const downloadAsExcel = () => {
+        // Create workbook and worksheet
+        const wb = XLSX.utils.book_new();
+
+        // Prepare data for Excel
+        const data = [
+            ['Full Name:', userDetails.fullName],
+            ['TIN Number:', userDetails.tinNumber],
+            ['Year of Assessment:', taxYear],
+            ['Date & Time:', `${userDetails.date} ${userDetails.time}`],
+            [''],
+            ['Calculation of Income Tax Liability - ' + taxYear],
+            [''],
+            ['Income Types and Deductions', '', 'Amount (Rs.)'],
+            ['']
+        ];
+
+        // Add income categories
+        summaryData.forEach(category => {
+            if (category.category !== 'Qualifying Payments & Relief' && 
+                category.category !== 'Terminal Benefits' && 
+                hasEntries(category)) {
+                data.push([category.category, '', category.amount]);
+                category.entries?.forEach(entry => {
+                    if (Number(entry.amount) > 0) {
+                        data.push(['• ' + entry.name, '', entry.amount]);
+                    }
+                });
+            }
+        });
+
+        data.push(['']);
+        data.push(['Assessable Income', '', assessableIncome]);
+        data.push(['']);
+
+        // Add Terminal Benefits if any
+        const terminalBenefits = summaryData.find(cat => cat.category === 'Terminal Benefits');
+        if (terminalBenefits && hasEntries(terminalBenefits)) {
+            data.push(['Terminal Benefits (Less)', '', '']);
+            terminalBenefits.entries?.forEach(entry => {
+                if (Number(entry.amount) > 0) {
+                    data.push(['• ' + entry.name, '', entry.amount]);
+                }
+            });
+        }
+
+        // Add Relief & Qualifying Payments
+        data.push(['']);
+        data.push(['Relief & Qualifying Payments (Less)', '', '']);
+        data.push(['• Personal Relief', '', PERSONAL_RELIEF_AMOUNTS[taxYear]]);
+
+        // Add other qualifying payments
+        const qualifyingPayments = summaryData.find(cat => cat.category === 'Qualifying Payments & Relief');
+        if (qualifyingPayments) {
+            qualifyingPayments.entries
+                .filter(entry => !entry.type.includes('Personal Relief') && Number(entry.amount) > 0)
+                .forEach(entry => {
+                    data.push(['• ' + entry.name, '', entry.amount]);
+                });
+        }
+
+        data.push(['']);
+        data.push(['Taxable Income', '', taxableIncome]);
+        data.push(['']);
+        data.push(['Tax Liability Calculation', '', '']);
+
+        // Add tax bracket breakdown
+        taxBracketBreakdown.forEach(bracket => {
+            data.push([
+                `${bracket.from.toLocaleString()} - ${bracket.to.toLocaleString()} (${(bracket.rate * 100)}%)`,
+                '',
+                bracket.tax
+            ]);
+        });
+
+        data.push(['']);
+        data.push(['Total Tax Liability', '', totalTaxPayable]);
+        data.push(['']);
+
+        // Add tax deductions if any
+        if (Object.values(deductions).some(value => value > 0)) {
+            data.push(['Tax Deductions - Credits', '', '']);
+            if (deductions.apit > 0) {
+                data.push(['• APIT (Advanced Personal Income Tax)', '', deductions.apit]);
+            }
+            if (deductions.ait > 0) {
+                data.push(['• AIT (Advance Income Tax)', '', deductions.ait]);
+            }
+            if (deductions.paidTax > 0) {
+                data.push(['• Paid Tax', '', deductions.paidTax]);
+            }
+            if (deductions.wht > 0) {
+                data.push(['• WHT (Withholding Tax)', '', deductions.wht]);
+            }
+        }
+
+        data.push(['']);
+        data.push(['Balance Tax Payable', '', balanceTaxPayable]);
+
+        // Create worksheet
+        const ws = XLSX.utils.aoa_to_sheet(data);
+
+        // Set column widths
+        ws['!cols'] = [
+            { wch: 50 }, // First column - descriptions
+            { wch: 10 }, // Second column - spacing
+            { wch: 20 }  // Third column - amounts
+        ];
+
+        // Add worksheet to workbook
+        XLSX.utils.book_append_sheet(wb, ws, 'Tax Calculation');
+
+        // Generate Excel file
+        XLSX.writeFile(wb, `Tax_Calculation_${taxYear.replace('/', '_')}.xlsx`);
+    };
+
+    const downloadAsWord = async (canvas) => {
+        // Convert canvas to base64 image
+        const imgData = canvas.toDataURL('image/png');
         
-        // Create PDF or Excel download
-        // Implementation depends on your preferred format
+        // Create HTML content with exact preview layout
+        const htmlContent = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                  xmlns:w="urn:schemas-microsoft-com:office:word" 
+                  xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <title>Tax Calculation</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .user-details {
+                        margin-bottom: 20px;
+                    }
+                    .user-detail-row {
+                        margin-bottom: 10px;
+                    }
+                    .user-detail-label {
+                        font-weight: bold;
+                        margin-right: 10px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+                    td, th {
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    .category-row {
+                        font-weight: bold;
+                        background-color: #f5f5f5;
+                    }
+                    .total-row {
+                        font-weight: bold;
+                        border-top: 2px solid #000;
+                    }
+                    .bullet-row td:first-child {
+                        width: 20px;
+                    }
+                    .amount-column {
+                        text-align: right;
+                    }
+                    .section-header {
+                        font-weight: bold;
+                        background-color: #f0f0f0;
+                    }
+                    .spacer-row {
+                        height: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="user-details">
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Full Name:</span>
+                        <span>${userDetails.fullName}</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">TIN Number:</span>
+                        <span>${userDetails.tinNumber}</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Year of Assessment:</span>
+                        <span>${taxYear}</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Date & Time:</span>
+                        <span>${userDetails.date} ${userDetails.time}</span>
+                    </div>
+                </div>
+
+                <h1 style="text-align: center; margin-bottom: 20px;">Calculation of Income Tax Liability - ${taxYear}</h1>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Income Types and Deductions</th>
+                            <th>Amount (Rs.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${summaryData.map(category => {
+                            if (category.category !== 'Qualifying Payments & Relief' && 
+                                category.category !== 'Terminal Benefits' && 
+                                hasEntries(category)) {
+                                return `
+                                    <tr class="category-row">
+                                        <td colspan="2">${category.category}</td>
+                                        <td class="amount-column">${Number(category.amount).toLocaleString()}</td>
+                                    </tr>
+                                    ${category.entries?.map(entry => 
+                                        Number(entry.amount) > 0 ? `
+                                            <tr class="bullet-row">
+                                                <td>•</td>
+                                                <td>${entry.name}</td>
+                                                <td class="amount-column">${Number(entry.amount).toLocaleString()}</td>
+                                            </tr>
+                                        ` : ''
+                                    ).join('')}
+                                `;
+                            }
+                            return '';
+                        }).join('')}
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Assessable Income</td>
+                            <td class="amount-column">${Number(assessableIncome).toLocaleString()}</td>
+                        </tr>
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        ${summaryData.find(cat => cat.category === 'Terminal Benefits')?.entries?.length > 0 ? `
+                            <tr class="section-header">
+                                <td colspan="3">Terminal Benefits (Less)</td>
+                            </tr>
+                            ${summaryData.find(cat => cat.category === 'Terminal Benefits')?.entries?.map(entry => 
+                                Number(entry.amount) > 0 ? `
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>${entry.name}</td>
+                                        <td class="amount-column">${Number(entry.amount).toLocaleString()}</td>
+                                    </tr>
+                                ` : ''
+                            ).join('')}
+                        ` : ''}
+                        
+                        <tr class="section-header">
+                            <td colspan="3">Relief & Qualifying Payments (Less)</td>
+                        </tr>
+                        <tr class="bullet-row">
+                            <td>•</td>
+                            <td>Personal Relief</td>
+                            <td className={styles.amountColumn}>
+                                Rs. ${Number(PERSONAL_RELIEF_AMOUNTS[taxYear]).toLocaleString()}
+                            </td>
+                        </tr>
+                        
+                        ${summaryData.find(cat => cat.category === 'Qualifying Payments & Relief')?.entries
+                            ?.filter(entry => !entry.type.includes('Personal Relief') && Number(entry.amount) > 0)
+                            .map(entry => `
+                                <tr class="bullet-row">
+                                    <td>•</td>
+                                    <td>${entry.name}</td>
+                                    <td className={styles.amountColumn}>
+                                        Rs. ${Number(entry.amount).toLocaleString()}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Taxable Income</td>
+                            <td className={styles.amountColumn}>
+                                Rs. ${Number(taxableIncome).toLocaleString()}
+                            </td>
+                        </tr>
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        <tr className={styles.sectionHeader + ' ' + styles.pageBreak}>
+                            <td colSpan="3">Tax Liability Calculation</td>
+                        </tr>
+
+                        ${taxBracketBreakdown.map((bracket, index) => `
+                            <tr key=${index} className={styles.bulletRow}>
+                                <td className={styles.bulletCell}></td>
+                                <td>
+                                    ${bracket.from.toLocaleString()} - ${bracket.to.toLocaleString()} ---------- (${(bracket.rate * 100)}%)
+                                </td>
+                                <td className={styles.amountColumn}>
+                                    ${Number(bracket.tax).toLocaleString()}
+                                </td>
+                            </tr>
+                        `).join('')}
+                        
+                        <tr className={styles.totalRow}>
+                            <td colSpan="2">Total Tax Liability</td>
+                            <td className={styles.amountColumn}>
+                                Rs. ${Number(totalTaxPayable).toLocaleString()}
+                            </td>
+                        </tr>
+                        
+                        ${Object.values(deductions).some(value => value > 0) ? `
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            <tr className={styles.spacerRow}>
+                                <td colSpan="3"></td>
+                            </tr>
+                            
+                            <tr className={styles.sectionHeader}>
+                                <td colSpan="3">Tax Deductions - Credits</td>
+                            </tr>
+                            ${deductions.apit > 0 ? `
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>APIT (Advanced Personal Income Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        (${Number(deductions.apit).toLocaleString()})
+                                    </td>
+                                </tr>
+                            ` : ''}
+                            ${deductions.ait > 0 ? `
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>AIT (Advance Income Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        (${Number(deductions.ait).toLocaleString()})
+                                    </td>
+                                </tr>
+                            ` : ''}
+                            ${deductions.paidTax > 0 ? `
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>Paid Tax</td>
+                                    <td className={styles.amountColumn}>
+                                        (${Number(deductions.paidTax).toLocaleString()})
+                                    </td>
+                                </tr>
+                            ` : ''}
+                            ${deductions.wht > 0 ? `
+                                <tr className={styles.bulletRow}>
+                                    <td className={styles.bulletCell}>•</td>
+                                    <td>WHT (Withholding Tax)</td>
+                                    <td className={styles.amountColumn}>
+                                        (${Number(deductions.wht).toLocaleString()})
+                                    </td>
+                                </tr>
+                            ` : ''}
+                        ` : ''}
+                        
+                        <tr className={styles.spacerRow}>
+                            <td colSpan="3"></td>
+                        </tr>
+                        <tr className={styles.spacerRow}>
+                            <td colSpan="3"></td>
+                        </tr>
+                        
+                        <tr className={styles.totalRow}>
+                            <td colSpan="2">Balance Tax Payable</td>
+                            <td className={styles.amountColumn}>
+                                Rs. ${Number(balanceTaxPayable).toLocaleString()}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+        `;
+        
+        // Create blob and download
+        const blob = new Blob([htmlContent], { type: 'application/msword' });
+        saveAs(blob, `Tax_Calculation_${taxYear.replace('/', '_')}.doc`);
     };
 
     const handlePrint = () => {
         window.print();
     };
 
-    // Update the render section to show detailed breakdown
-    return (
-        <div className={styles.previewContainer}>
-            <TaxationMenu />
-            <div className={styles.contentWrapper}>
-                <div className={styles.header}>
-                    <h1>Calculation of Income Tax Liability - {taxYear}</h1>
-                    <div className={styles.actions}>
-                        <button 
-                            className={styles.actionButton} 
-                            onClick={() => setIsEditing(!isEditing)}
-                        >
-                            {isEditing ? 'Save Changes' : 'Edit Mode'}
-                        </button>
-                        <button className={styles.actionButton} onClick={handleDownload}>
-                            <Download size={16} />
-                            Download PDF
-                        </button>
+    const saveToDatabase = async (format, content) => {
+      try {
+        const accessToken = localStorage.getItem('accessToken'); // Get JWT token from localStorage
+        
+        if (!accessToken) {
+          console.error('No authentication token found. Please log in again.');
+          return;
+        }
+
+        // Create FormData to send both file and metadata
+        const formData = new FormData();
+        
+        // Add metadata as JSON string so backend can extract user details
+        const metadata = {
+          content: content, // Pass the full content with userDetails
+          format: format,
+          taxYear: content.taxYear
+        };
+        
+        formData.append('metadata', JSON.stringify(metadata));
+        
+        // Generate the actual document file based on format
+        let documentBlob;
+        let filename;
+        
+        if (format === 'pdf') {
+          // For PDF, we need to generate it first
+          const element = document.querySelector(`.${styles.documentContainer}`);
+          if (element) {
+            console.log('Generating PDF document...');
+            const canvas = await html2canvas(element, {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: '#ffffff'
+            });
+            
+            // Convert canvas to blob
+            canvas.toBlob((blob) => {
+              if (blob) {
+                console.log('PDF blob created, size:', blob.size);
+                documentBlob = blob;
+                filename = `Tax_Calculation_${content.taxYear.replace('/', '_')}.pdf`;
+                formData.append('document', documentBlob, filename);
+                
+                // Send the request
+                sendDocumentToServer(formData, accessToken);
+              } else {
+                console.error('Failed to create PDF blob');
+                alert('Failed to generate PDF document. Please try again.');
+              }
+            }, 'application/pdf');
+            return; // Exit early as we're handling this asynchronously
+          } else {
+            console.error('Document container element not found');
+            alert('Document container not found. Please try again.');
+            return;
+          }
+        } else if (format === 'excel') {
+          console.log('Generating Excel document...');
+          // For Excel, generate the file using the same logic as downloadAsExcel
+          const wb = XLSX.utils.book_new();
+
+          // Prepare data for Excel (same as downloadAsExcel function)
+          const data = [
+            ['Full Name:', content.userDetails.fullName],
+            ['TIN Number:', content.userDetails.tinNumber],
+            ['Year of Assessment:', content.taxYear],
+            ['Date & Time:', `${content.userDetails.date} ${content.userDetails.time}`],
+            [''],
+            ['Calculation of Income Tax Liability - ' + content.taxYear],
+            [''],
+            ['Income Types and Deductions', '', 'Amount (Rs.)'],
+            ['']
+          ];
+
+          // Add income categories
+          content.summaryData.forEach(category => {
+            if (category.category !== 'Qualifying Payments & Relief' && 
+                category.category !== 'Terminal Benefits' && 
+                hasEntries(category)) {
+              data.push([category.category, '', category.amount]);
+              category.entries?.forEach(entry => {
+                if (Number(entry.amount) > 0) {
+                  data.push(['• ' + entry.name, '', entry.amount]);
+                }
+              });
+            }
+          });
+
+          data.push(['']);
+          data.push(['Assessable Income', '', content.assessableIncome]);
+          data.push(['']);
+
+          // Add Terminal Benefits if any
+          const terminalBenefits = content.summaryData.find(cat => cat.category === 'Terminal Benefits');
+          if (terminalBenefits && hasEntries(terminalBenefits)) {
+            data.push(['Terminal Benefits (Less)', '', '']);
+            terminalBenefits.entries?.forEach(entry => {
+              if (Number(entry.amount) > 0) {
+                data.push(['• ' + entry.name, '', entry.amount]);
+              }
+            });
+          }
+
+          // Add Relief & Qualifying Payments
+          data.push(['']);
+          data.push(['Relief & Qualifying Payments (Less)', '', '']);
+          data.push(['• Personal Relief', '', PERSONAL_RELIEF_AMOUNTS[content.taxYear]]);
+
+          // Add other qualifying payments
+          const qualifyingPayments = content.summaryData.find(cat => cat.category === 'Qualifying Payments & Relief');
+          if (qualifyingPayments) {
+            qualifyingPayments.entries
+              .filter(entry => !entry.type.includes('Personal Relief') && Number(entry.amount) > 0)
+              .forEach(entry => {
+                data.push(['• ' + entry.name, '', entry.amount]);
+              });
+          }
+
+          data.push(['']);
+          data.push(['Taxable Income', '', content.taxableIncome]);
+          data.push(['']);
+          data.push(['Tax Liability Calculation', '', '']);
+
+          // Add tax bracket breakdown
+          content.taxBracketBreakdown.forEach(bracket => {
+            data.push([
+              `${bracket.from.toLocaleString()} - ${bracket.to.toLocaleString()} (${(bracket.rate * 100)}%)`,
+              '',
+              bracket.tax
+            ]);
+          });
+
+          data.push(['']);
+          data.push(['Total Tax Liability', '', content.totalTaxPayable]);
+          data.push(['']);
+
+          // Add tax deductions if any
+          if (Object.values(content.deductions).some(value => value > 0)) {
+            data.push(['Tax Deductions - Credits', '', '']);
+            if (content.deductions.apit > 0) {
+              data.push(['• APIT (Advanced Personal Income Tax)', '', content.deductions.apit]);
+            }
+            if (content.deductions.ait > 0) {
+              data.push(['• AIT (Advance Income Tax)', '', content.deductions.ait]);
+            }
+            if (content.deductions.paidTax > 0) {
+              data.push(['• Paid Tax', '', content.deductions.paidTax]);
+            }
+            if (content.deductions.wht > 0) {
+              data.push(['• WHT (Withholding Tax)', '', content.deductions.wht]);
+            }
+          }
+
+          data.push(['']);
+          data.push(['Balance Tax Payable', '', content.balanceTaxPayable]);
+
+          // Create worksheet
+          const ws = XLSX.utils.aoa_to_sheet(data);
+
+          // Set column widths
+          ws['!cols'] = [
+            { wch: 50 }, // First column - descriptions
+            { wch: 10 }, // Second column - spacing
+            { wch: 20 }  // Third column - amounts
+          ];
+
+          // Add worksheet to workbook
+          XLSX.utils.book_append_sheet(wb, ws, 'Tax Calculation');
+          
+          // Convert to blob
+          const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+          documentBlob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+          filename = `Tax_Calculation_${content.taxYear.replace('/', '_')}.xlsx`;
+          console.log('Excel blob created, size:', documentBlob.size);
+        } else if (format === 'word') {
+          console.log('Generating Word document...');
+          // For Word, generate the HTML content (same as downloadAsWord function)
+          const htmlContent = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                  xmlns:w="urn:schemas-microsoft-com:office:word" 
+                  xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <title>Tax Calculation</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .user-details {
+                        margin-bottom: 20px;
+                    }
+                    .user-detail-row {
+                        margin-bottom: 10px;
+                    }
+                    .user-detail-label {
+                        font-weight: bold;
+                        margin-right: 10px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+                    td, th {
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    .category-row {
+                        font-weight: bold;
+                        background-color: #f5f5f5;
+                    }
+                    .total-row {
+                        font-weight: bold;
+                        border-top: 2px solid #000;
+                    }
+                    .bullet-row td:first-child {
+                        width: 20px;
+                    }
+                    .amount-column {
+                        text-align: right;
+                    }
+                    .section-header {
+                        font-weight: bold;
+                        background-color: #f0f0f0;
+                    }
+                    .spacer-row {
+                        height: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="user-details">
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Full Name:</span>
+                        <span>${content.userDetails.fullName}</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">TIN Number:</span>
+                        <span>${content.userDetails.tinNumber}</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Year of Assessment:</span>
+                        <span>${content.taxYear}</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Date & Time:</span>
+                        <span>${content.userDetails.date} ${content.userDetails.time}</span>
                     </div>
                 </div>
 
-                <div className={styles.documentContainer}>
-                    <h1 className={styles.mainHeading}>
-                        Calculation of Income Tax Liability - {taxYear}
-                    </h1>
-                    <table className={styles.taxTable}>
-                        <thead>
-                            <tr>
-                                <th colSpan="2">Income Types and Deductions </th>
-                                <th>Amount (Rs.)</th>
+                <h1 style="text-align: center; margin-bottom: 20px;">Calculation of Income Tax Liability - ${content.taxYear}</h1>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Income Types and Deductions</th>
+                            <th>Amount (Rs.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${content.summaryData.map(category => {
+                          if (category.category !== 'Qualifying Payments & Relief' && 
+                              category.category !== 'Terminal Benefits' && 
+                              hasEntries(category)) {
+                            return `
+                                <tr class="category-row">
+                                    <td colspan="2">${category.category}</td>
+                                    <td class="amount-column">${Number(category.amount).toLocaleString()}</td>
+                                </tr>
+                                ${category.entries?.map(entry => 
+                                  Number(entry.amount) > 0 ? `
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>${entry.name}</td>
+                                        <td class="amount-column">${Number(entry.amount).toLocaleString()}</td>
+                                    </tr>
+                                  ` : ''
+                                ).join('')}
+                            `;
+                          }
+                          return '';
+                        }).join('')}
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Assessable Income</td>
+                            <td class="amount-column">${Number(content.assessableIncome).toLocaleString()}</td>
+                        </tr>
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        ${content.summaryData.find(cat => cat.category === 'Terminal Benefits')?.entries?.length > 0 ? `
+                          <tr class="section-header">
+                              <td colspan="3">Terminal Benefits (Less)</td>
+                          </tr>
+                          ${content.summaryData.find(cat => cat.category === 'Terminal Benefits')?.entries?.map(entry => 
+                            Number(entry.amount) > 0 ? `
+                              <tr class="bullet-row">
+                                  <td>•</td>
+                                  <td>${entry.name}</td>
+                                  <td class="amount-column">${Number(entry.amount).toLocaleString()}</td>
+                              </tr>
+                            ` : ''
+                          ).join('')}
+                        ` : ''}
+                        
+                        <tr class="section-header">
+                            <td colspan="3">Relief & Qualifying Payments (Less)</td>
+                        </tr>
+                        <tr class="bullet-row">
+                            <td>•</td>
+                            <td>Personal Relief</td>
+                            <td class="amount-column">Rs. ${Number(PERSONAL_RELIEF_AMOUNTS[content.taxYear]).toLocaleString()}</td>
+                        </tr>
+                        
+                        ${content.summaryData.find(cat => cat.category === 'Qualifying Payments & Relief')?.entries
+                          ?.filter(entry => !entry.type.includes('Personal Relief') && Number(entry.amount) > 0)
+                          .map(entry => `
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>${entry.name}</td>
+                                <td class="amount-column">Rs. ${Number(entry.amount).toLocaleString()}</td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {/* Regular Income Categories */}
-                            {summaryData.map((category, categoryIndex) => (
-                                category.category !== 'Qualifying Payments & Relief' && 
-                                category.category !== 'Terminal Benefits' && 
-                                hasEntries(category) && (
-                                    <React.Fragment key={`category-${categoryIndex}`}>
-                                        <tr className={styles.categoryRow}>
-                                            <td colSpan="2">
-                                                {isEditing ? (
-                                                    <EditableCell
-                                                        value={category.category}
-                                                        onChange={(value) => {
-                                                            const newData = [...summaryData];
-                                                            newData[categoryIndex].category = value;
-                                                            setSummaryData(newData);
+                          `).join('')}
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Taxable Income</td>
+                            <td class="amount-column">Rs. ${Number(content.taxableIncome).toLocaleString()}</td>
+                        </tr>
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        <tr class="section-header">
+                            <td colspan="3">Tax Liability Calculation</td>
+                        </tr>
+
+                        ${content.taxBracketBreakdown.map((bracket, index) => `
+                          <tr class="bullet-row">
+                              <td></td>
+                              <td>
+                                  ${bracket.from.toLocaleString()} - ${bracket.to.toLocaleString()} ---------- (${(bracket.rate * 100)}%)
+                              </td>
+                              <td class="amount-column">${Number(bracket.tax).toLocaleString()}</td>
+                          </tr>
+                        `).join('')}
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Total Tax Liability</td>
+                            <td class="amount-column">Rs. ${Number(content.totalTaxPayable).toLocaleString()}</td>
+                        </tr>
+                        
+                        ${Object.values(content.deductions).some(value => value > 0) ? `
+                          <tr class="spacer-row"><td colspan="3"></td></tr>
+                          <tr class="spacer-row"><td colspan="3"></td></tr>
+                          
+                          <tr class="section-header">
+                              <td colspan="3">Tax Deductions - Credits</td>
+                          </tr>
+                          ${content.deductions.apit > 0 ? `
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>APIT (Advanced Personal Income Tax)</td>
+                                <td class="amount-column">(${Number(content.deductions.apit).toLocaleString()})</td>
+                            </tr>
+                          ` : ''}
+                          ${content.deductions.ait > 0 ? `
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>AIT (Advance Income Tax)</td>
+                                <td class="amount-column">(${Number(content.deductions.ait).toLocaleString()})</td>
+                            </tr>
+                          ` : ''}
+                          ${content.deductions.paidTax > 0 ? `
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>Paid Tax</td>
+                                <td class="amount-column">(${Number(content.deductions.paidTax).toLocaleString()})</td>
+                            </tr>
+                          ` : ''}
+                          ${content.deductions.wht > 0 ? `
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>WHT (Withholding Tax)</td>
+                                <td class="amount-column">(${Number(content.deductions.wht).toLocaleString()})</td>
+                            </tr>
+                          ` : ''}
+                        ` : ''}
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Balance Tax Payable</td>
+                            <td class="amount-column">Rs. ${Number(content.balanceTaxPayable).toLocaleString()}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+          `;
+          documentBlob = new Blob([htmlContent], { type: 'application/msword' });
+          filename = `Tax_Calculation_${content.taxYear.replace('/', '_')}.doc`;
+          console.log('Word blob created, size:', documentBlob.size);
+        }
+        
+        if (documentBlob) {
+          formData.append('document', documentBlob, filename);
+          console.log('Document blob added to FormData, filename:', filename);
+          console.log('FormData entries:');
+          for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+          }
+        } else {
+          console.error('No document blob created');
+          alert('Failed to generate document. Please try again.');
+          return;
+        }
+        
+        // Send the request
+        sendDocumentToServer(formData, accessToken);
+        
+      } catch (error) {
+        console.error('Error saving document:', error);
+        alert('Error generating document. Please try again.');
+      }
+    };
+
+    const sendDocumentToServer = async (formData, accessToken) => {
+      try {
+        console.log('Sending document to server...');
+        console.log('Access token:', accessToken ? 'Present' : 'Missing');
+        
+        // Log FormData contents for debugging
+        console.log('FormData contents:');
+        for (let [key, value] of formData.entries()) {
+          if (value instanceof File) {
+            console.log(`${key}: File - ${value.name}, Size: ${value.size} bytes, Type: ${value.type}`);
+          } else {
+            console.log(`${key}: ${typeof value === 'string' ? value.substring(0, 100) + '...' : value}`);
+          }
+        }
+        
+        const response = await fetch('/api/tax-report/save-document/', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            // Don't set Content-Type for FormData, let browser set it with boundary
+          },
+          body: formData
+        });
+
+        console.log('Response status:', response.status);
+        console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('Document saved successfully:', result);
+          
+          // Show simple success message without user details
+          alert('Document saved and downloaded successfully');
+        } else {
+          const errorData = await response.json();
+          console.error('Failed to save document:', errorData);
+          alert(`Failed to save document: ${errorData.error || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error saving document:', error);
+        alert('Error saving document to database. Please try again.');
+      }
+    };
+
+    // Update the render section to show detailed breakdown
+    return (
+        <div className="preview-page">
+            <Header />
+            <TaxationMenu />
+            <div className={styles.container}>
+                <div className={styles.contentWrapper}>
+                    <div className={styles.header}>
+                        <div className={styles.downloadContainer} ref={downloadMenuRef}>
+                            <button 
+                                className={styles.actionButton} 
+                                onClick={() => setShowDownloadMenu(!showDownloadMenu)}
+                            >
+                                <Download size={16} />
+                                Download
+                                <ChevronDown size={16} />
+                            </button>
+                            {showDownloadMenu && (
+                                <div className={styles.downloadMenu}>
+                                    <button onClick={() => handleDownload('pdf')}>Download as PDF</button>
+                                    <button onClick={() => handleDownload('excel')}>Download as Excel</button>
+                                    <button onClick={() => handleDownload('word')}>Download as Word</button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className={styles.documentContainer}>
+                        <h1 className={styles.mainHeading}>
+                            Calculation of Income Tax Liability - {taxYear}
+                        </h1>
+                        
+                        <div className={styles.userDetails}>
+                            <div className={styles.userDetailRow}>
+                                <span className={styles.userDetailLabel}>Full Name:</span>
+                                <span className={styles.userDetailValue}>{userDetails.fullName}</span>
+                            </div>
+                            <div className={styles.userDetailRow}>
+                                <span className={styles.userDetailLabel}>TIN Number:</span>
+                                <span className={styles.userDetailValue}>{userDetails.tinNumber}</span>
+                            </div>
+                            <div className={styles.userDetailRow}>
+                                <span className={styles.userDetailLabel}>Year </span>
+                                <span className={styles.userDetailValue}>{taxYear}</span>
+                            </div>
+                            <div className={styles.userDetailRow}>
+                                <span className={styles.userDetailLabel}>Date & Time:</span>
+                                <span className={styles.userDetailValue}>{userDetails.date} {userDetails.time}</span>
+                            </div>
+                        </div>
+
+                        <table className={styles.taxTable}>
+                            <thead>
+                                <tr>
+                                    <th colSpan="2">Income Types and Deductions </th>
+                                    <th>Amount (Rs.)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* Regular Income Categories */}
+                                {summaryData.map((category, categoryIndex) => (
+                                    category.category !== 'Qualifying Payments & Relief' && 
+                                    category.category !== 'Terminal Benefits' && 
+                                    hasEntries(category) && (
+                                        <React.Fragment key={`category-${categoryIndex}`}>
+                                            <tr className={styles.categoryRow}>
+                                                <td colSpan="2">
+                                                    {isEditing ? (
+                                                        <EditableCell
+                                                            value={category.category}
+                                                            onChange={(value) => {
+                                                                const newData = [...summaryData];
+                                                                newData[categoryIndex].category = value;
+                                                                setSummaryData(newData);
+                                                            }}
+                                                        />
+                                                    ) : category.category}
+                                                </td>
+                                                <td className={styles.amountColumn}>
+                                                    {category.amount > 0 && `Rs. ${Number(category.amount).toLocaleString()}`}
+                                                    {isEditing && (
+                                                        <button 
+                                                            onClick={() => handleAddRow(categoryIndex)}
+                                                            className={styles.addButton}
+                                                        >
+                                                            <Plus size={16} />
+                                                        </button>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                            
+                                            {category.entries?.map((entry, entryIndex) => (
+                                                Number(entry.amount) > 0 && (
+                                                    <EditableRow
+                                                        key={`entry-${entryIndex}`}
+                                                        entry={entry}
+                                                        isEditing={isEditing}
+                                                        onUpdate={(updatedEntry) => 
+                                                            handleUpdateRow(categoryIndex, entryIndex, updatedEntry)
+                                                        }
+                                                        onDelete={() => handleDeleteRow(categoryIndex, entryIndex)}
+                                                    />
+                                                )
+                                            ))}
+                                        </React.Fragment>
+                                    )
+                                ))}
+
+                                {/* Assessable Income */}
+                                <tr className={styles.totalRow} data-type="assessable">
+                                    <td colSpan="2">Assessable Income</td>
+                                    <td className={styles.amountColumn}>
+                                        Rs. {Number(assessableIncome).toLocaleString()}
+                                    </td>
+                                </tr>
+
+                                {/* Add spacer rows */}
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+
+                                {/* Less - Terminal Benefits section */}
+                                {summaryData.some(category => 
+                                    category.category === 'Terminal Benefits' && hasEntries(category)
+                                ) && (
+                                    <>
+                                        <tr className={styles.sectionHeader}>
+                                            <td colSpan="3">Terminal Benefits (Less)</td>
+                                        </tr>
+                                        {summaryData.map(category => (
+                                            category.category === 'Terminal Benefits' && 
+                                            category.entries?.map((entry, i) => (
+                                                Number(entry.amount) > 0 && (
+                                                    <EditableRow
+                                                        key={`terminal-${i}`}
+                                                        entry={entry}
+                                                        onUpdate={(updatedEntry) => {
+                                                            const updatedCategory = { ...category };
+                                                            updatedCategory.entries[i] = updatedEntry;
+                                                            const updatedSummaryData = [...summaryData];
+                                                            const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Terminal Benefits');
+                                                            updatedSummaryData[categoryIndex] = updatedCategory;
+                                                            setSummaryData(updatedSummaryData);
+                                                        }}
+                                                        onDelete={() => {
+                                                            const updatedCategory = { ...category };
+                                                            updatedCategory.entries.splice(i, 1);
+                                                            const updatedSummaryData = [...summaryData];
+                                                            const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Terminal Benefits');
+                                                            updatedSummaryData[categoryIndex] = updatedCategory;
+                                                            setSummaryData(updatedSummaryData);
+                                                        }}
+                                                        isEditing={isEditing}
+                                                    />
+                                                )
+                                            ))
+                                        ))}
+                                    </>
+                                )}
+
+                                {/* Less - Relief & Qualifying Payments */}
+                                <>
+                                    <tr className={styles.sectionHeader}>
+                                        <td colSpan="3">Relief & Qualifying Payments (Less)</td>
+                                    </tr>
+                                    
+                                    {/* Always show Personal Relief */}
+                                    <tr className={styles.bulletRow}>
+                                        <td className={styles.bulletCell}>•</td>
+                                        <td>Personal Relief</td>
+                                        <td className={styles.amountColumn}>
+                                            Rs. {Number(PERSONAL_RELIEF_AMOUNTS[taxYear]).toLocaleString()}
+                                        </td>
+                                    </tr>
+
+                                    {/* Show other qualifying payments if they exist */}
+                                    {summaryData.map(category => {
+                                        if (category.category === 'Qualifying Payments & Relief') {
+                                            return category.entries
+                                                .filter(entry => !entry.type.includes('Personal Relief') && Number(entry.amount) > 0)
+                                                .map((entry, i) => (
+                                                    <EditableRow
+                                                        key={`relief-${i}`}
+                                                        entry={entry}
+                                                        isEditing={isEditing}
+                                                        onUpdate={(updatedEntry) => {
+                                                            const updatedCategory = { ...category };
+                                                            updatedCategory.entries[i] = updatedEntry;
+                                                            const updatedSummaryData = [...summaryData];
+                                                            const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Qualifying Payments & Relief');
+                                                            updatedSummaryData[categoryIndex] = updatedCategory;
+                                                            setSummaryData(updatedSummaryData);
+                                                        }}
+                                                        onDelete={() => {
+                                                            const updatedCategory = { ...category };
+                                                            updatedCategory.entries.splice(i, 1);
+                                                            const updatedSummaryData = [...summaryData];
+                                                            const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Qualifying Payments & Relief');
+                                                            updatedSummaryData[categoryIndex] = updatedCategory;
+                                                            setSummaryData(updatedSummaryData);
                                                         }}
                                                     />
-                                                ) : category.category}
-                                            </td>
-                                            <td className={styles.amountColumn}>
-                                                {category.amount > 0 && `Rs. ${Number(category.amount).toLocaleString()}`}
-                                                {isEditing && (
-                                                    <button 
-                                                        onClick={() => handleAddRow(categoryIndex)}
-                                                        className={styles.addButton}
-                                                    >
-                                                        +
-                                                    </button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                        
-                                        {category.entries?.map((entry, entryIndex) => (
-                                            Number(entry.amount) > 0 && (
-                                                <EditableRow
-                                                    key={`entry-${entryIndex}`}
-                                                    entry={entry}
-                                                    isEditing={isEditing}
-                                                    onUpdate={(updatedEntry) => 
-                                                        handleUpdateRow(categoryIndex, entryIndex, updatedEntry)
-                                                    }
-                                                    onDelete={() => handleDeleteRow(categoryIndex, entryIndex)}
-                                                />
-                                            )
-                                        ))}
-                                    </React.Fragment>
-                                )
-                            ))}
-
-                            {/* Assessable Income */}
-                            <tr className={styles.totalRow} data-type="assessable">
-                                <td colSpan="2">Assessable Income</td>
-                                <td className={styles.amountColumn}>
-                                    Rs. {Number(assessableIncome).toLocaleString()}
-                                </td>
-                            </tr>
-
-                            {/* Add two spacer rows */}
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-
-                            {/* Less - Terminal Benefits section */}
-                            {summaryData.some(category => 
-                                category.category === 'Terminal Benefits' && hasEntries(category)
-                            ) && (
-                                <>
-                                    <tr className={styles.sectionHeader}>
-                                        <td colSpan="3">Terminal Benefits (Less)</td>
-                                    </tr>
-                                    {summaryData.map(category => (
-                                        category.category === 'Terminal Benefits' && 
-                                        category.entries?.map((entry, i) => (
-                                            Number(entry.amount) > 0 && (
-                                                <EditableRow
-                                                    key={`terminal-${i}`}
-                                                    entry={entry}
-                                                    onUpdate={(updatedEntry) => {
-                                                        const updatedCategory = { ...category };
-                                                        updatedCategory.entries[i] = updatedEntry;
-                                                        const updatedSummaryData = [...summaryData];
-                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Terminal Benefits');
-                                                        updatedSummaryData[categoryIndex] = updatedCategory;
-                                                        setSummaryData(updatedSummaryData);
-                                                    }}
-                                                    onDelete={() => {
-                                                        const updatedCategory = { ...category };
-                                                        updatedCategory.entries.splice(i, 1);
-                                                        const updatedSummaryData = [...summaryData];
-                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Terminal Benefits');
-                                                        updatedSummaryData[categoryIndex] = updatedCategory;
-                                                        setSummaryData(updatedSummaryData);
-                                                    }}
-                                                    isEditing={isEditing}
-                                                />
-                                            )
-                                        ))
-                                    ))}
+                                                ));
+                                        }
+                                        return null;
+                                    })}
                                 </>
-                            )}
 
-                            {/* Less - Relief & Qualifying Payments */}
-                            <>
-                                <tr className={styles.sectionHeader}>
-                                    <td colSpan="3">Relief & Qualifying Payments (Less)</td>
+                                {/* Taxable Income */}
+                                <tr className={styles.totalRow} data-type="taxable">
+                                    <td colSpan="2">Taxable Income</td>
+                                    <td className={styles.amountColumn}>
+                                        Rs. {Number(taxableIncome).toLocaleString()}
+                                    </td>
+                                </tr>
+
+                                {/* Add spacer rows */}
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
                                 </tr>
                                 
-                                {/* Always show Personal Relief */}
-                                <tr className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}>•</td>
-                                    <td>Personal Relief</td>
-                                    <td className={styles.amountColumn}>
-                                        Rs. {Number(PERSONAL_RELIEF_AMOUNTS[taxYear]).toLocaleString()}
-                                    </td>
+
+                                {/* Tax Liability Breakdown Section */}
+                                <tr className={styles.sectionHeader + ' ' + styles.pageBreak}>
+                                    <td colSpan="3">Tax Liability Calculation</td>
                                 </tr>
 
-                                {/* Show other qualifying payments if they exist */}
-                                {summaryData.map(category => {
-                                    if (category.category === 'Qualifying Payments & Relief') {
-                                        return category.entries
-                                            .filter(entry => !entry.type.includes('Personal Relief') && Number(entry.amount) > 0)
-                                            .map((entry, i) => (
-                                                <EditableRow
-                                                    key={`relief-${i}`}
-                                                    entry={entry}
-                                                    isEditing={isEditing}
-                                                    onUpdate={(updatedEntry) => {
-                                                        const updatedCategory = { ...category };
-                                                        updatedCategory.entries[i] = updatedEntry;
-                                                        const updatedSummaryData = [...summaryData];
-                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Qualifying Payments & Relief');
-                                                        updatedSummaryData[categoryIndex] = updatedCategory;
-                                                        setSummaryData(updatedSummaryData);
-                                                    }}
-                                                    onDelete={() => {
-                                                        const updatedCategory = { ...category };
-                                                        updatedCategory.entries.splice(i, 1);
-                                                        const updatedSummaryData = [...summaryData];
-                                                        const categoryIndex = updatedSummaryData.findIndex(cat => cat.category === 'Qualifying Payments & Relief');
-                                                        updatedSummaryData[categoryIndex] = updatedCategory;
-                                                        setSummaryData(updatedSummaryData);
-                                                    }}
-                                                />
-                                            ));
-                                    }
-                                    return null;
-                                })}
-                            </>
-
-                            {/* Taxable Income */}
-                            <tr className={styles.totalRow} data-type="taxable">
-                                <td colSpan="2">Taxable Income</td>
-                                <td className={styles.amountColumn}>
-                                    Rs. {Number(taxableIncome).toLocaleString()}
-                                </td>
-                            </tr>
-
-                            {/* Add two spacer rows */}
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-                            
-
-                            {/* Tax Liability Breakdown Section */}
-                            <tr className={`${styles.sectionHeader} ${styles.pageBreak}`}>
-                                <td colSpan="3">Tax Liability Calculation</td>
-                            </tr>
-
-                            {taxBracketBreakdown.map((bracket, index) => (
-                                <tr key={`bracket-${index}`} className={styles.bulletRow}>
-                                    <td className={styles.bulletCell}></td>
-                                    <td>
-                                        {bracket.from.toLocaleString()} - {bracket.to.toLocaleString()} ---------- ({(bracket.rate * 100)}%)
-                                    </td>
-                                    <td className={styles.amountColumn}>
-                                        {Number(bracket.tax).toLocaleString()}
-                                    </td>
-                                </tr>
-                            ))}
-
-                            {/* Total Tax Liability */}
-                            <tr className={styles.totalRow}>
-                                <td colSpan="2">Total Tax Liability</td>
-                                <td className={styles.amountColumn}>
-                                    Rs. {Number(totalTaxPayable).toLocaleString()}
-                                </td>
-                            </tr>
-
-                            {/* Add two spacer rows */}
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-
-                            {/* Tax Deductions Section */}
-                            {Object.values(deductions).some(value => value > 0) && (
-                                <>
-                                    <tr className={styles.sectionHeader}>
-                                        <td colSpan="3">Tax Deductions - Credits</td>
+                                {taxBracketBreakdown.map((bracket, index) => (
+                                    <tr key={`bracket-${index}`} className={styles.bulletRow}>
+                                        <td className={styles.bulletCell}></td>
+                                        <td>
+                                            {bracket.from.toLocaleString()} - {bracket.to.toLocaleString()} ---------- (${(bracket.rate * 100)}%)
+                                        </td>
+                                        <td className={styles.amountColumn}>
+                                            {Number(bracket.tax).toLocaleString()}
+                                        </td>
                                     </tr>
-                                    {/* Only show deductions with values > 0 */}
-                                    {deductions.apit > 0 && (
-                                        <tr className={styles.bulletRow}>
-                                            <td className={styles.bulletCell}>•</td>
-                                            <td>APIT (Advanced Personal Income Tax)</td>
-                                            <td className={styles.amountColumn}>
-                                                ({Number(deductions.apit).toLocaleString()})
-                                            </td>
+                                ))}
+
+                                {/* Total Tax Liability */}
+                                <tr className={styles.totalRow}>
+                                    <td colSpan="2">Total Tax Liability</td>
+                                    <td className={styles.amountColumn}>
+                                        Rs. {Number(totalTaxPayable).toLocaleString()}
+                                    </td>
+                                </tr>
+
+                                {/* Add spacer rows */}
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+
+                                {/* Tax Deductions Section */}
+                                {Object.values(deductions).some(value => value > 0) && (
+                                    <>
+                                        <tr className={styles.sectionHeader}>
+                                            <td colSpan="3">Tax Deductions - Credits</td>
                                         </tr>
-                                    )}
-                                    {/* Repeat for other deductions... */}
-                                    {deductions.ait > 0 && (
-                                        <tr className={styles.bulletRow}>
-                                            <td className={styles.bulletCell}>•</td>
-                                            <td>AIT (Advance Income Tax)</td>
-                                            <td className={styles.amountColumn}>
-                                                ({Number(deductions.ait).toLocaleString()})
-                                            </td>
-                                        </tr>
-                                    )}
+                                        {/* Only show deductions with values > 0 */}
+                                        {deductions.apit > 0 && (
+                                            <tr className={styles.bulletRow}>
+                                                <td className={styles.bulletCell}>•</td>
+                                                <td>APIT (Advanced Personal Income Tax)</td>
+                                                <td className={styles.amountColumn}>
+                                                    ({Number(deductions.apit).toLocaleString()})
+                                                </td>
+                                            </tr>
+                                        )}
+                                        {/* Repeat for other deductions... */}
+                                        {deductions.ait > 0 && (
+                                            <tr className={styles.bulletRow}>
+                                                <td className={styles.bulletCell}>•</td>
+                                                <td>AIT (Advance Income Tax)</td>
+                                                <td className={styles.amountColumn}>
+                                                    ({Number(deductions.ait).toLocaleString()})
+                                                </td>
+                                            </tr>
+                                        )}
 
-                                    {/* Paid Tax Deductions */}
-                                    {deductions.paidTax > 0 && (
-                                        <tr className={styles.bulletRow}>
-                                            <td className={styles.bulletCell}>•</td>
-                                            <td>Paid Tax</td>
-                                            <td className={styles.amountColumn}>
-                                                ({Number(deductions.paidTax).toLocaleString()})
-                                            </td>
-                                        </tr>
-                                    )}
+                                        {/* Paid Tax Deductions */}
+                                        {deductions.paidTax > 0 && (
+                                            <tr className={styles.bulletRow}>
+                                                <td className={styles.bulletCell}>•</td>
+                                                <td>Paid Tax</td>
+                                                <td className={styles.amountColumn}>
+                                                    ({Number(deductions.paidTax).toLocaleString()})
+                                                </td>
+                                            </tr>
+                                        )}
 
-                                    {/* WHT Deductions */}
-                                    {deductions.wht > 0 && (
-                                        <tr className={styles.bulletRow}>
-                                            <td className={styles.bulletCell}>•</td>
-                                            <td>WHT (Withholding Tax)</td>
-                                            <td className={styles.amountColumn}>
-                                                ({Number(deductions.wht).toLocaleString()})
-                                            </td>
-                                        </tr>
-                                    )}
-                                </>
-                            )}
+                                        {/* WHT Deductions */}
+                                        {deductions.wht > 0 && (
+                                            <tr className={styles.bulletRow}>
+                                                <td className={styles.bulletCell}>•</td>
+                                                <td>WHT (Withholding Tax)</td>
+                                                <td className={styles.amountColumn}>
+                                                    ({Number(deductions.wht).toLocaleString()})
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </>
+                                )}
 
-                           {/* Add two spacer rows */}
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
+                               {/* Add spacer rows */}
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
 
-                            {/* Balance Tax Payable */}
-                            <tr className={styles.totalRow}>
-                                <td colSpan="2">Balance Tax Payable</td>
-                                <td className={styles.amountColumn}>
-                                    Rs. {Number(balanceTaxPayable).toLocaleString()}
-                                </td>
-                            </tr>
+                                {/* Balance Tax Payable */}
+                                <tr className={styles.totalRow}>
+                                    <td colSpan="2">Balance Tax Payable</td>
+                                    <td className={styles.amountColumn}>
+                                        Rs. {Number(balanceTaxPayable).toLocaleString()}
+                                    </td>
+                                </tr>
 
-                            {/* Add two spacer rows */}
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-                            <tr className={styles.spacerRow}>
-                                <td colSpan="3"></td>
-                            </tr>
-                            
-                        </tbody>
-                    </table>
+                                {/* Add spacer rows */}
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+                                <tr className={styles.spacerRow}>
+                                    <td colSpan="3"></td>
+                                </tr>
+                                
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

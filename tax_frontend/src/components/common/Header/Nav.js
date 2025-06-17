@@ -1,15 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 import './Nav.css';
-import TaxLogo from '../../../assets/Tax_logo.png';
-import { FaChevronDown, FaBars, FaUser, FaSignOutAlt, FaStar } from 'react-icons/fa';
+import TaxLogo from '../../../assets/taxlogo.png';
+import { FaChevronDown, FaBars, FaUser, FaSignOutAlt, FaStar, FaTimes } from 'react-icons/fa';
 
 const Nav = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openDropdownIndex, setOpenDropdownIndex] = useState(null);
-  const [user, setUser] = useState(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout } = useAuth();
+  const navRef = useRef(null);
+  const userMenuRef = useRef(null);
 
   const navItems = [
     { to: '/', label: 'Home' },
@@ -17,54 +21,89 @@ const Nav = () => {
       to: '/servicesMain',
       label: 'Services',
       dropdown: [
-        { to: '/assistant', label: 'AI Assistant' },
-        { to: '/calculator', label: 'Calculator' },
-        { to: '/Taxation', label: 'Report' },
+        { to: '/assistant', label: 'AI tax Assistant' },
+        { to: '/calculator', label: 'Tax Calculator' },
+        { to: '/Taxation', label: 'Tax Report' },
+        { to: '/tax-calendar', label: 'Tax Calendar' },
       ],
     },
     { to: '/guidelines', label: 'Guidelines' },
     { to: '/contact', label: 'Contact' },
   ];
 
+  // Close mobile menu when route changes
   useEffect(() => {
-    // Check for user data on component mount
-    const checkUser = () => {
-      const userData = localStorage.getItem('user');
-      if (userData) {
-        try {
-          const parsedUser = JSON.parse(userData);
-          setUser(parsedUser);
-        } catch (error) {
-          console.error('Error parsing user data:', error);
-          localStorage.removeItem('user');
-          setUser(null);
-        }
-      } else {
-        setUser(null);
+    setIsMobileMenuOpen(false);
+    setOpenDropdownIndex(null);
+    setIsUserMenuOpen(false);
+  }, [location.pathname]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.classList.remove('menu-open');
+    }
+
+    return () => {
+      document.body.classList.remove('menu-open');
+    };
+  }, [isMobileMenuOpen]);
+
+  // Close menus when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (navRef.current && !navRef.current.contains(event.target)) {
+        setIsMobileMenuOpen(false);
+        setOpenDropdownIndex(null);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false);
       }
     };
 
-    checkUser();
-    // Listen for storage changes
-    window.addEventListener('storage', checkUser);
-    return () => window.removeEventListener('storage', checkUser);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  // Close mobile menu on escape key
+  useEffect(() => {
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false);
+        setOpenDropdownIndex(null);
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    setUser(null);
+    logout();
     setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
   };
 
   const handleReview = () => {
     navigate('/review-form');
     setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false);
   };
 
   const toggleMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+    // Close other menus when opening mobile menu
+    if (!isMobileMenuOpen) {
+      setOpenDropdownIndex(null);
+      setIsUserMenuOpen(false);
+    }
   };
 
   const toggleDropdown = (index) => {
@@ -75,16 +114,24 @@ const Nav = () => {
     setIsUserMenuOpen(!isUserMenuOpen);
   };
 
+  const handleNavItemClick = () => {
+    // Close mobile menu when clicking on nav items
+    if (isMobileMenuOpen) {
+      setIsMobileMenuOpen(false);
+      setOpenDropdownIndex(null);
+    }
+  };
+
   return (
-    <nav className="nav">
+    <nav className="nav" ref={navRef}>
       <div className="nav-left">
-        <Link to="/" className="logo-container">
-          <img src={TaxLogo} alt="Tax_logo" className="tax-logo" />
+        <Link to="/" className="logo-container" onClick={handleNavItemClick}>
+          <img src={TaxLogo} alt="Tax_logo4" className="tax-logo" />
         </Link>
       </div>
 
-      <div className="hamburger" onClick={toggleMenu}>
-        <FaBars />
+      <div className="hamburger" onClick={toggleMenu} aria-label="Toggle navigation menu">
+        {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
       </div>
 
       <div className={`nav-items ${isMobileMenuOpen ? 'open' : ''}`}>
@@ -92,8 +139,8 @@ const Nav = () => {
           item.dropdown ? (
             <div key={index} className="dropdown">
               <div className="nav-item with-arrow" onClick={() => toggleDropdown(index)}>
-                <Link to={item.to}>{item.label}</Link>
-                <FaChevronDown className="dropdown-arrow" />
+                <Link to={item.to} onClick={handleNavItemClick}>{item.label}</Link>
+                <FaChevronDown className={`dropdown-arrow ${openDropdownIndex === index ? 'rotated' : ''}`} />
               </div>
               {openDropdownIndex === index && (
                 <div className="dropdown-content">
@@ -102,6 +149,7 @@ const Nav = () => {
                       key={dropdownIndex}
                       to={dropdownItem.to}
                       className="dropdown-link"
+                      onClick={handleNavItemClick}
                     >
                       {dropdownItem.label}
                     </Link>
@@ -110,14 +158,18 @@ const Nav = () => {
               )}
             </div>
           ) : (
-            <Link key={index} to={item.to} className="nav-item">
+            <Link key={index} to={item.to} className="nav-item" onClick={handleNavItemClick}>
               {item.label}
             </Link>
           )
         )}
         {user ? (
-          <div className="user-menu-container">
-            <button className="user-icon-button" onClick={toggleUserMenu}>
+          <div className="user-menu-container" ref={userMenuRef}>
+            <button 
+              className="user-icon-button" 
+              onClick={toggleUserMenu}
+              aria-label="User menu"
+            >
               <FaUser className="user-icon" />
             </button>
             {isUserMenuOpen && (
@@ -135,7 +187,7 @@ const Nav = () => {
             )}
           </div>
         ) : (
-          <Link to="/login" className="login-button">
+          <Link to="/login" className="login-button" onClick={handleNavItemClick}>
             Login
           </Link>
         )}

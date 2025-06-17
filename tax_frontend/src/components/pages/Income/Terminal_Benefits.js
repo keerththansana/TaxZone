@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import Header from '../../common/Header/Header';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
+import { AutoFillHelper } from '../../../utils/autoFillHelper';
 
 const TerminalBenefits = () => {
     const [selectedTypes, setSelectedTypes] = useState([]);
@@ -13,6 +15,8 @@ const TerminalBenefits = () => {
     const [etfEntries, setEtfEntries] = useState([{ name: 'ETF Payment', amount: '' }]);
     const [otherEntries, setOtherEntries] = useState([{ name: 'Other Terminal Benefits', amount: '' }]);
     const [totalTerminalBenefits, setTotalTerminalBenefits] = useState(0); // Added state for total
+    const [formData, setFormData] = useState(null);
+    const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
 
     const benefitTypes = [
@@ -70,16 +74,202 @@ const TerminalBenefits = () => {
     }, [commutedEntries, gratuityEntries, compensationEntries, etfEntries, otherEntries]);
 
     useEffect(() => {
-        const savedData = sessionStorage.getItem('terminalBenefitsData');
-        if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            setSelectedTypes(parsedData.selectedTypes || []);
-            setCommutedEntries(parsedData.commutedEntries || [{ name: 'Commuted Pension', amount: '' }]);
-            setGratuityEntries(parsedData.gratuityEntries || [{ name: 'Retiring Gratuity', amount: '' }]);
-            setCompensationEntries(parsedData.compensationEntries || [{ name: 'Compensation', amount: '' }]);
-            setEtfEntries(parsedData.etfEntries || [{ name: 'ETF Payment', amount: '' }]);
-            setOtherEntries(parsedData.otherEntries || [{ name: 'Other Terminal Benefits', amount: '' }]);
+        const fetchAutoFillData = async () => {
+            try {
+                // First check if we have analysis data in session storage
+                const storedAnalysis = sessionStorage.getItem('last_analysis');
+                if (storedAnalysis) {
+                    try {
+                        const analysisData = JSON.parse(storedAnalysis);
+                        console.log('Found analysis data in session:', analysisData);
+                        
+                        // Format the data for the terminal benefits form
+                        const formattedData = {
+                            commutedEntries: [],
+                            gratuityEntries: [],
+                            compensationEntries: [],
+                            etfEntries: [],
+                            otherEntries: [],
+                            selectedTypes: [],
+                            totalTerminalBenefits: 0
+                        };
+
+                        // Process income items from each result
+                        analysisData.forEach(result => {
+                            if (result.analysis && result.analysis.income_items) {
+                                result.analysis.income_items.forEach(item => {
+                                    const description = (item.description || '').toLowerCase();
+                                    const amount = item.amount || 0;
+                                    let category = item.category || '';
+                                    category = category.toLowerCase();
+
+                                    // Debug print
+                                    console.log('Terminal benefit check:', { category, description });
+
+                                    // Enhanced matching
+                                    const isTerminalBenefit = 
+                                        (category && category.includes('terminal')) ||
+                                        description.includes('commuted') ||
+                                        description.includes('pension') ||
+                                        description.includes('gratuity') ||
+                                        description.includes('compensation') ||
+                                        description.includes('etf') ||
+                                        description.includes('trust fund');
+
+                                    if (isTerminalBenefit) {
+                                        if (description.includes('commuted') || description.includes('pension')) {
+                                            formattedData.commutedEntries.push({
+                                                name: item.description || 'Commuted Pension',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('commuted')) {
+                                                formattedData.selectedTypes.push('commuted');
+                                            }
+                                        } else if (description.includes('gratuity')) {
+                                            formattedData.gratuityEntries.push({
+                                                name: item.description || 'Gratuity',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('gratuity')) {
+                                                formattedData.selectedTypes.push('gratuity');
+                                            }
+                                        } else if (description.includes('compensation')) {
+                                            formattedData.compensationEntries.push({
+                                                name: item.description || 'Compensation',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('compensation')) {
+                                                formattedData.selectedTypes.push('compensation');
+                                            }
+                                        } else if (description.includes('etf') || description.includes('trust fund')) {
+                                            formattedData.etfEntries.push({
+                                                name: item.description || 'ETF Payment',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('etf')) {
+                                                formattedData.selectedTypes.push('etf');
+                                            }
+                                        } else {
+                                            formattedData.otherEntries.push({
+                                                name: item.description || 'Other Terminal Benefit',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('other')) {
+                                                formattedData.selectedTypes.push('other');
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                        // Calculate total terminal benefits
+                        formattedData.totalTerminalBenefits = 
+                            formattedData.commutedEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.gratuityEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.compensationEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.etfEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+                        // Only update if we have data
+                        if (formattedData.commutedEntries.length > 0 || 
+                            formattedData.gratuityEntries.length > 0 || 
+                            formattedData.compensationEntries.length > 0 || 
+                            formattedData.etfEntries.length > 0 || 
+                            formattedData.otherEntries.length > 0) {
+                            console.log('Formatted data for terminal benefits form:', formattedData);
+
+                            // Update the form with the formatted data
+                            setFormData(formattedData);
+                            setShowForm(true);
+
+                            // Update individual state variables
+                            setCommutedEntries(formattedData.commutedEntries);
+                            setGratuityEntries(formattedData.gratuityEntries);
+                            setCompensationEntries(formattedData.compensationEntries);
+                            setEtfEntries(formattedData.etfEntries);
+                            setOtherEntries(formattedData.otherEntries);
+                            setSelectedTypes(formattedData.selectedTypes);
+
+                            // Store the formatted data in session storage
+                            sessionStorage.setItem('terminalBenefitsData', JSON.stringify(formattedData));
+                        } else {
+                            console.log('No relevant terminal benefits data found in analysis');
+                        }
+                    } catch (error) {
+                        console.error('Error processing stored analysis data:', error);
+                    }
+                } else {
+                    console.log('No analysis data found in session storage - using default form');
+                }
+            } catch (error) {
+                console.error('Error fetching auto-fill data:', error);
+            }
+        };
+
+        // Check session storage first
+        const storedData = sessionStorage.getItem('terminalBenefitsData');
+        if (storedData) {
+            try {
+                const parsedData = JSON.parse(storedData);
+                setFormData(parsedData);
+                setShowForm(true);
+
+                // Update individual state variables
+                setCommutedEntries(parsedData.commutedEntries);
+                setGratuityEntries(parsedData.gratuityEntries);
+                setCompensationEntries(parsedData.compensationEntries);
+                setEtfEntries(parsedData.etfEntries);
+                setOtherEntries(parsedData.otherEntries);
+                setSelectedTypes(parsedData.selectedTypes);
+            } catch (error) {
+                console.error('Error parsing stored data:', error);
+            }
         }
+
+        // Then try to fetch auto-fill data
+        fetchAutoFillData();
+
+        // Listen for auto-fill data updates
+        const handleAutoFillUpdate = (event) => {
+            if (event.data && event.data.type === 'autoFillUpdate') {
+                const data = event.data.payload;
+                if (data.TerminalBenefits) {
+                    const formattedData = {
+                        commutedEntries: data.TerminalBenefits.commutedEntries || [],
+                        gratuityEntries: data.TerminalBenefits.gratuityEntries || [],
+                        compensationEntries: data.TerminalBenefits.compensationEntries || [],
+                        etfEntries: data.TerminalBenefits.etfEntries || [],
+                        otherEntries: data.TerminalBenefits.otherEntries || [],
+                        selectedTypes: data.TerminalBenefits.selectedTypes || [],
+                        totalTerminalBenefits: data.TerminalBenefits.totalTerminalBenefits || 0
+                    };
+
+                    // Calculate total terminal benefits
+                    formattedData.totalTerminalBenefits = 
+                        formattedData.commutedEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.gratuityEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.compensationEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.etfEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+
+                    console.log('Setting new form data:', formattedData);
+                    setFormData(formattedData);
+                    setShowForm(true);
+
+                    // Update individual state variables
+                    setCommutedEntries(formattedData.commutedEntries);
+                    setGratuityEntries(formattedData.gratuityEntries);
+                    setCompensationEntries(formattedData.compensationEntries);
+                    setEtfEntries(formattedData.etfEntries);
+                    setOtherEntries(formattedData.otherEntries);
+                    setSelectedTypes(formattedData.selectedTypes);
+                }
+            }
+        };
+
+        window.addEventListener('message', handleAutoFillUpdate);
+        return () => window.removeEventListener('message', handleAutoFillUpdate);
     }, []);
 
     const handleTypeToggle = (typeId) => {
@@ -216,7 +406,8 @@ const TerminalBenefits = () => {
     };
 
     return (
-        <>
+        <div className="terminal-benefits-page">
+            <Header />
             <TaxationMenu />
             <div className={styles.container}>
                 <div className={styles.header}>
@@ -307,7 +498,7 @@ const TerminalBenefits = () => {
                     </div>
                 </form>
             </div>
-        </>
+        </div>
     );
 };
 

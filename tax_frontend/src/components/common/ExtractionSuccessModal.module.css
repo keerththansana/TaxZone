@@ -1,0 +1,123 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    max-width: 450px;
+    width: 90%;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.icon {
+    font-size: 3.5rem;
+    color: #28a745;
+    margin-bottom: 1.5rem;
+    background: #e8f5e9;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+}
+
+.modal h3 {
+    color: #023636;
+    margin: 0 0 1rem 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.modal p {
+    color: #333;
+    margin: 0 0 0.75rem 0;
+    font-size: 1.2rem;
+    line-height: 1.5;
+}
+
+.subText {
+    color: #666 !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.closeButton {
+    background: #023636;
+    color: white;
+    border: none;
+    padding: 0.875rem 2.5rem;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(2, 54, 54, 0.2);
+}
+
+.closeButton:hover {
+    background: #034f4f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(2, 54, 54, 0.3);
+}
+
+.closeButton:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(2, 54, 54, 0.2);
+}
+
+@media (max-width: 480px) {
+    .modal {
+        padding: 2rem;
+    }
+
+    .icon {
+        font-size: 3rem;
+        width: 75px;
+        height: 75px;
+        margin-bottom: 1.25rem;
+    }
+
+    .modal h3 {
+        font-size: 1.5rem;
+    }
+
+    .modal p {
+        font-size: 1.1rem;
+    }
+
+    .subText {
+        font-size: 1rem !important;
+    }
+
+    .closeButton {
+        padding: 0.75rem 2rem;
+        font-size: 1rem;
+    }
+} 

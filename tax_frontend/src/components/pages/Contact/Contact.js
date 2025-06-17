@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import styles from './Contact.module.css'; // Import the CSS module
+import Header from '../../common/Header/Header';
+import styles from './Contact.module.css';
 import mailIcon from '../../../assets/mail.png';
 import phoneIcon from '../../../assets/phone.png';
 import locationIcon from '../../../assets/location.png';
-import websiteIcon from '../../../assets/website.png'; // Fixed filename typo
+import axios from 'axios';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -12,61 +13,105 @@ const Contact = () => {
         phone: '',
         message: ''
     });
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log(formData);
-        
-        setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            message: ''
-        });
+        setIsSubmitting(true);
 
-        alert('Form submitted successfully!');
+        try {
+            const response = await axios.post('/api/users/contact/', formData);
+            
+            setFormData({
+                name: '',
+                email: '',
+                phone: '',
+                message: ''
+            });
+
+            alert(response.data.message || 'Thank you for your message. We will get back to you soon!');
+        } catch (error) {
+            console.error('Error submitting contact form:', error);
+            alert(error.response?.data?.message || 'There was an error submitting your message. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
-        <div className={styles.container}>
-            <div className={styles.leftSection}>
-                <div className={styles.contactInfo}>
-                    <h2>Contact Us</h2>
-                    <p>Whether you have questions about our services, need support, or want to share your feedback, our dedicated team is here to assist you every step of the way.</p>
-                    <div className={styles.infoDetails}>
-                        <div className={styles.infoItem}>
-                            <img src={mailIcon} alt="Email" /> 
-                            <p>Email<br />hello@reallygreatsite.com</p>
-                        </div>
-                        <div className={styles.infoItem}>
-                            <img src={websiteIcon} alt="Website" /> 
-                            <p>Website<br />reallygreatsite.com</p>
-                        </div>
-                        <div className={styles.infoItem}>
-                            <img src={phoneIcon} alt="Phone" /> 
-                            <p>Phone<br />+123-456-7890</p>
-                        </div>
-                        <div className={styles.infoItem}>
-                            <img src={locationIcon} alt="Location" /> 
-                            <p>Location<br />123 Anywhere St., Any City</p>
+        <div className="contact-page">
+            <Header />
+            <div className={styles.container}>
+                <div className={styles.leftSection}>
+                    <div className={styles.contactInfo}>
+                        <h2>Get in Touch</h2>
+                        <p>Have questions about our tax services? We're here to help. Our team of tax experts is ready to assist you with any inquiries about tax calculations, filing, or general tax-related matters.</p>
+                        <div className={styles.infoDetails}>
+                            <div className={styles.infoItem}>
+                                <img src={mailIcon} alt="Email" /> 
+                                <p>support@tax.x</p>
+                            </div>
+                            <div className={styles.infoItem}>
+                                <img src={phoneIcon} alt="Phone" /> 
+                                <p>+94 11 234 5678</p>
+                            </div>
+                            <div className={styles.infoItem}>
+                                <img src={locationIcon} alt="Location" /> 
+                                <p>123 Tax Street, Colombo 03, Sri Lanka</p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className={styles.rightSection}>
-                <div className={styles.contactForm}>
-                    <h2>Get in touch.</h2>
-                    <form onSubmit={handleSubmit}>
-                        <input type="text" name="name" placeholder="Your Name" value={formData.name} onChange={handleChange} required />
-                        <input type="email" name="email" placeholder="Email Address" value={formData.email} onChange={handleChange} required />
-                        <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} />
-                        <textarea name="message" placeholder="Message" value={formData.message} onChange={handleChange} required></textarea>
-                        <button type="submit">Submit</button>
-                    </form>
+                <div className={styles.rightSection}>
+                    <div className={styles.contactForm}>
+                        <h2>Send us a Message</h2>
+                        <form onSubmit={handleSubmit}>
+                            <input 
+                                type="text" 
+                                name="name" 
+                                placeholder="Your Full Name" 
+                                value={formData.name} 
+                                onChange={handleChange} 
+                                required 
+                                disabled={isSubmitting}
+                            />
+                            <input 
+                                type="email" 
+                                name="email" 
+                                placeholder="Your Email Address" 
+                                value={formData.email} 
+                                onChange={handleChange} 
+                                required 
+                                disabled={isSubmitting}
+                            />
+                            <input 
+                                type="tel" 
+                                name="phone" 
+                                placeholder="Your Phone Number" 
+                                value={formData.phone} 
+                                onChange={handleChange} 
+                                disabled={isSubmitting}
+                            />
+                            <textarea 
+                                name="message" 
+                                placeholder="How can we help you?" 
+                                value={formData.message} 
+                                onChange={handleChange} 
+                                required
+                                disabled={isSubmitting}
+                            ></textarea>
+                            <button 
+                                type="submit" 
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Sending...' : 'Send Message'}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

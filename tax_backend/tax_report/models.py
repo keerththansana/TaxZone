@@ -41,3 +41,33 @@ class TaxFormDocument(models.Model):
     class Meta:
         db_table = 'tax_report_documents'
         ordering = ['-uploaded_at']
+
+class ExtractedContext(models.Model):
+    document = models.ForeignKey(TaxFormDocument, on_delete=models.CASCADE, related_name='contexts')
+    context_type = models.CharField(max_length=50)  # e.g., 'income', 'deduction', 'tax'
+    original_text = models.TextField()
+    extracted_value = models.DecimalField(max_digits=12, decimal_places=2)
+    confidence_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class FormFieldMapping(models.Model):
+    context = models.ForeignKey(ExtractedContext, on_delete=models.CASCADE, related_name='mappings')
+    form_type = models.CharField(max_length=50)  # e.g., 'EmploymentIncome', 'BusinessIncome'
+    field_name = models.CharField(max_length=100)
+    field_path = models.CharField(max_length=255)  # JSON path to the field
+    confidence_score = models.FloatField(default=0.0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class DownloadedReports(models.Model):
+    user_id = models.IntegerField(null=True, blank=True)  # Keep existing user_id field
+    username = models.CharField(max_length=150, null=True, blank=True)  # Add username field as nullable
+    email = models.EmailField(null=True, blank=True)  # Make email nullable
+    document = models.FileField(upload_to='downloaded_docs/', null=True, blank=True)  # stores the document file
+    downloaded_at = models.DateTimeField(default=timezone.now)  # date and time of download
+
+    class Meta:
+        db_table = 'downloaded_reports'
+        ordering = ['-downloaded_at']
+
+    def __str__(self):
+        return f"{self.username or 'Unknown'} - {self.email or 'No email'} - {self.downloaded_at}"

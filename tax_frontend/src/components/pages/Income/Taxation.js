@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronDown } from "lucide-react";
 import { useNavigate, useLocation } from 'react-router-dom';
+import Header from '../../common/Header/Header';
 import styles from './Taxation.module.css';
 import axios from 'axios';
 import CloseIcon from '@mui/icons-material/Close';
@@ -11,6 +12,8 @@ import ArticleIcon from '@mui/icons-material/Article';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import AnalysisResults from './AnalysisResults'; // Import the new component
+import UploadSuccessModal from '../../common/UploadSuccessModal';
+import ExtractionSuccessModal from '../../common/ExtractionSuccessModal';
 
 const Taxation = () => {
     // 1. First define all constants
@@ -59,6 +62,8 @@ const Taxation = () => {
     const [isDragging, setIsDragging] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
     const [selectedYear, setSelectedYear] = useState('2024/2025');
+    const [fullName, setFullName] = useState(sessionStorage.getItem('taxationFullName') || '');
+    const [tinNumber, setTinNumber] = useState(sessionStorage.getItem('taxationTinNumber') || '');
     const [documents, setDocuments] = useState(() => {
         const stored = sessionStorage.getItem('taxationDocuments');
         return stored ? JSON.parse(stored) : [];
@@ -71,6 +76,10 @@ const Taxation = () => {
     const [documentAnalysis, setDocumentAnalysis] = useState({});
     const [showAnalysis, setShowAnalysis] = useState(false);
     const [analysisResults, setAnalysisResults] = useState([]);
+    const [showUploadSuccess, setShowUploadSuccess] = useState(false);
+    const [uploadedFilename, setUploadedFilename] = useState('');
+    const [showExtractionSuccess, setShowExtractionSuccess] = useState(false);
+    const [analyzedDocumentCount, setAnalyzedDocumentCount] = useState(0);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -198,6 +207,10 @@ const Taxation = () => {
                         return updatedDocs;
                     });
 
+                    // Show success modal
+                    setUploadedFilename(file.name);
+                    setShowUploadSuccess(true);
+
                 } catch (error) {
                     console.error('Upload failed for file:', file.name, error);
                     alert(`Failed to upload ${file.name}. Please try again.`);
@@ -287,6 +300,12 @@ const Taxation = () => {
                         setDocuments(JSON.parse(storedDocs));
                     }
                 }
+                
+                // Load stored full name and TIN number
+                const storedFullName = sessionStorage.getItem('taxationFullName');
+                const storedTinNumber = sessionStorage.getItem('taxationTinNumber');
+                if (storedFullName) setFullName(storedFullName);
+                if (storedTinNumber) setTinNumber(storedTinNumber);
                 
                 // Clear the return path
                 sessionStorage.removeItem('taxationReturnPath');
@@ -475,6 +494,8 @@ const Taxation = () => {
 
         try {
             const results = [];
+            let analysisSuccess = true;
+            let analyzedCount = 0;
             
             // Analyze any unanalyzed documents
             for (const doc of documents) {
@@ -494,9 +515,12 @@ const Taxation = () => {
                                 ...prev,
                                 [doc.id]: response.data.analysis
                             }));
+                            analyzedCount++;
                         }
                     } catch (error) {
                         console.error(`Error analyzing document ${doc.filename}:`, error);
+                        alert(`Failed to analyze ${doc.filename}`);
+                        analysisSuccess = false;
                     }
                 }
 
@@ -519,12 +543,21 @@ const Taxation = () => {
             }
 
             setAnalysisResults(formattedResults);
-            setShowAnalysis(true);
+            
+            if (analysisSuccess) {
+                setAnalyzedDocumentCount(analyzedCount);
+                setShowExtractionSuccess(true);
+            }
 
         } catch (error) {
             console.error('Error displaying analysis:', error);
             alert('Error displaying analysis results. Please try again.');
         }
+    };
+
+    const handleExtractionSuccessClose = () => {
+        setShowExtractionSuccess(false);
+        setShowAnalysis(true);
     };
 
     const handleReturnHome = async () => {
@@ -539,173 +572,240 @@ const Taxation = () => {
         }
     };
 
+    // Add this after the handleYearChange function
+    const handleFullNameChange = (e) => {
+        const fullName = e.target.value;
+        setFullName(fullName);
+        sessionStorage.setItem('taxationFullName', fullName);
+    };
+
+    const handleTinNumberChange = (e) => {
+        const tinNumber = e.target.value;
+        setTinNumber(tinNumber);
+        sessionStorage.setItem('taxationTinNumber', tinNumber);
+    };
+
     return (
-        <div className={styles.container}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>Taxation</h1>
-                <p className={styles.subtitle}>Select Applicable Income Taxes</p>
-            </div>
-            
-            <form className={styles.formContainer} onSubmit={handleSubmit}>
-                <div className={styles.selectAllContainer}>
-                    <label className={styles.selectAllLabel}>
-                        <input 
-                            type="checkbox"
-                            className={styles.checkbox}
-                            checked={selectAll}
-                            onChange={handleSelectAll}
+        <div className="taxation-page">
+            <Header />
+            <div className={styles.container}>
+                <div className={styles.header}>
+                    <h1 className={styles.title}>Taxation</h1>
+                    <p className={styles.subtitle}>Select Applicable Income Taxes</p>
+                </div>
+                
+                <div className={styles.personalInfoContainer}>
+                    <h2 className={styles.personalInfoHeading}>Personal Information</h2>
+                    <div className={styles.personalInfoField}>
+                        <label htmlFor="fullName" className={styles.personalInfoLabel}>Full Name</label>
+                        <input
+                            type="text"
+                            id="fullName"
+                            value={fullName}
+                            onChange={handleFullNameChange}
+                            className={styles.personalInfoInput}
+                            placeholder="Enter your full name"
+                            required
                         />
-                        <span>Select All Categories</span>
-                    </label>
-                    <div className={styles.yearSelectContainer}>
-                        <label className={styles.yearSelectLabel}>Taxation Year:</label>
-                        <select 
-                            className={styles.yearSelect}
-                            value={selectedYear}
-                            onChange={handleYearChange}
-                        >
-                            {taxYears.map(year => (
-                                <option key={year.value} value={year.value}>
-                                    {year.label}
-                                </option>
-                            ))}
-                        </select>
+                    </div>
+                    <div className={styles.personalInfoField}>
+                        <label htmlFor="tinNumber" className={styles.personalInfoLabel}>TIN Number</label>
+                        <input
+                            type="text"
+                            id="tinNumber"
+                            value={tinNumber}
+                            onChange={handleTinNumberChange}
+                            className={styles.personalInfoInput}
+                            placeholder="Enter your TIN number"
+                            required
+                        />
                     </div>
                 </div>
 
-                <div className={styles.categoryList}>
-                    {categories.map((category) => (
-                        <div key={category.id} className={styles.categoryItem}>
-                            <div className={`${styles.categoryHeader} ${openCategory === category.id ? styles.active : ''}`}>
-                                <div className={styles.checkboxWrapper}>
-                                    <input 
-                                        type="checkbox" 
-                                        className={styles.checkbox}
-                                        checked={selectedCategories.includes(category.id)}
-                                        onChange={() => handleCheckboxChange(category.id)}
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
-                                    <span className={styles.categoryTitle}>{category.title}</span>
-                                </div>
-                                <div 
-                                    className={styles.arrowWrapper}
-                                    onClick={(e) => handleArrowClick(e, category.id)}
-                                >
-                                    <ChevronDown className={`${styles.arrow} ${openCategory === category.id ? styles.rotated : ''}`} />
-                                </div>
-                            </div>
-                            
-                            {openCategory === category.id && (
-                                <div className={styles.optionsList}>
-                                    {category.options.map((option, index) => (
-                                        <div key={index} className={styles.optionItem}>
-                                            <span>{option}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                <div className={styles.uploadContainer}>
-                    <div
-                        className={`${styles.uploadArea} ${isDragging ? styles.dragging : ''}`}
-                        onDragEnter={handleDragEnter}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                    >
-                        <div className={styles.uploadButtonWrapper}>
-                            <input
-                                type="file"
-                                id="fileUpload"
-                                multiple
-                                onChange={handleFileChange}
-                                className={styles.fileInput}
-                                accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
+                <form className={styles.formContainer} onSubmit={handleSubmit}>
+                    <div className={styles.selectAllContainer}>
+                        <label className={styles.selectAllLabel}>
+                            <input 
+                                type="checkbox"
+                                className={styles.checkbox}
+                                checked={selectAll}
+                                onChange={handleSelectAll}
                             />
-                            <label htmlFor="fileUpload" className={styles.uploadButton}>
-                                Upload Documents
-                            </label>
-                            <p className={styles.dragText}>or drag and drop files/folders here</p>
-                        </div>
-
-                        <div className={styles.fileList}>
-                            {/* Display selected files waiting to be uploaded */}
-                            {selectedFiles.map((file, index) => (
-                                <div key={`selected-${index}`} className={styles.fileItem}>
-                                    {getFileIcon(file.name)}
-                                    <span className={styles.fileName}>{file.name}</span>
-                                    <button 
-                                        type="button"
-                                        onClick={() => removeFile(index)}
-                                        className={styles.removeButton}
-                                    >
-                                        <CloseIcon />
-                                    </button>
-                                </div>
-                            ))}
-
-                            {/* Display successfully uploaded documents */}
-                            {documents.filter(doc => doc && doc.id && doc.filename).map((doc) => (
-                                <div key={`uploaded-${doc.id}`} className={styles.fileItem}>
-                                    <div 
-                                        className={styles.fileContent}
-                                        onClick={() => handleDocumentClick(doc.id)}
-                                        data-doc-id={doc.id}
-                                        role="button"
-                                        tabIndex={0}
-                                        style={{ 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
-                                            flex: 1,
-                                            padding: '8px',
-                                            borderRadius: '4px'
-                                        }}
-                                    >
-                                        <span className={styles.fileIcon}>
-                                            {getFileIcon(doc.filename)}
-                                        </span>
-                                        <span className={styles.fileName}>{doc.filename}</span>
-                                    </div>
-                                    <button 
-                                        type="button"
-                                        className={styles.removeButton}
-                                        onClick={(e) => handleRemoveDocument(e, doc.id)}
-                                    >
-                                        <CloseIcon sx={{ fontSize: 20 }} />
-                                    </button>
-                                </div>
-                            ))}
+                            <span>Select All Categories</span>
+                        </label>
+                        <div className={styles.yearSelectContainer}>
+                            <label className={styles.yearSelectLabel}>Taxation Year:</label>
+                            <select 
+                                className={styles.yearSelect}
+                                value={selectedYear}
+                                onChange={handleYearChange}
+                            >
+                                {taxYears.map(year => (
+                                    <option key={year.value} value={year.value}>
+                                        {year.label}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
                     </div>
-                </div>
 
-                <div className={styles.buttonContainer}>
-                    <button 
-                        type="button"
-                        className={styles.analysisButton}
-                        onClick={viewAnalysisResults}
-                        disabled={documents.length === 0}
-                    >
-                        Analysis
-                    </button>
-                    <button 
-                        type="submit" 
-                        className={styles.nextButton}
-                    >
-                        Next
-                    </button>
-                </div>
-            </form>
+                    <div className={styles.categoryList}>
+                        {categories.map((category) => (
+                            <div key={category.id} className={styles.categoryItem}>
+                                <div className={`${styles.categoryHeader} ${openCategory === category.id ? styles.active : ''}`}>
+                                    <div className={styles.checkboxWrapper}>
+                                        <input 
+                                            type="checkbox" 
+                                            className={styles.checkbox}
+                                            checked={selectedCategories.includes(category.id)}
+                                            onChange={() => handleCheckboxChange(category.id)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                        <span className={styles.categoryTitle}>{category.title}</span>
+                                    </div>
+                                    <div 
+                                        className={styles.arrowWrapper}
+                                        onClick={(e) => handleArrowClick(e, category.id)}
+                                    >
+                                        <ChevronDown className={`${styles.arrow} ${openCategory === category.id ? styles.rotated : ''}`} />
+                                    </div>
+                                </div>
+                                
+                                {openCategory === category.id && (
+                                    <div className={styles.optionsList}>
+                                        {category.options.map((option, index) => (
+                                            <div key={index} className={styles.optionItem}>
+                                                <span>{option}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
 
-            {showAnalysis && (
-                <AnalysisResults 
-                    results={analysisResults}
-                    onClose={() => setShowAnalysis(false)}
-                />
-            )}
+                    <div className={styles.uploadContainer}>
+                        <div
+                            className={`${styles.uploadArea} ${isDragging ? styles.dragging : ''}`}
+                            onDragEnter={handleDragEnter}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                        >
+                            <div className={styles.uploadButtonWrapper}>
+                                <input
+                                    type="file"
+                                    id="fileUpload"
+                                    multiple
+                                    onChange={handleFileChange}
+                                    className={styles.fileInput}
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.jpg,.jpeg,.png"
+                                />
+                                <label htmlFor="fileUpload" className={styles.uploadButton}>
+                                    Upload Documents
+                                </label>
+                                <p className={styles.dragText}>or drag and drop files/folders here</p>
+                            </div>
+
+                            <div className={styles.fileList}>
+                                {/* Display selected files waiting to be uploaded */}
+                                {selectedFiles.map((file, index) => (
+                                    <div key={`selected-${index}`} className={styles.fileItem}>
+                                        {getFileIcon(file.name)}
+                                        <span className={styles.fileName}>{file.name}</span>
+                                        <button 
+                                            type="button"
+                                            onClick={() => removeFile(index)}
+                                            className={styles.removeButton}
+                                        >
+                                            <CloseIcon />
+                                        </button>
+                                    </div>
+                                ))}
+
+                                {/* Display successfully uploaded documents */}
+                                {documents.filter(doc => doc && doc.id && doc.filename).map((doc) => (
+                                    <div key={`uploaded-${doc.id}`} className={styles.fileItem}>
+                                        <div 
+                                            className={styles.fileContent}
+                                            onClick={() => handleDocumentClick(doc.id)}
+                                            data-doc-id={doc.id}
+                                            role="button"
+                                            tabIndex={0}
+                                            style={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                flex: 1,
+                                                padding: '8px',
+                                                borderRadius: '4px'
+                                            }}
+                                        >
+                                            <span className={styles.fileIcon}>
+                                                {getFileIcon(doc.filename)}
+                                            </span>
+                                            <span className={styles.fileName}>{doc.filename}</span>
+                                        </div>
+                                        <button 
+                                            type="button"
+                                            className={styles.removeButton}
+                                            onClick={(e) => handleRemoveDocument(e, doc.id)}
+                                        >
+                                            <CloseIcon sx={{ fontSize: 20 }} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className={styles.buttonContainer}>
+                        <button 
+                            type="button"
+                            className={styles.backButton}
+                            onClick={handleReturnHome}
+                        >
+                            Back
+                        </button>
+                        <div className={styles.rightButtons}>
+                            <button 
+                                type="button"
+                                className={styles.analysisButton}
+                                onClick={viewAnalysisResults}
+                                disabled={documents.length === 0}
+                            >
+                                Analysis
+                            </button>
+                            <button 
+                                type="submit" 
+                                className={styles.nextButton}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                {showExtractionSuccess && (
+                    <ExtractionSuccessModal
+                        documentCount={analyzedDocumentCount}
+                        onClose={handleExtractionSuccessClose}
+                    />
+                )}
+
+                {showAnalysis && !showExtractionSuccess && (
+                    <AnalysisResults 
+                        results={analysisResults}
+                        onClose={() => setShowAnalysis(false)}
+                    />
+                )}
+
+                {showUploadSuccess && (
+                    <UploadSuccessModal
+                        filename={uploadedFilename}
+                        onClose={() => setShowUploadSuccess(false)}
+                    />
+                )}
+            </div>
         </div>
     );
 };

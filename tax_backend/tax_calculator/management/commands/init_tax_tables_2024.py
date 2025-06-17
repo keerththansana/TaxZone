@@ -202,10 +202,15 @@ class Command(BaseCommand):
                     INSERT INTO foreign_tax_rates_2024 
                     (period_type, bracket_order, rate, bracket_limit, relief_amount, foreign_type, is_flat_rate)
                     VALUES 
-                    -- Foreign income is tax exempt for 2024
+                    -- Foreign income is tax exempt for 2024 (both remitted and other types)
                     ('monthly', 1, 0.00, 99999999.99, 0.00, 'remitted', TRUE),
                     ('quarterly', 1, 0.00, 99999999.99, 0.00, 'remitted', TRUE),
-                    ('annually', 1, 0.00, 99999999.99, 0.00, 'remitted', TRUE)
+                    ('annually', 1, 0.00, 99999999.99, 0.00, 'remitted', TRUE),
+                    
+                    -- Other foreign income is also tax exempt for 2024
+                    ('monthly', 1, 0.00, 99999999.99, 0.00, 'other', TRUE),
+                    ('quarterly', 1, 0.00, 99999999.99, 0.00, 'other', TRUE),
+                    ('annually', 1, 0.00, 99999999.99, 0.00, 'other', TRUE)
                 """)
 
                 # Create rental tax rates table
@@ -400,6 +405,102 @@ class Command(BaseCommand):
                     ('annually', 4, 24.00, 500000.00, NULL),      -- Next bracket
                     ('annually', 5, 30.00, 500000.00, NULL),      -- Next bracket
                     ('annually', 6, 36.00, 99999999.99, NULL)     -- Final bracket
+                """)
+
+                # Create royalty tax rates table
+                cursor.execute("""
+                    CREATE TABLE royalty_tax_rates_2024 (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        period_type VARCHAR(10) NOT NULL,
+                        bracket_order INT NOT NULL,
+                        rate DECIMAL(5,2) NOT NULL,
+                        bracket_limit DECIMAL(12,2) NOT NULL,
+                        relief_amount DECIMAL(12,2),
+                        is_active BOOLEAN DEFAULT TRUE,
+                        is_flat_rate BOOLEAN DEFAULT FALSE,
+                        effective_from DATE DEFAULT '2024-04-01',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        UNIQUE KEY period_bracket (period_type, bracket_order)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                """)
+
+                # Insert royalty tax rates (same as employment income)
+                cursor.execute("""
+                    INSERT INTO royalty_tax_rates_2024 
+                    (period_type, bracket_order, rate, bracket_limit, relief_amount)
+                    VALUES 
+                    -- Monthly rates (2024)
+                    ('monthly', 1, 6.00, 41666.67, 100000.00),   -- First 500,000 (after relief)
+                    ('monthly', 2, 12.00, 41666.67, NULL),       -- Next 500,000
+                    ('monthly', 3, 18.00, 41666.67, NULL),       -- Next 500,000
+                    ('monthly', 4, 24.00, 41666.67, NULL),       -- Next 500,000
+                    ('monthly', 5, 30.00, 41666.67, NULL),       -- Next 500,000
+                    ('monthly', 6, 36.00, 99999999.99, NULL),    -- Above 2,500,000
+                    
+                    -- Quarterly rates (2024)
+                    ('quarterly', 1, 6.00, 125000.00, 300000.00), -- First 1,500,000 (after relief)
+                    ('quarterly', 2, 12.00, 125000.00, NULL),     -- Next 1,500,000
+                    ('quarterly', 3, 18.00, 125000.00, NULL),     -- Next 1,500,000
+                    ('quarterly', 4, 24.00, 125000.00, NULL),     -- Next 1,500,000
+                    ('quarterly', 5, 30.00, 125000.00, NULL),     -- Next 1,500,000
+                    ('quarterly', 6, 36.00, 99999999.99, NULL),   -- Above 7,500,000
+                    
+                    -- Annual rates (2024)
+                    ('annually', 1, 6.00, 500000.00, 1200000.00), -- First 6,000,000 (after relief)
+                    ('annually', 2, 12.00, 500000.00, NULL),      -- Next 6,000,000
+                    ('annually', 3, 18.00, 500000.00, NULL),      -- Next 6,000,000
+                    ('annually', 4, 24.00, 500000.00, NULL),      -- Next 6,000,000
+                    ('annually', 5, 30.00, 500000.00, NULL),      -- Next 6,000,000
+                    ('annually', 6, 36.00, 99999999.99, NULL)     -- Above 30,000,000
+                """)
+
+                # Create pension tax rates table
+                cursor.execute("""
+                    CREATE TABLE pension_tax_rates_2024 (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        period_type VARCHAR(10) NOT NULL,
+                        bracket_order INT NOT NULL,
+                        rate DECIMAL(5,2) NOT NULL,
+                        bracket_limit DECIMAL(12,2) NOT NULL,
+                        relief_amount DECIMAL(12,2),
+                        is_active BOOLEAN DEFAULT TRUE,
+                        is_flat_rate BOOLEAN DEFAULT FALSE,
+                        effective_from DATE DEFAULT '2024-04-01',
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        UNIQUE KEY period_bracket (period_type, bracket_order)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+                """)
+
+                # Insert pension tax rates (same as employment income but without relief)
+                cursor.execute("""
+                    INSERT INTO pension_tax_rates_2024 
+                    (period_type, bracket_order, rate, bracket_limit, relief_amount)
+                    VALUES 
+                    -- Monthly rates (2024)
+                    ('monthly', 1, 6.00, 41666.67, 0.00),   -- First 500,000
+                    ('monthly', 2, 12.00, 41666.67, NULL),  -- Next 500,000
+                    ('monthly', 3, 18.00, 41666.67, NULL),  -- Next 500,000
+                    ('monthly', 4, 24.00, 41666.67, NULL),  -- Next 500,000
+                    ('monthly', 5, 30.00, 41666.67, NULL),  -- Next 500,000
+                    ('monthly', 6, 36.00, 99999999.99, NULL), -- Above 2,500,000
+                    
+                    -- Quarterly rates (2024)
+                    ('quarterly', 1, 6.00, 125000.00, 0.00), -- First 1,500,000
+                    ('quarterly', 2, 12.00, 125000.00, NULL), -- Next 1,500,000
+                    ('quarterly', 3, 18.00, 125000.00, NULL), -- Next 1,500,000
+                    ('quarterly', 4, 24.00, 125000.00, NULL), -- Next 1,500,000
+                    ('quarterly', 5, 30.00, 125000.00, NULL), -- Next 1,500,000
+                    ('quarterly', 6, 36.00, 99999999.99, NULL), -- Above 7,500,000
+                    
+                    -- Annual rates (2024)
+                    ('annually', 1, 6.00, 500000.00, 0.00), -- First 6,000,000
+                    ('annually', 2, 12.00, 500000.00, NULL), -- Next 6,000,000
+                    ('annually', 3, 18.00, 500000.00, NULL), -- Next 6,000,000
+                    ('annually', 4, 24.00, 500000.00, NULL), -- Next 6,000,000
+                    ('annually', 5, 30.00, 500000.00, NULL), -- Next 6,000,000
+                    ('annually', 6, 36.00, 99999999.99, NULL) -- Above 30,000,000
                 """)
 
                 self.stdout.write(self.style.SUCCESS('Successfully initialized 2024 tax rates tables'))

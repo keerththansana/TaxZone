@@ -1,0 +1,130 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 1rem;
+}
+
+.modal {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.icon {
+    width: 60px;
+    height: 60px;
+    background-color: #28a745;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1.5rem;
+    animation: scaleIn 0.3s ease-out 0.2s both;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+.modal h3 {
+    color: #023636;
+    font-size: 1.5rem;
+    margin: 0 0 1rem;
+    font-weight: 600;
+}
+
+.modal p {
+    color: #666;
+    margin: 0 0 1rem;
+    line-height: 1.5;
+}
+
+.subText {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 0.5rem;
+}
+
+.closeButton {
+    background: #023636;
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 1.5rem;
+    transition: all 0.2s;
+}
+
+.closeButton:hover {
+    background: #034f4f;
+    transform: translateY(-1px);
+}
+
+.closeButton:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+    .modal {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    .icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .modal h3 {
+        font-size: 1.3rem;
+    }
+
+    .modal p {
+        font-size: 0.95rem;
+    }
+
+    .subText {
+        font-size: 0.85rem;
+    }
+
+    .closeButton {
+        padding: 0.625rem 1.75rem;
+        font-size: 0.95rem;
+    }
+} 

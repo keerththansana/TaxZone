@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Star } from 'lucide-react';
+import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import './Review.css';
 
 const Review = () => {
     const [reviews, setReviews] = useState([]);
+    const [currentSlide, setCurrentSlide] = useState(0);
 
     // Function to load reviews from localStorage
     const loadReviews = () => {
@@ -60,11 +61,26 @@ const Review = () => {
         };
     }, []);
 
+    const nextSlide = () => {
+        setCurrentSlide((prev) => (prev + 3 >= reviews.length ? 0 : prev + 3));
+    };
+
+    const prevSlide = () => {
+        setCurrentSlide((prev) => (prev - 3 < 0 ? Math.max(0, reviews.length - 3) : prev - 3));
+    };
+
+    const visibleReviews = reviews.slice(currentSlide, currentSlide + 3);
+
     return (
         <section className="review-section">
             <h2>What Our Users Say</h2>
             <div className="review-container">
-                {reviews.map((review) => (
+                {reviews.length > 3 && (
+                    <button className="nav-button prev" onClick={prevSlide}>
+                        <ChevronLeft size={24} />
+                    </button>
+                )}
+                {visibleReviews.map((review) => (
                     <div key={review.id} className="review-card">
                         <div className="review-header">
                             <img 
@@ -90,6 +106,11 @@ const Review = () => {
                         <p className="review-text">{review.comment}</p>
                     </div>
                 ))}
+                {reviews.length > 3 && (
+                    <button className="nav-button next" onClick={nextSlide}>
+                        <ChevronRight size={24} />
+                    </button>
+                )}
             </div>
         </section>
     );

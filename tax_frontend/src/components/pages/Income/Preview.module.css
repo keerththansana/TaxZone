@@ -15,38 +15,68 @@
 }
 
 .header {
-    display: none; /* Hide the original header */
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 1rem;
 }
 
-.header h1 {
-    text-align: center;
-    color: #023636;
-    margin-bottom: 2rem;
-    font-size: 1.5rem;
-    font-weight: 600;
+.username {
+    font-size: 1rem;
+    color: #666;
+    font-weight: 500;
 }
 
 .actions {
     display: flex;
     gap: 1rem;
+    margin-left: auto;
 }
 
 .actionButton {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
+    gap: 8px;
+    padding: 8px 16px;
     background-color: #023636;
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-left: 1.5rem; /* Move buttons right */
+    font-size: 14px;
 }
 
 .actionButton:hover {
-    background-color: #034f4f;
+    background-color: #023636;
+}
+
+.actionButton svg {
+    width: 16px;
+    height: 16px;
+}
+
+.downloadButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #023636;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.downloadButton:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+.downloadButton:hover:not(:disabled) {
+    background-color: #012929;
 }
 
 .documentContainer {
@@ -416,8 +446,7 @@
     }
 
     /* Hide navigation and controls when printing */
-    .header,
-    .actions {
+    .header {
         display: none;
     }
 }
@@ -620,4 +649,151 @@ tr.sectionHeader td:last-child {
     width: 30%;
     text-align: right;
     padding-right: 2rem;
+}
+
+.previewContent {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 210mm; /* A4 width */
+    margin: 0 auto;
+}
+
+@media print {
+    .previewContent {
+        box-shadow: none;
+        padding: 0;
+        width: 210mm;
+        height: 297mm;
+    }
+
+    .downloadButton {
+        display: none;
+    }
+}
+
+.downloadContainer {
+    position: relative;
+    display: inline-block;
+}
+
+.downloadMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    min-width: 150px;
+}
+
+.downloadMenu button {
+    display: block;
+    width: 100%;
+    padding: 8px 16px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    color: #333;
+    font-size: 14px;
+}
+
+.downloadMenu button:hover {
+    background-color: #f5f5f5;
+}
+
+/* User Information Form Styles */
+.userInfoForm {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.formRow {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.formGroup {
+    flex: 1;
+    min-width: 250px;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.formInput {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.formInput:focus {
+    outline: none;
+    border-color: #1976d2;
+    box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+}
+
+.formInput:read-only {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.userDetails {
+    background-color: #ffffff;
+    border-left: 4px solid #2c3e50;
+    padding: 20px 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: fit-content;
+}
+
+.userDetailRow {
+    display: flex;
+    margin-bottom: 12px;
+    font-size: 15px;
+    line-height: 1.6;
+    align-items: baseline;
+    justify-content: flex-start;
+}
+
+.userDetailRow:last-child {
+    margin-bottom: 0;
+}
+
+.userDetailLabel {
+    font-weight: 600;
+    color: #2c3e50;
+    width: 160px;
+    text-align: left;
+    padding-right: 20px;
+}
+
+.userDetailValue {
+    color: #34495e;
+    font-weight: 500;
+    text-align: left;
+    margin-right: 20px;
+}
+
+.userDetailDate {
+    color: #34495e;
+    font-weight: 500;
+    text-align: left;
+    font-style: italic;
 }

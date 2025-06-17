@@ -52,7 +52,7 @@
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: 3rem;
-    
+    flex-wrap: wrap;
 }
 
 .selectionItem {
@@ -68,7 +68,6 @@
     align-items: left;
     padding: 0.75rem 1rem;
     background-color: #ffffff;
-    
 }
 
 .checkboxLabel {
@@ -111,6 +110,7 @@
     display: flex;
     gap: 2rem;
     margin-bottom: 1.5rem;
+    flex-wrap: wrap;
 }
 
 .radioLabel {
@@ -136,22 +136,26 @@
 
 .entryRow {
     display: flex;
-    align-items: center;
     gap: 1rem;
-    margin-bottom: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: nowrap;
 }
 
 .inputField {
-    flex: 1;
-    padding: 0.5rem;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
-    font-size: 0.9rem;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    width: 100%;
+    background-color: white;
+    transition: border-color 0.2s;
 }
 
 .inputField:focus {
-    border-color: #023636;
     outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 .addButton, .removeButton {
@@ -164,6 +168,7 @@
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    flex-shrink: 0;
 }
 
 .addButton {
@@ -191,7 +196,6 @@
     font-size: 1.1rem;
     margin-bottom: 1rem;
     text-align: left;
-
 }
 
 .apitCheckbox {
@@ -210,6 +214,7 @@
 .buttonContainer {
     display: flex;
     justify-content: flex-end;
+    margin-top: 2rem;
 }
 
 .nextButton {
@@ -245,7 +250,6 @@
     font-size: 1.1rem;
     margin-top: 3rem;
     text-align: left;
-
 }
 
 .aitSection h3 {
@@ -259,6 +263,7 @@
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
+    flex-wrap: wrap;
 }
 
 .groupLabel {
@@ -308,6 +313,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 0.5rem 0;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .totalRow:not(:last-child) {
@@ -326,4 +333,163 @@
 
 .totalAmount.negative {
     color: #dc3545;
+}
+
+/* Tablet Responsive */
+@media (max-width: 1024px) {
+    .container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    .title {
+        font-size: 1.8rem;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+    }
+
+    .selectionItem {
+        min-width: 180px;
+    }
+
+    .entryRow {
+        gap: 0.75rem;
+    }
+
+    .inputField {
+        padding: 0.6rem;
+        font-size: 0.95rem;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .container {
+        margin: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .selectionGroup {
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .selectionItem {
+        min-width: 100%;
+    }
+
+    .entryRow {
+        gap: 0.5rem;
+    }
+
+    .inputField {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .section h3 {
+        font-size: 1rem;
+        margin-top: 2rem;
+    }
+
+    .totalSection {
+        margin-top: 1.5rem;
+        padding: 0.75rem;
+    }
+
+    .totalRow {
+        font-size: 0.9rem;
+    }
+}
+
+/* Small Mobile Responsive */
+@media (max-width: 480px) {
+    .container {
+        margin: 0.25rem;
+        padding: 0.5rem;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+    }
+
+    .checkboxLabel {
+        font-size: 0.9rem;
+    }
+
+    .description {
+        font-size: 0.85rem;
+        padding: 0.75rem;
+    }
+
+    .nextButton {
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    .buttonContainer {
+        margin-top: 1.5rem;
+    }
+
+    .entryRow {
+        gap: 0.4rem;
+    }
+
+    .inputField {
+        padding: 0.4rem;
+        font-size: 0.85rem;
+    }
+
+    .removeButton {
+        width: 2rem;
+        height: 2rem;
+    }
+}
+
+/* Add specific styles for APIT entries to maintain layout */
+.entryRow input[type="text"]:first-child {
+    flex: 1;
+}
+
+.entryRow input[type="text"]:nth-child(2) {
+    flex: 1.5;
+}
+
+.entryRow input[type="number"] {
+    flex: 1;
+}
+
+/* Ensure remove button stays aligned */
+.removeButton {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+}
+
+.removeButton:hover {
+    color: #dc2626;
 }
