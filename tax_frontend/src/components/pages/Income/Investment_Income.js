@@ -6,6 +6,7 @@ import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { useFormPersist } from './Data_Persistence';
 import { AutoFillHelper } from '../../../utils/autoFillHelper';
+import AnalysisResults from './AnalysisResults';
 
 const RENTAL_RELIEF_AMOUNT = 225000; // Rs. 225,000
 
@@ -13,6 +14,8 @@ const InvestmentIncome = () => {
     const [openDescription, setOpenDescription] = useState(null);
     const [selectedDeductions, setSelectedDeductions] = useState([]);
     const [showForm, setShowForm] = useState(true);
+    const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
 
     // Initialize form data with persistence
     const [formData, setFormData] = useFormPersist('investmentIncomeData', {
@@ -247,33 +250,44 @@ const InvestmentIncome = () => {
         const handleAutoFillUpdate = (event) => {
             if (event.data && event.data.type === 'autoFillUpdate') {
                 const data = event.data.payload;
-                if (data.InvestmentIncome) {
-                    const formattedData = {
-                        interestEntries: data.InvestmentIncome.interestEntries || [],
-                        dividendEntries: data.InvestmentIncome.dividendEntries || [],
-                        rentEntries: data.InvestmentIncome.rentEntries || [],
-                        capitalGainEntries: data.InvestmentIncome.capitalGainEntries || [],
-                        otherEntries: data.InvestmentIncome.otherEntries || [],
-                        selectedTypes: data.InvestmentIncome.selectedTypes || [],
-                        taxDeductions: data.InvestmentIncome.taxDeductions || [],
-                        totalInvestmentIncome: data.InvestmentIncome.totalInvestmentIncome || 0
-                    };
-
-                    // Calculate total investment income
-                    formattedData.totalInvestmentIncome = 
-                        formattedData.interestEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.dividendEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.rentEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.capitalGainEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
-
-                    console.log('Setting new form data:', formattedData);
-                    setFormData(formattedData);
-                    setShowForm(true);
+                // Support both new and legacy keys
+                if (data.investmentIncome) {
+                    const inv = data.investmentIncome;
+                    const selectedTypes = [
+                        ...(inv.interestIncomeEntries?.length ? ['interest'] : []),
+                        ...(inv.dividendIncomeEntries?.length ? ['dividend'] : []),
+                        ...(inv.rentalIncomeEntries?.length ? ['rent'] : []),
+                        ...(inv.capitalGainEntries?.length ? ['capital'] : []),
+                        ...(inv.otherInvestmentEntries?.length ? ['other'] : []),
+                    ];
+                    updateFormData({
+                        interestEntries: inv.interestIncomeEntries || [],
+                        dividendEntries: inv.dividendIncomeEntries || [],
+                        rentEntries: inv.rentalIncomeEntries || [],
+                        capitalGainEntries: inv.capitalGainEntries || [],
+                        otherEntries: inv.otherInvestmentEntries || [],
+                        selectedTypes,
+                    });
+                } else if (data.InvestmentIncome) {
+                    const inv = data.InvestmentIncome;
+                    const selectedTypes = [
+                        ...(inv.interestIncomeEntries?.length ? ['interest'] : []),
+                        ...(inv.dividendIncomeEntries?.length ? ['dividend'] : []),
+                        ...(inv.rentalIncomeEntries?.length ? ['rent'] : []),
+                        ...(inv.capitalGainEntries?.length ? ['capital'] : []),
+                        ...(inv.otherInvestmentEntries?.length ? ['other'] : []),
+                    ];
+                    updateFormData({
+                        interestEntries: inv.interestIncomeEntries || [],
+                        dividendEntries: inv.dividendIncomeEntries || [],
+                        rentEntries: inv.rentalIncomeEntries || [],
+                        capitalGainEntries: inv.capitalGainEntries || [],
+                        otherEntries: inv.otherInvestmentEntries || [],
+                        selectedTypes,
+                    });
                 }
             }
         };
-
         window.addEventListener('message', handleAutoFillUpdate);
         return () => window.removeEventListener('message', handleAutoFillUpdate);
     }, []);
@@ -500,10 +514,31 @@ const InvestmentIncome = () => {
         setEntries(prev => prev.filter((_, i) => i !== index));
     };
 
+    const handleOpenAnalysis = () => {
+        const stored = sessionStorage.getItem('last_analysis');
+        setAnalysisResults(stored ? JSON.parse(stored) : []);
+        setShowAnalysisResults(true);
+    };
+
     return (
         <div className="investment-income-page">
             <Header />
             <TaxationMenu />
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', margin: '16px 0 0 24px' }}>
+                <button
+                    className={styles.nextButton}
+                    onClick={handleOpenAnalysis}
+                >
+                    Analysis Result
+                </button>
+            </div>
+            {showAnalysisResults && (
+                <AnalysisResults
+                    results={analysisResults}
+                    onClose={() => setShowAnalysisResults(false)}
+                    onAutoFill={() => {}}
+                />
+            )}
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Investment Income</h1>

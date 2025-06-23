@@ -43,7 +43,7 @@ const Nav = () => {
       <nav className="nav-container">
         <div className="logo">
           <Link to="/">
-            <img src="/logo.png" alt="Tax.X Logo" />
+            <img src="/taxlogo.png" alt="Tax.X Logo" />
           </Link>
         </div>
 

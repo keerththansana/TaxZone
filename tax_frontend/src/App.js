@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route, createBrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/common/ProtectedRoute/ProtectedRoute";
 import Home from "./components/pages/Home/Home"; // Correct path to Home.js
 import Login from "./components/pages/Login/Login"; // Import Login component
 import './App.css'; // If you have any global styles in App.css
@@ -147,10 +148,6 @@ export const router = createBrowserRouter(
     element: <tin-registration />,
   },
   {
-    path: "/tin-registration",
-    element: <tin-registration />,
-  },
-  {
     path: "/tax-calendar",
     element: <Calendar />,
   },
@@ -173,30 +170,90 @@ const App = () => {
           <Route path="/" element={<Home />} /> {/* Home Page Route */}
           <Route path="/login" element={<Login />} /> {/* Login Page Route */}
           <Route path="/signin" element={<Signin />} /> {/* Signin Page Route */}
-          <Route path="/assistant" element={<Assistant />} /> {/* Assistant Page Route */}
-          <Route path="/services" element={<ServicesSection />} /> {/* Assistant Page Route */}
-          <Route path="/servicesMain" element={<ServicesMain />} /> {/* Assistant Page Route */}
+          <Route path="/assistant" element={
+            <ProtectedRoute>
+              <Assistant />
+            </ProtectedRoute>
+          } /> {/* Assistant Page Route */}
+          <Route path="/services" element={<ServicesSection />} /> {/* Services Page Route */}
+          <Route path="/servicesMain" element={<ServicesMain />} /> {/* Services Main Page Route */}
           <Route path="/contact" element={<Contact />} /> {/* Contact Page Route */}
           <Route path="/guidelines" element={<Guidelines/>} /> {/*Guideline Page Route */}
           <Route path="/terms" element={<TermsConditions />} /> {/* terms-conditions Page Route */}
-          <Route path="/taxation" element={<Taxation />} /> {/* Income Page Route */}
-          <Route path="/employment_income" element={<Employment_Income />} /> {/* Income Page Route */}
-          <Route path="/business_income" element={<Business_Income />} /> {/* Income Page Route */}
-          <Route path="/investment_income" element={<Investment_Income />} /> {/* Income Page Route */}
-          <Route path="/other_income" element={<Other_Income />} /> {/* Income Page Route */}
-          <Route path="/qualifying_payments" element={<Qualifying_Payments />} /> {/* Income Page Route */}
-          <Route path="/terminal_benefits" element={<Terminal_Benefits />} /> {/* Income Page Route */}
-          <Route path="/preview" element={<Preview/>} /> {/*Guideline Page Route */}  
-          <Route path="/calculator" element={<Calculator/>} /> {/*Guideline Page Route */}  
+          <Route path="/taxation" element={
+            <ProtectedRoute>
+              <Taxation />
+            </ProtectedRoute>
+          } /> {/* Tax Report Page Route */}
+          <Route path="/employment_income" element={
+            <ProtectedRoute>
+              <Employment_Income />
+            </ProtectedRoute>
+          } /> {/* Employment Income Page Route */}
+          <Route path="/business_income" element={
+            <ProtectedRoute>
+              <Business_Income />
+            </ProtectedRoute>
+          } /> {/* Business Income Page Route */}
+          <Route path="/investment_income" element={
+            <ProtectedRoute>
+              <Investment_Income />
+            </ProtectedRoute>
+          } /> {/* Investment Income Page Route */}
+          <Route path="/other_income" element={
+            <ProtectedRoute>
+              <Other_Income />
+            </ProtectedRoute>
+          } /> {/* Other Income Page Route */}
+          <Route path="/qualifying_payments" element={
+            <ProtectedRoute>
+              <Qualifying_Payments />
+            </ProtectedRoute>
+          } /> {/* Qualifying Payments Page Route */}
+          <Route path="/terminal_benefits" element={
+            <ProtectedRoute>
+              <Terminal_Benefits />
+            </ProtectedRoute>
+          } /> {/* Terminal Benefits Page Route */}
+          <Route path="/preview" element={
+            <ProtectedRoute>
+              <Preview/>
+            </ProtectedRoute>
+          } /> {/*Preview Page Route */}  
+          <Route path="/calculator" element={
+            <ProtectedRoute>
+              <Calculator/>
+            </ProtectedRoute>
+          } /> {/*Calculator Page Route */}  
           <Route path="/tin-registration" element={<tin-registration/>} /> {/*Guideline Page Route */}
           <Route path="/review-form" element={<ReviewForm />} />
-          <Route path="/tax-calendar" element={<Calendar />} /> {/* Tax Calendar Page Route */}
+          <Route path="/tax-calendar" element={
+            <ProtectedRoute>
+              <Calendar />
+            </ProtectedRoute>
+          } /> {/* Tax Calendar Page Route */}
           <Route path="/forgot-password" element={<ResetPassword />} /> {/* Reset Password Page Route */}
           <Route path="/new-password/:token" element={<NewPassword />} /> {/* New Password Page Route */}
-          <Route path="/calculator-service" element={<Calculation_Service />} /> {/* calculator-service Page Route */}
-          <Route path="/tax-report-service" element={<TaxReport_Service />} /> {/* tax-report-service Page Route */}
-          <Route path="/assistant-service" element={<Assistant_Service />} /> {/* assistant-service Page Route */}
-          <Route path="/notification-service" element={<Notification_Service />} /> {/* notification-service Page Route */}
+          <Route path="/calculator-service" element={
+            <ProtectedRoute>
+              <Calculation_Service />
+            </ProtectedRoute>
+          } /> {/* calculator-service Page Route */}
+          <Route path="/tax-report-service" element={
+            <ProtectedRoute>
+              <TaxReport_Service />
+            </ProtectedRoute>
+          } /> {/* tax-report-service Page Route */}
+          <Route path="/assistant-service" element={
+            <ProtectedRoute>
+              <Assistant_Service />
+            </ProtectedRoute>
+          } /> {/* assistant-service Page Route */}
+          <Route path="/notification-service" element={
+            <ProtectedRoute>
+              <Notification_Service />
+            </ProtectedRoute>
+          } /> {/* notification-service Page Route */}
         </Routes>
       </div>
     </AuthProvider>

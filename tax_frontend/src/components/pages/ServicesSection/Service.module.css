@@ -20,8 +20,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px; /* Consistent padding */
-  border-radius: 8px; /* Consistent border-radius */
+  /* Consistent padding */
+  border-radius: 8px;/* Consistent border-radius */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Consistent shadow */
   background-color: #e8f8f8; /* Image background */
 }

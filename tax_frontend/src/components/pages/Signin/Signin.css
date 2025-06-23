@@ -8,21 +8,25 @@
 
 body.signin-page {
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #e8f8f8;
     background-size: cover !important;
+    overflow-x: hidden;
+    padding-top: 100px; /* Account for fixed navigation */
+}
+
+.page-container {
+    min-height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
+    flex-direction: column;
 }
 
 .login-container {
     display: flex;
-    height: 85vh;
+    height: calc(100vh - 80px); /* Adjust for navigation bar height */
     width: 95%;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 20px auto;
     align-items: stretch;
     justify-content: center;
     padding: 0;
@@ -313,35 +317,64 @@ input::-webkit-inner-spin-button {
     border: none;
 }
 
+.password-rules {
+    position: absolute;
+    left: 0;
+    top: 110%;
+    width: 100%;
+    background: #f8f8f8;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(2, 54, 54, 0.08);
+    padding: 1rem;
+    font-size: 0.95rem;
+    color: #023636;
+    z-index: 10;
+    margin-top: 0rem;
+    text-align: left;
+}
+
+.password-rules ul {
+    margin: 0.1rem 0 0 1.2rem;
+    padding: 0;
+    list-style: disc;
+}
+
+.password-rules li {
+    font-size: 0.95rem;
+    color: #023636;
+    margin-bottom: -0.1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .login-container {
         width: 90%;
-        height: 90vh;
+        height: calc(90vh - 80px);
     }
 }
 
 @media (max-width: 768px) {
     .login-container {
         flex-direction: column;
-        height: 100vh;
+        height: calc(100vh - 80px);
         width: 100%;
-        margin: 0;
-        border-radius: 0;
+        margin: 10px auto;
+        border-radius: 16px;
     }
 
     .login-left, .login-right {
-        height: 50vh;
+        height: 50%;
         width: 100%;
         padding: 1.5rem;
     }
 
     .login-left {
-        border-radius: 0;
+        border-radius: 16px 16px 0 0;
     }
 
     .login-right {
-        border-radius: 0;
+        border-radius: 0 0 16px 16px;
     }
 
     .brand-logo img {
@@ -393,7 +426,8 @@ input::-webkit-inner-spin-button {
 
 @media (max-width: 480px) {
     .login-container {
-        height: 100vh;
+        height: calc(100vh - 80px);
+        margin: 5px auto;
     }
 
     .login-left, .login-right {

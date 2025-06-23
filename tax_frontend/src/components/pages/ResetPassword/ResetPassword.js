@@ -18,6 +18,18 @@ const ResetPassword = () => {
         };
     }, []);
 
+    // Auto-hide error and success messages after a few seconds
+    useEffect(() => {
+        let timer;
+        if (message || error) {
+            timer = setTimeout(() => {
+                setMessage('');
+                setError('');
+            }, 3000); // 3 seconds
+        }
+        return () => clearTimeout(timer);
+    }, [message, error]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMessage('');

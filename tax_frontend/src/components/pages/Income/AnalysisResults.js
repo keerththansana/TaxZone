@@ -332,13 +332,16 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
                 sessionStorage.setItem(`${formType}Data`, JSON.stringify(data));
             });
 
+            // Store the array of results for last_analysis (for forms to parse)
+            sessionStorage.setItem('last_analysis', JSON.stringify(modifiedResults));
+
             // Dispatch the auto-fill update event
             window.postMessage({
                 type: 'autoFillUpdate',
                 payload: formData
             }, '*');
 
-            onAutoFill && onAutoFill(formData);
+            onAutoFill && onAutoFill(modifiedResults);
             
             // After successful auto-fill
             setShowAutoFillSuccess(true);
@@ -486,51 +489,42 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
         addToHistory(updated);
     };
 
+    const handleAddItemSubmit = (e, type, category, resultIndex) => {
+        e.preventDefault();
+        handleAddItem(type, category, resultIndex);
+    };
+
     const handleAddItem = (type, category, resultIndex = 0) => {
-        if (addingItem?.type === type && addingItem?.category === category && addingItem?.resultIndex === resultIndex) {
-            // Add the new item
-            if (!newItem.description || !newItem.amount) {
-                setError('Please fill in all fields');
-                return;
-            }
-
-            const newItemWithType = {
-                ...newItem,
-                category: category,
-                type: type === 'deduction' ? 
-                    (category === 'Employment Income' ? 'APIT Deduction' : 
-                     category === 'Other Income' ? 'WHT Deduction' : 'Other Deduction') : 
-                    newItem.type
-            };
-
-            const updated = JSON.parse(JSON.stringify(modifiedResults));
-            
-            // Add to the specific result
-            if (updated[resultIndex] && updated[resultIndex].analysis) {
-                if (type === 'income') {
-                    if (!updated[resultIndex].analysis.income_items) {
-                        updated[resultIndex].analysis.income_items = [];
-                    }
-                    updated[resultIndex].analysis.income_items.push(newItemWithType);
-                } else {
-                    if (!updated[resultIndex].analysis.deductions) {
-                        updated[resultIndex].analysis.deductions = [];
-                    }
-                    updated[resultIndex].analysis.deductions.push(newItemWithType);
-                }
-            }
-
-            setModifiedResults(updated);
-
-            // Reset form
-            setNewItem({ description: '', amount: 0, type: '' });
-            setAddingItem(null);
-            addToHistory(updated);
-        } else {
-            // Start adding new item
-            setAddingItem({ type, category, resultIndex });
-            setNewItem({ description: '', amount: 0, type: '' });
+        if (!newItem.description || !newItem.amount) {
+            setError('Please fill in all fields');
+            return;
         }
+        const newItemWithType = {
+            ...newItem,
+            category: category,
+            type: type === 'deduction' ?
+                (category === 'Employment Income' ? 'APIT Deduction' :
+                    category === 'Other Income' ? 'WHT Deduction' : 'Other Deduction') :
+                newItem.type
+        };
+        const updated = JSON.parse(JSON.stringify(modifiedResults));
+        if (updated[resultIndex] && updated[resultIndex].analysis) {
+            if (type === 'income') {
+                if (!updated[resultIndex].analysis.income_items) {
+                    updated[resultIndex].analysis.income_items = [];
+                }
+                updated[resultIndex].analysis.income_items.push(newItemWithType);
+            } else {
+                if (!updated[resultIndex].analysis.deductions) {
+                    updated[resultIndex].analysis.deductions = [];
+                }
+                updated[resultIndex].analysis.deductions.push(newItemWithType);
+            }
+        }
+        setModifiedResults(updated);
+        setNewItem({ description: '', amount: 0, type: '' });
+        setAddingItem(null);
+        addToHistory(updated);
     };
 
     const handleEditLabel = (itemId, currentDescription) => {
@@ -627,7 +621,7 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
                     </button>
                 </div>
                 {addingItem && addingItem.category === category && !addingItem.isDeduction && addingItem.resultIndex === resultIndex && (
-                    <div className={styles.addItemForm}>
+                    <form className={styles.addItemForm} onSubmit={(e) => handleAddItemSubmit(e, 'income', category, resultIndex)}>
                         <select
                             value={newItem.type || ''}
                             onChange={(e) => setNewItem(prev => ({ ...prev, type: e.target.value }))}
@@ -650,9 +644,9 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
                             min="0"
                             step="0.01"
                         />
-                        <button type="submit" onClick={() => handleAddItem('income', category, resultIndex)}>Add</button>
+                        <button type="submit">Add</button>
                         <button type="button" onClick={() => setAddingItem(null)}>Cancel</button>
-                    </div>
+                    </form>
                 )}
                 
                 {/* Table Header */}
@@ -787,7 +781,7 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
                     <h3>{category}</h3>
                     <button
                         className={styles.addCategoryButton}
-                        onClick={() => handleAddItem('deduction', category, resultIndex)}
+                        onClick={() => setAddingItem({ category, isDeduction: true, resultIndex })}
                     >
                         Add {category} Item
                     </button>
@@ -859,7 +853,7 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
                 </ul>
 
                 {addingItem?.type === 'deduction' && addingItem?.category === category && addingItem?.resultIndex === resultIndex && (
-                    <div className={styles.addItemForm}>
+                    <form className={styles.addItemForm} onSubmit={(e) => handleAddItemSubmit(e, 'deduction', category, resultIndex)}>
                         <select
                             value={newItem.type || ''}
                             onChange={(e) => setNewItem(prev => ({ ...prev, type: e.target.value }))}
@@ -884,9 +878,9 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
                             min="0"
                             step="0.01"
                         />
-                        <button type="submit" onClick={() => handleAddItem('deduction', category, resultIndex)}>Add</button>
+                        <button type="submit">Add</button>
                         <button type="button" onClick={() => setAddingItem(null)}>Cancel</button>
-                    </div>
+                    </form>
                 )}
             </div>
         ));

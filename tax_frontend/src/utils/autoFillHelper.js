@@ -98,71 +98,228 @@ export class AutoFillHelper {
         deductions: []
       },
       OtherIncome: {
-        otherEntries: []
+        otherEntries: [],
+        whtEntries: []
       },
       TerminalBenefits: {
-        benefitEntries: []
+        benefitEntries: [],
+        commutedEntries: [],
+        gratuityEntries: [],
+        compensationEntries: [],
+        etfEntries: [],
+        otherEntries: []
       },
       QualifyingPayments: {
-        paymentEntries: []
+        paymentEntries: [],
+        samurdhiEntries: [],
+        donationEntries: [],
+        solarEntries: [],
+        housingEntries: [],
+        otherEntries: []
       }
     };
     
     // Process income items
     if (mappedData.income_items) {
       mappedData.income_items.forEach(item => {
-        switch(item.category) {
+        const category = item.category || '';
+        const itemType = item.type || '';
+        const description = (item.description || '').toLowerCase();
+        
+        switch(category) {
           case 'Employment Income':
-            if (item.type === 'SALARY') {
+            if (itemType === 'Primary Employment' || description.includes('primary') || description.includes('salary')) {
               formData.EmploymentIncome.primaryEntries.push({
                 name: 'Primary Salary',
                 amount: item.amount.toString()
               });
-            } else if (item.type === 'SECONDARY_SALARY') {
+            } else if (itemType === 'Secondary Employment' || description.includes('secondary') || description.includes('part-time')) {
               formData.EmploymentIncome.secondaryEntries.push({
                 name: 'Secondary Salary',
                 amount: item.amount.toString()
               });
+            } else {
+              // Default to primary employment
+              formData.EmploymentIncome.primaryEntries.push({
+                name: 'Primary Salary',
+                amount: item.amount.toString()
+              });
             }
             break;
+            
           case 'Business Income':
-            formData.BusinessIncome.businessEntries.push({
-              name: item.description || 'Business Income',
-              amount: item.amount.toString()
-            });
+            // Enhanced business income categorization
+            if (itemType === 'Sole Proprietorship' || description.includes('sole proprietor') || description.includes('self-employed')) {
+              formData.BusinessIncome.businessEntries.push({
+                name: 'Sole Proprietorship',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Partnership' || description.includes('partnership')) {
+              formData.BusinessIncome.businessEntries.push({
+                name: 'Partnership',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Trust Beneficiary' || description.includes('trust')) {
+              formData.BusinessIncome.businessEntries.push({
+                name: 'Trust Beneficiary',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Betting, Gaming, Liquor & Tobacco' || 
+                      description.includes('betting') || description.includes('gaming') || 
+                      description.includes('casino') || description.includes('lottery')) {
+              formData.BusinessIncome.businessEntries.push({
+                name: 'Betting, Gaming, Liquor & Tobacco',
+                amount: item.amount.toString()
+              });
+            } else {
+              // Default business income
+              formData.BusinessIncome.businessEntries.push({
+                name: item.description || 'Business Income',
+                amount: item.amount.toString()
+              });
+            }
             break;
+            
           case 'Investment Income':
-            formData.InvestmentIncome.investmentEntries.push({
-              name: item.description || 'Investment Income',
-              amount: item.amount.toString()
-            });
+            // Enhanced investment income categorization
+            if (itemType === 'Interest Income' || description.includes('interest')) {
+              formData.InvestmentIncome.investmentEntries.push({
+                name: 'Interest Income',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Dividend Income' || description.includes('dividend')) {
+              formData.InvestmentIncome.investmentEntries.push({
+                name: 'Dividend Income',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Rental Income' || description.includes('rent') || description.includes('rental')) {
+              formData.InvestmentIncome.investmentEntries.push({
+                name: 'Rental Income',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Capital Gains' || description.includes('capital') || description.includes('gain')) {
+              formData.InvestmentIncome.investmentEntries.push({
+                name: 'Capital Gains',
+                amount: item.amount.toString()
+              });
+            } else {
+              // Default investment income
+              formData.InvestmentIncome.investmentEntries.push({
+                name: item.description || 'Investment Income',
+                amount: item.amount.toString()
+              });
+            }
             break;
+            
           case 'Other Income':
-            formData.OtherIncome.otherEntries.push({
-              name: item.description || 'Other Income',
-              amount: item.amount.toString()
-            });
+            // Enhanced other income categorization
+            if (itemType === 'Service Income (WHT)' || description.includes('service')) {
+              formData.OtherIncome.otherEntries.push({
+                name: 'Service Income',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Royalty (WHT)' || description.includes('royalty')) {
+              formData.OtherIncome.otherEntries.push({
+                name: 'Royalty',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Natural Resource Payment (WHT)' || description.includes('natural resource')) {
+              formData.OtherIncome.otherEntries.push({
+                name: 'Natural Resource Payment',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Auctioned Gem Sale (WHT)' || description.includes('gem') || description.includes('auction')) {
+              formData.OtherIncome.otherEntries.push({
+                name: 'Auctioned Gem Sale',
+                amount: item.amount.toString()
+              });
+            } else {
+              // Default other income
+              formData.OtherIncome.otherEntries.push({
+                name: item.description || 'Other Income',
+                amount: item.amount.toString()
+              });
+            }
             break;
+            
           case 'Terminal Benefits':
-            formData.TerminalBenefits.benefitEntries.push({
-              name: item.description || 'Terminal Benefit',
-              amount: item.amount.toString()
-            });
+            // Enhanced terminal benefits categorization
+            if (itemType === 'Commuted Pension' || description.includes('commuted') || description.includes('lump sum pension')) {
+              formData.TerminalBenefits.commutedEntries.push({
+                name: 'Commuted Pension',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Retiring Gratuity' || description.includes('gratuity')) {
+              formData.TerminalBenefits.gratuityEntries.push({
+                name: 'Retiring Gratuity',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Compensation for Job Loss' || description.includes('compensation') || description.includes('job loss')) {
+              formData.TerminalBenefits.compensationEntries.push({
+                name: 'Compensation for Job Loss',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'ETF Payment' || description.includes('etf') || description.includes('trust fund')) {
+              formData.TerminalBenefits.etfEntries.push({
+                name: 'ETF Payment',
+                amount: item.amount.toString()
+              });
+            } else {
+              // Default to other terminal benefits
+              formData.TerminalBenefits.otherEntries.push({
+                name: item.description || 'Other Terminal Benefit',
+                amount: item.amount.toString()
+              });
+            }
             break;
+            
           case 'Qualifying Payments':
-            formData.QualifyingPayments.paymentEntries.push({
-              name: item.description || 'Qualifying Payment',
-              amount: item.amount.toString()
-            });
+            // Enhanced qualifying payments categorization
+            if (itemType === 'Donations' || description.includes('donation') || description.includes('charity')) {
+              formData.QualifyingPayments.donationEntries.push({
+                name: 'Donations',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Shop Setup for Samurdhi Beneficiary' || description.includes('samurdhi') || description.includes('samurthy')) {
+              formData.QualifyingPayments.samurdhiEntries.push({
+                name: 'Shop Setup for Samurdhi Beneficiary',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Solar Panel Installation' || description.includes('solar')) {
+              formData.QualifyingPayments.solarEntries.push({
+                name: 'Solar Panel Installation',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Low-Income Housing Construction' || description.includes('housing')) {
+              formData.QualifyingPayments.housingEntries.push({
+                name: 'Low-Income Housing Construction',
+                amount: item.amount.toString()
+              });
+            } else if (itemType === 'Film & Cinema Industry Expenditure' || description.includes('cinema') || description.includes('film')) {
+              formData.QualifyingPayments.otherEntries.push({
+                name: 'Film & Cinema Industry Expenditure',
+                amount: item.amount.toString()
+              });
+            } else {
+              // Default to other qualifying payments
+              formData.QualifyingPayments.otherEntries.push({
+                name: item.description || 'Other Qualifying Payment',
+                amount: item.amount.toString()
+              });
+            }
             break;
         }
       });
     }
 
-    // Process deductions
+    // Process deductions with enhanced categorization
     if (mappedData.deductions) {
       mappedData.deductions.forEach(deduction => {
-        switch(deduction.type) {
+        const deductionType = deduction.type || '';
+        const description = (deduction.description || '').toLowerCase();
+        
+        switch(deductionType) {
+          case 'APIT Deduction':
           case 'APIT':
             formData.EmploymentIncome.apitEntries.push({
               source: deduction.source || 'Primary Employment',
@@ -170,12 +327,38 @@ export class AutoFillHelper {
               amount: deduction.amount.toString()
             });
             break;
+            
+          case 'WHT Deduction':
+          case 'WHT':
+            // Enhanced WHT source determination
+            let source = 'WHT Deduction';
+            if (description.includes('service')) {
+              source = 'Service Income WHT';
+            } else if (description.includes('royalty')) {
+              source = 'Royalty WHT';
+            } else if (description.includes('resource') || description.includes('natural')) {
+              source = 'Natural Resource WHT';
+            } else if (description.includes('gem') || description.includes('auction')) {
+              source = 'Gem Sale WHT';
+            } else if (description.includes('dividend')) {
+              source = 'Dividend WHT';
+            } else if (description.includes('interest')) {
+              source = 'Interest WHT';
+            }
+
+            formData.OtherIncome.whtEntries.push({
+              source: source,
+              amount: deduction.amount.toString()
+            });
+            break;
+            
           case 'BUSINESS_DEDUCTION':
             formData.BusinessIncome.deductions.push({
               name: deduction.description || 'Business Deduction',
               amount: deduction.amount.toString()
             });
             break;
+            
           case 'INVESTMENT_DEDUCTION':
             formData.InvestmentIncome.deductions.push({
               name: deduction.description || 'Investment Deduction',

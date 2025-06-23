@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
 import Header from '../../common/Header/Header';
 import taxCalculator from '../../../assets/tax_calc.png';
 import taxReportImage from '../../../assets/tax_generation.png';
@@ -9,24 +10,29 @@ import './ServicesSection.css';
 
 const ServicesSection = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { user } = useAuth();
 
     const handleServiceClick = (service) => {
+        // Always navigate to the service main page and scroll to the section
+        let sectionHash = '';
         switch(service) {
             case 'tax-report':
-                navigate('/tax-report-service');
+                sectionHash = '#tax-report';
                 break;
             case 'tax-calculations':
-                navigate('/calculator-service');  // Changed from '/calculation-service'
+                sectionHash = '#tax-calculations';
                 break;
             case 'ai-advisor':
-                navigate('/assistant-service');
+                sectionHash = '#ai-advisor';
                 break;
             case 'tax-deadline':
-                navigate('/notification-service');
+                sectionHash = '#tax-deadline';
                 break;
             default:
-                break;
+                sectionHash = '';
         }
+        navigate(`/servicesMain${sectionHash}`);
     };
 
     return (

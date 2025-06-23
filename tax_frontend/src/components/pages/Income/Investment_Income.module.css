@@ -18,11 +18,13 @@
 
 .aitCheckbox {
     display: flex;
-    align-items: center;
+    vertical-align: center;
+    align-items: left;
     gap: 0.5rem;
     font-size: 0.95rem;
     color: #333;
     margin-bottom: 1rem;
+
 }
 
 .aitEntries {
@@ -84,3 +86,4 @@
     color: #333;
     cursor: pointer;
 }
+

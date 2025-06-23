@@ -21,13 +21,13 @@ const Nav = () => {
       to: '/servicesMain',
       label: 'Services',
       dropdown: [
-        { to: '/assistant', label: 'AI tax Assistant' },
-        { to: '/calculator', label: 'Tax Calculator' },
-        { to: '/Taxation', label: 'Tax Report' },
-        { to: '/tax-calendar', label: 'Tax Calendar' },
+        { to: '/assistant', label: 'AI tax Assistant', requiresAuth: true },
+        { to: '/calculator', label: 'Tax Calculator', requiresAuth: true },
+        { to: '/Taxation', label: 'Tax Report', requiresAuth: true },
+        { to: '/tax-calendar', label: 'Tax Calendar', requiresAuth: true },
       ],
     },
-    { to: '/guidelines', label: 'Guidelines' },
+    { to: '/#guidelines', label: 'Guidelines' },
     { to: '/contact', label: 'Contact' },
   ];
 
@@ -122,6 +122,27 @@ const Nav = () => {
     }
   };
 
+  const handleServiceClick = (serviceItem, e) => {
+    e.preventDefault();
+    
+    // Check if the service requires authentication
+    if (serviceItem.requiresAuth && !user) {
+      // Debug logging
+      console.log('Service requires auth, user not logged in');
+      console.log('Target service:', serviceItem.to);
+      console.log('Redirecting to login with return URL:', serviceItem.to);
+      
+      // Redirect to login page with the target service URL as return URL
+      navigate('/login', { state: { from: { pathname: serviceItem.to } } });
+      return;
+    }
+    
+    // If authenticated or no auth required, navigate normally
+    console.log('User authenticated, navigating to:', serviceItem.to);
+    navigate(serviceItem.to);
+    handleNavItemClick();
+  };
+
   return (
     <nav className="nav" ref={navRef}>
       <div className="nav-left">
@@ -145,22 +166,87 @@ const Nav = () => {
               {openDropdownIndex === index && (
                 <div className="dropdown-content">
                   {item.dropdown.map((dropdownItem, dropdownIndex) => (
-                    <Link
+                    <a
                       key={dropdownIndex}
-                      to={dropdownItem.to}
+                      href={dropdownItem.to}
                       className="dropdown-link"
-                      onClick={handleNavItemClick}
+                      onClick={(e) => handleServiceClick(dropdownItem, e)}
                     >
                       {dropdownItem.label}
-                    </Link>
+                    </a>
                   ))}
                 </div>
               )}
             </div>
           ) : (
-            <Link key={index} to={item.to} className="nav-item" onClick={handleNavItemClick}>
-              {item.label}
-            </Link>
+            item.label === 'Home' ? (
+              <a
+                key={index}
+                href="/"
+                className="nav-item"
+                onClick={e => {
+                  e.preventDefault();
+                  if (location.pathname === '/' || location.pathname === '/home') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  } else {
+                    navigate('/');
+                  }
+                  handleNavItemClick();
+                }}
+              >
+                {item.label}
+              </a>
+            ) : item.label === 'Guidelines' ? (
+              <a
+                key={index}
+                href="/#guidelines"
+                className="nav-item"
+                onClick={e => {
+                  e.preventDefault();
+                  if (location.pathname === '/' || location.pathname === '/home') {
+                    // If already on home, just scroll
+                    const el = document.getElementById('guidelines');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                      window.location.hash = '#guidelines';
+                    }
+                  } else {
+                    navigate('/#guidelines');
+                  }
+                  handleNavItemClick();
+                }}
+              >
+                {item.label}
+              </a>
+            ) : item.label === 'Contact' ? (
+              <a
+                key={index}
+                href="/#contact"
+                className="nav-item"
+                onClick={e => {
+                  e.preventDefault();
+                  if (location.pathname === '/' || location.pathname === '/home') {
+                    // If already on home, just scroll
+                    const el = document.getElementById('contact');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    } else {
+                      window.location.hash = '#contact';
+                    }
+                  } else {
+                    navigate('/#contact');
+                  }
+                  handleNavItemClick();
+                }}
+              >
+                {item.label}
+              </a>
+            ) : (
+              <Link key={index} to={item.to} className="nav-item" onClick={handleNavItemClick}>
+                {item.label}
+              </Link>
+            )
           )
         )}
         {user ? (

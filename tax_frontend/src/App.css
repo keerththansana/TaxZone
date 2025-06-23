@@ -52,7 +52,13 @@
 .tax-report-service-page,
 .assistant-service-page,
 .notification-service-page,
-.employment-income-page {
+.employment-income-page,
+.business-income-page,
+.investment-income-page,
+.other-income-page,
+.terminal-benefits-page,
+.qualifying-payments-page,
+.preview-page {
   padding-top: 80px; /* Match the navigation bar height */
   min-height: 100vh;
 }
@@ -74,7 +80,13 @@
   .tax-report-service-page,
   .assistant-service-page,
   .notification-service-page,
-  .employment-income-page {
+  .employment-income-page,
+  .business-income-page,
+  .investment-income-page,
+  .other-income-page,
+  .terminal-benefits-page,
+  .qualifying-payments-page,
+  .preview-page {
     padding-top: 70px; /* Match the mobile navigation bar height */
   }
 }
@@ -86,4 +98,12 @@
   left: 0 !important;
   right: 0 !important;
   z-index: 1000 !important;
+}
+
+body.new-password-page, .new-password-page {
+  padding-top: 40px !important;
+}
+
+body.reset-password-page {
+  padding-top: 0 !important;
 }

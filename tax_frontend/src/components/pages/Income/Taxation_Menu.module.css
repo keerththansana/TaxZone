@@ -12,6 +12,7 @@
     justify-content: flex-start;
     position: relative;
     -webkit-overflow-scrolling: touch;
+    margin-top: 0px; /* Account for fixed header height */
 }
 
 /* Webkit browsers scrollbar styling */
@@ -133,6 +134,10 @@
 
 /* Media Queries */
 @media (max-width: 1024px) {
+    .menuContainer {
+        margin-top: 80px; /* Keep consistent with header height */
+    }
+    
     .menuItem {
         min-width: 200px;
         padding: 0.6rem 1.2rem;
@@ -146,6 +151,7 @@
 @media (max-width: 768px) {
     .menuContainer {
         padding: 0.75rem;
+        margin-top: 80px; /* Keep consistent with header height */
     }
 
     .menuWrapper {
@@ -179,6 +185,7 @@
 @media (max-width: 480px) {
     .menuContainer {
         padding: 0.5rem;
+        margin-top: 80px; /* Keep consistent with header height */
     }
 
     .menuWrapper {

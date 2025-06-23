@@ -321,6 +321,26 @@
         gap: 1rem;
         align-items: flex-start;
     }
+
+    .headerSection {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.1rem;
+    }
+
+    .logoContainer {
+        order: -1;
+    }
+
+    .taxLogo {
+        width: 100px;
+        height: 120px;
+    }
+
+    .userDetails {
+        width: 100%;
+        margin-bottom: 0;
+    }
 }
 
 .taxTable {
@@ -761,6 +781,7 @@ tr.sectionHeader td:last-child {
     margin-bottom: 30px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     width: fit-content;
+    flex: 1;
 }
 
 .userDetailRow {
@@ -796,4 +817,42 @@ tr.sectionHeader td:last-child {
     font-weight: 500;
     text-align: left;
     font-style: italic;
+}
+
+.headerSection {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.logoContainer {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.taxLogo {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+}
+
+.nextButton {
+    padding: 0.6rem 1.5rem;
+    background-color: #023636;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 90px;
+}
+
+.nextButton:hover {
+    background-color: #034f4f;
 }

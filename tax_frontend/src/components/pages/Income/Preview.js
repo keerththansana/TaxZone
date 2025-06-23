@@ -11,6 +11,8 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import docx from 'docx';
 import { useFormPersist } from './Data_Persistence';
+import TaxLogo from '../../../assets/taxlogodark (2).png';
+import AnalysisResults from './AnalysisResults';
 
 // First, add a constant for category order
 const CATEGORY_ORDER = [
@@ -36,11 +38,11 @@ const hasEntries = (category) => {
 // Add tax bracket configurations
 const TAX_BRACKETS = {
     '2024/2025': [
-        { limit: 1200000, rate: 0.06 },
-        { limit: 2400000, rate: 0.12 },
-        { limit: 3600000, rate: 0.18 },
-        { limit: 4800000, rate: 0.24 },
-        { limit: 6000000, rate: 0.30 },
+        { limit: 500000, rate: 0.06 },
+        { limit: 1000000, rate: 0.12 },
+        { limit: 1500000, rate: 0.18 },
+        { limit: 2000000, rate: 0.24 },
+        { limit: 2500000, rate: 0.30 },
         { limit: Infinity, rate: 0.36 }
     ],
     '2025/2026': [
@@ -164,6 +166,17 @@ const Preview = () => {
     // Add these new states for download menu
     const [showDownloadMenu, setShowDownloadMenu] = useState(false);
     const downloadMenuRef = useRef(null);
+
+    const navigate = useNavigate();
+
+    const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
+
+    const handleOpenAnalysis = () => {
+        const stored = sessionStorage.getItem('last_analysis');
+        setAnalysisResults(stored ? JSON.parse(stored) : []);
+        setShowAnalysisResults(true);
+    };
 
     // Add useEffect to load user details and set current date/time
     useEffect(() => {
@@ -2159,6 +2172,21 @@ const Preview = () => {
         <div className="preview-page">
             <Header />
             <TaxationMenu />
+            <div style={{ position: 'fixed', top: '115px', left: '24px', zIndex: 1000 }}>
+                <button
+                    className={styles.nextButton}
+                    onClick={handleOpenAnalysis}
+                >
+                    Analysis Result
+                </button>
+            </div>
+            {showAnalysisResults && (
+                <AnalysisResults
+                    results={analysisResults}
+                    onClose={() => setShowAnalysisResults(false)}
+                    onAutoFill={() => {}}
+                />
+            )}
             <div className={styles.container}>
                 <div className={styles.contentWrapper}>
                     <div className={styles.header}>
@@ -2186,22 +2214,27 @@ const Preview = () => {
                             Calculation of Income Tax Liability - {taxYear}
                         </h1>
                         
-                        <div className={styles.userDetails}>
-                            <div className={styles.userDetailRow}>
-                                <span className={styles.userDetailLabel}>Full Name:</span>
-                                <span className={styles.userDetailValue}>{userDetails.fullName}</span>
+                        <div className={styles.headerSection}>
+                            <div className={styles.userDetails}>
+                                <div className={styles.userDetailRow}>
+                                    <span className={styles.userDetailLabel}>Full Name:</span>
+                                    <span className={styles.userDetailValue}>{userDetails.fullName}</span>
+                                </div>
+                                <div className={styles.userDetailRow}>
+                                    <span className={styles.userDetailLabel}>TIN Number:</span>
+                                    <span className={styles.userDetailValue}>{userDetails.tinNumber}</span>
+                                </div>
+                                <div className={styles.userDetailRow}>
+                                    <span className={styles.userDetailLabel}>Year </span>
+                                    <span className={styles.userDetailValue}>{taxYear}</span>
+                                </div>
+                                <div className={styles.userDetailRow}>
+                                    <span className={styles.userDetailLabel}>Date & Time:</span>
+                                    <span className={styles.userDetailValue}>{userDetails.date} {userDetails.time}</span>
+                                </div>
                             </div>
-                            <div className={styles.userDetailRow}>
-                                <span className={styles.userDetailLabel}>TIN Number:</span>
-                                <span className={styles.userDetailValue}>{userDetails.tinNumber}</span>
-                            </div>
-                            <div className={styles.userDetailRow}>
-                                <span className={styles.userDetailLabel}>Year </span>
-                                <span className={styles.userDetailValue}>{taxYear}</span>
-                            </div>
-                            <div className={styles.userDetailRow}>
-                                <span className={styles.userDetailLabel}>Date & Time:</span>
-                                <span className={styles.userDetailValue}>{userDetails.date} {userDetails.time}</span>
+                            <div className={styles.logoContainer}>
+                                <img src={TaxLogo} alt="Tax Logo" className={styles.taxLogo} />
                             </div>
                         </div>
 
@@ -2391,7 +2424,7 @@ const Preview = () => {
                                     <tr key={`bracket-${index}`} className={styles.bulletRow}>
                                         <td className={styles.bulletCell}></td>
                                         <td>
-                                            {bracket.from.toLocaleString()} - {bracket.to.toLocaleString()} ---------- (${(bracket.rate * 100)}%)
+                                            {bracket.from.toLocaleString()} - {bracket.to.toLocaleString()} ---------- ({(bracket.rate * 100)}%)
                                         </td>
                                         <td className={styles.amountColumn}>
                                             {Number(bracket.tax).toLocaleString()}

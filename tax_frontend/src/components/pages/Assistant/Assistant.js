@@ -2,9 +2,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import Header from '../../common/Header/Header';
 import './Assistant.css';
 import assistantImage from '../../../assets/Assistant.png';
-import userImage from '../../../assets/User.jpg';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+import { useAuth } from '../../../contexts/AuthContext';
+import { FaUser } from 'react-icons/fa';
 //import AuthPrompt from '../../common/AuthPrompt/AuthPrompt';
 
 // Configure axios with base URL and default headers
@@ -27,6 +28,13 @@ const CopyIcon = () => (
     </svg>
 );
 
+const UserIcon = () => (
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#023636" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20c0-2.2 3.6-4 8-4s8 1.8 8 4" />
+  </svg>
+);
+
 const ChatMessage = ({ message }) => {
     const handleCopyClick = (text) => {
         navigator.clipboard.writeText(text).then(
@@ -43,11 +51,17 @@ const ChatMessage = ({ message }) => {
     return (
         <div className={`message-container ${message.type}`}>
             <div className={`chat-message ${message.type}`}>
-                <img
-                    src={message.type === 'user' ? userImage : assistantImage}
-                    alt={message.type}
-                    className="chat-avatar"
-                />
+                {message.type === 'user' ? (
+                    <span className="chat-avatar user-avatar">
+                        <FaUser size={36} color="#023636" />
+                    </span>
+                ) : (
+                    <img
+                        src={assistantImage}
+                        alt={message.type}
+                        className="chat-avatar"
+                    />
+                )}
                 <div className="chat-bubble">
                     {message.type === 'user' ? (
                         <p>{message.content}</p>
@@ -79,6 +93,7 @@ const Assistant = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [currentConversation, setCurrentConversation] = useState(null);
+    const { user } = useAuth(); // Get authenticated user
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -120,7 +135,8 @@ const Assistant = () => {
     useEffect(() => {
         const fetchChatHistory = async () => {
             try {
-                const response = await axios.get('/api/chatbot/history/');
+                const authAxios = getAuthenticatedAxios();
+                const response = await authAxios.get('/api/chatbot/history/');
                 if (response.data.success) {
                     setChatHistory(response.data.history.map(chat => ({
                         id: chat.id,
@@ -149,7 +165,8 @@ const Assistant = () => {
             setLoading(true);
             setError(null);
 
-            const response = await axios.post('/api/chatbot/chat', { 
+            const authAxios = getAuthenticatedAxios();
+            const response = await authAxios.post('/api/chatbot/chat', { 
                 query,
                 conversation_id: currentConversation?.id
             });
@@ -220,7 +237,8 @@ const Assistant = () => {
             setError(null);
             
             // Fetch conversation history from backend
-            const response = await axios.get(`/api/chatbot/history/${chat.id}/`);
+            const authAxios = getAuthenticatedAxios();
+            const response = await authAxios.get(`/api/chatbot/history/${chat.id}/`);
             
             if (response.data.success) {
                 // Update current conversation
@@ -264,7 +282,8 @@ const Assistant = () => {
     const handleDeleteConversation = async (conversationId, e) => {
         e.stopPropagation(); // Prevent triggering chat selection
         try {
-            const response = await axios.delete(`/api/chatbot/history/${conversationId}/delete/`);
+            const authAxios = getAuthenticatedAxios();
+            const response = await authAxios.delete(`/api/chatbot/history/${conversationId}/delete/`);
             if (response.data.success) {
                 // Remove from chat history
                 setChatHistory(prev => prev.filter(chat => chat.id !== conversationId));
@@ -298,6 +317,21 @@ const Assistant = () => {
             <line x1="12" y1="19" x2="12" y2="22" />
         </svg>
     );
+
+    // Function to get authenticated axios instance
+    const getAuthenticatedAxios = () => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            return axios.create({
+                baseURL: 'http://localhost:8000',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+        }
+        return axios;
+    };
 
     return (
         <div className="assistant-page">
@@ -362,24 +396,30 @@ const Assistant = () => {
                             handleSubmit(e);
                         }}
                     >
-                        <input
-                            type="text"
+                        <textarea
                             placeholder="Enter Your Questions Here..."
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             className="assistant-input"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && e.ctrlKey) {
+                                    e.preventDefault();
+                                    handleSubmit(e);
+                                }
+                            }}
                         />
+                        
+                        <button type="submit" className="assistant-button" disabled={!query.trim()}>
+                            &#x2191;
+                        </button>
                         <button
                             type="button"
-                            className={`mic-button ${isRecording ? 'recording' : ''}`}
+                            className={`mic-button mic-icon-only${isRecording ? ' recording' : ''}`}
                             onClick={handleVoiceInput}
                             title={recognition ? 'Click to speak' : 'Speech recognition not supported'}
                             disabled={!recognition}
                         >
                             <VoiceIcon isRecording={isRecording} />
-                        </button>
-                        <button type="submit" className="assistant-button" disabled={!query.trim()}>
-                            &#x2191;
                         </button>
                     </form>
                 </div>

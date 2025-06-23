@@ -1,4 +1,5 @@
 from django.db import models # type: ignore
+from django.contrib.auth.models import User
 import uuid
 
 class TaxDocument(models.Model):
@@ -15,6 +16,7 @@ class TaxDocument(models.Model):
 
 class TaxConversation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tax_conversations', null=True, blank=True)
     title = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 

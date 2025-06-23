@@ -60,6 +60,11 @@ const ReviewForm = () => {
         setFeedback('');
         setPosition('');
         setSubmitted(true);
+
+        // Hide thank you message after 3 seconds and navigate to review section on home page
+        setTimeout(() => {
+            window.location.href = '/#review-section';
+        }, 3000);
     };
 
     return (
@@ -67,8 +72,12 @@ const ReviewForm = () => {
             <Header />
             <div className="review-form-container">
                 <div className="review-form-content">
-                    <h1>Share Your Experience</h1>
-                    <p>We value your feedback! Please take a moment to rate our service and share your thoughts.</p>
+                    {!submitted && (
+                        <>
+                            <h1>Share Your Experience</h1>
+                            <p>We value your feedback! Please take a moment to rate our service and share your thoughts.</p>
+                        </>
+                    )}
 
                     {!submitted ? (
                         <form onSubmit={handleSubmit} className="review-form">

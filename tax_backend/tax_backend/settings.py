@@ -45,7 +45,7 @@ SECRET_KEY = 'django-insecure-hk$$=gt-uk&7x4@02stp-*+tki=yn=+kw3c!cc#1er1@q7q&%!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
 
 # Application definition
@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'tax_report',
     'tax_calculator',
     'chatbot',
+    'tax_notifications',  # Ensure this is included
     'users',
 ]
 
@@ -211,6 +212,7 @@ FILE_UPLOAD_HANDLERS = [
 # Consolidate CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -218,6 +220,8 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'GET',
     'POST',
+    'PUT',
+    'PATCH',
     'DELETE',
     'OPTIONS'
 ]
@@ -234,7 +238,18 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development only
+# For development only - allow all origins
+CORS_ALLOW_ALL_ORIGINS = True
+
+# Additional CORS settings for development
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
+
+# Disable CSRF for API endpoints in development
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
 
 # Add this setting
 APPEND_SLASH = False

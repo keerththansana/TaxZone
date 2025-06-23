@@ -1,13 +1,115 @@
 import { useState, useEffect } from 'react';
 
+// User-specific data persistence utilities
+export const getUserKey = (key) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id || user.username || 'anonymous';
+    return `user_${userId}_${key}`;
+};
+
+export const saveUserData = (key, data) => {
+    const userKey = getUserKey(key);
+    try {
+        localStorage.setItem(userKey, JSON.stringify(data));
+        console.log(`Saved user data for key: ${userKey}`);
+    } catch (error) {
+        console.error(`Error saving user data for key: ${userKey}`, error);
+    }
+};
+
+export const loadUserData = (key, defaultValue = null) => {
+    const userKey = getUserKey(key);
+    try {
+        const data = localStorage.getItem(userKey);
+        return data ? JSON.parse(data) : defaultValue;
+    } catch (error) {
+        console.error(`Error loading user data for key: ${userKey}`, error);
+        return defaultValue;
+    }
+};
+
+export const clearUserData = (key) => {
+    const userKey = getUserKey(key);
+    localStorage.removeItem(userKey);
+};
+
+export const clearAllUserData = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id || user.username || 'anonymous';
+    const prefix = `user_${userId}_`;
+    
+    // Clear all user-specific data
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith(prefix)) {
+            localStorage.removeItem(key);
+        }
+    });
+};
+
+// NEW: Function to check if user session is fresh
+export const isUserSessionFresh = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id || user.username || 'anonymous';
+    const sessionInitKey = `user_${userId}_sessionInitialized`;
+    
+    return !localStorage.getItem(sessionInitKey);
+};
+
+// NEW: Function to clear all previous user data when a new user logs in
+export const clearPreviousUserData = () => {
+    // Clear all session storage data (this is shared between users)
+    sessionStorage.clear();
+    
+    // Clear all localStorage keys that start with 'user_' (previous user data)
+    Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('user_')) {
+            localStorage.removeItem(key);
+        }
+    });
+    
+    // Clear specific form data keys that might persist
+    const keysToClear = [
+        'employmentIncomeData',
+        'businessIncomeData', 
+        'investmentIncomeData',
+        'otherIncomeData',
+        'terminalBenefitsData',
+        'qualifyingPaymentsData',
+        'last_analysis',
+        'selectedCategories',
+        'currentCategory',
+        'taxationFullName',
+        'taxationTinNumber'
+    ];
+    
+    keysToClear.forEach(key => {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
+    });
+    
+    console.log('Cleared all previous user data');
+};
+
+// NEW: Function to initialize user session (call this when user logs in)
+export const initializeUserSession = () => {
+    clearPreviousUserData();
+    
+    // Set a flag to indicate this is a fresh session
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user.id || user.username || 'anonymous';
+    localStorage.setItem(`user_${userId}_sessionInitialized`, new Date().toISOString());
+    
+    console.log(`Initialized session for user: ${userId}`);
+};
+
+// Enhanced form persistence hook with user-specific storage
 export const useFormPersist = (key, initialValue) => {
     const [data, setData] = useState(() => {
-        const savedData = localStorage.getItem(key);
-        return savedData ? JSON.parse(savedData) : initialValue;
+        return loadUserData(key, initialValue);
     });
 
     useEffect(() => {
-        localStorage.setItem(key, JSON.stringify(data));
+        saveUserData(key, data);
     }, [key, data]);
 
     return [data, setData];
@@ -355,12 +457,12 @@ export const useIncomeData = () => {
 
     useEffect(() => {
         const handleStorageChange = () => {
-            const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
+            const selectedCategories = loadUserData('selectedCategories', []);
             let newSummaryData = [];
             let totalIncome = 0;
 
             selectedCategories.forEach(category => {
-                const data = JSON.parse(sessionStorage.getItem(`${category}IncomeData`));
+                const data = loadUserData(`${category}IncomeData`);
                 if (data) {
                     const categorySummary = processIncomeCategory(category, data);
                     if (categorySummary) {

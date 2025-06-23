@@ -6,6 +6,7 @@ import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { useFormPersist } from './Data_Persistence';
 import axios from 'axios';
+import AnalysisResults from './AnalysisResults';
 
 // Replace the constant declaration at the top with this
 const PERSONAL_RELIEF_AMOUNTS = {
@@ -33,7 +34,7 @@ const EmploymentIncome = () => {
         primaryEntries: [{ name: 'Primary Salary', amount: '' }],
         secondaryEntries: [{ name: 'Secondary Salary', amount: '' }],
         apitEntries: [{ name: '', amount: '' }],
-        selectedTypes: ['Primary Employment'],
+        selectedTypes: [],
         totalEmploymentIncome: 0,
         totalApitDeduction: 0
     });
@@ -49,7 +50,7 @@ const EmploymentIncome = () => {
     } = formData;
 
     // Ensure selectedTypesArray is an array and convert to Set
-    const selectedTypes = new Set(Array.isArray(selectedTypesArray) ? selectedTypesArray : ['Primary Employment']);
+    const selectedTypes = new Set(Array.isArray(selectedTypesArray) ? selectedTypesArray : []);
 
     // Update form data helper function
     const updateFormData = (newData) => {
@@ -65,7 +66,7 @@ const EmploymentIncome = () => {
                     ? newData.selectedTypes 
                     : newData.selectedTypes instanceof Set 
                         ? Array.from(newData.selectedTypes)
-                        : ['Primary Employment'];
+                        : [];
             }
             
             return updatedData;
@@ -206,8 +207,20 @@ const EmploymentIncome = () => {
             if (event.data && event.data.type === 'autoFillUpdate') {
                 const data = event.data.payload;
                 console.log('Processing auto-fill data:', data);
-                if (data.EmploymentIncome) {
-                    console.log('Updating employment form with data:', data.EmploymentIncome);
+                // Support both new and legacy keys
+                if (data.employmentIncome) {
+                    const emp = data.employmentIncome;
+                    updateFormData({
+                        primaryEntries: (emp.primaryEmploymentEntries || []).map(e => ({ name: e.description || 'Primary Salary', amount: e.amount?.toString() || '' })),
+                        secondaryEntries: (emp.secondaryEmploymentEntries || []).map(e => ({ name: e.description || 'Secondary Salary', amount: e.amount?.toString() || '' })),
+                        apitEntries: (emp.apitDeductionEntries || []).map(e => ({ name: e.description || 'APIT Deduction', amount: e.amount?.toString() || '' })),
+                        selectedTypes: [
+                            ...(emp.primaryEmploymentEntries?.length ? ['Primary Employment'] : []),
+                            ...(emp.secondaryEmploymentEntries?.length ? ['Secondary Employment'] : []),
+                            ...(emp.apitDeductionEntries?.length ? ['APIT'] : [])
+                        ],
+                    });
+                } else if (data.EmploymentIncome) {
                     updateFormData({
                         primaryEntries: data.EmploymentIncome.primaryEntries || [],
                         secondaryEntries: data.EmploymentIncome.secondaryEntries || [],
@@ -411,16 +424,33 @@ const EmploymentIncome = () => {
         }
     };
 
+    const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
+
+    const handleOpenAnalysis = () => {
+        const stored = sessionStorage.getItem('last_analysis');
+        setAnalysisResults(stored ? JSON.parse(stored) : []);
+        setShowAnalysisResults(true);
+    };
+
     return (
         <div className="employment-income-page">
             <Header />
             <TaxationMenu />
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', margin: '16px 0 0 24px' }}>
+                <button
+                    className={styles.nextButton}
+                    onClick={handleOpenAnalysis}
+                >
+                    Analysis Result
+                </button>
+            </div>
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Employment Income</h1>
                     <h2 className={styles.subtitle}>Select Applicable Employment Category</h2>
                 </div>
-
+            
                 {showForm && (
                     <form className={styles.formContainer} onSubmit={handleSubmit}>
                         <div className={styles.selectionGroup}>
@@ -446,9 +476,9 @@ const EmploymentIncome = () => {
                                     </div>
                                     {openDescription === type.value && (
                                         <div className={styles.description}>
-                                            {type.value === 'Primary Employment' ? 'Income from your main employment where you spend most of your working time.' :
-                                            type.value === 'Secondary Employment' ? 'Additional income from other employment sources apart from your primary employment.' :
-                                            'Monthly APIT deductions from your employment income.'}
+                                            {type.value === 'Primary Employment' && 'Income from your main employment where you spend most of your working time.'}
+                                            {type.value === 'Secondary Employment' && 'Additional income from other employment sources apart from your primary employment.'}
+                                            {type.value === 'APIT' && 'Monthly APIT deductions from your employment income.'}
                                         </div>
                                     )}
                                 </div>
@@ -589,6 +619,13 @@ const EmploymentIncome = () => {
                     </form>
                 )}
             </div>
+            {showAnalysisResults && (
+                <AnalysisResults
+                    results={analysisResults}
+                    onClose={() => setShowAnalysisResults(false)}
+                    onAutoFill={() => {}}
+                />
+            )}
         </div>
     );
 };

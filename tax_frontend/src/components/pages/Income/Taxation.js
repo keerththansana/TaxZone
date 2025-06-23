@@ -80,6 +80,7 @@ const Taxation = () => {
     const [uploadedFilename, setUploadedFilename] = useState('');
     const [showExtractionSuccess, setShowExtractionSuccess] = useState(false);
     const [analyzedDocumentCount, setAnalyzedDocumentCount] = useState(0);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -492,6 +493,8 @@ const Taxation = () => {
             return;
         }
 
+        setIsAnalyzing(true); // Start loading
+
         try {
             const results = [];
             let analysisSuccess = true;
@@ -552,6 +555,8 @@ const Taxation = () => {
         } catch (error) {
             console.error('Error displaying analysis:', error);
             alert('Error displaying analysis results. Please try again.');
+        } finally {
+            setIsAnalyzing(false); // Stop loading
         }
     };
 
@@ -583,6 +588,14 @@ const Taxation = () => {
         const tinNumber = e.target.value;
         setTinNumber(tinNumber);
         sessionStorage.setItem('taxationTinNumber', tinNumber);
+    };
+
+    // Add this function inside Taxation component
+    const handleAutoFillFromAnalysis = (modifiedResults) => {
+        // Save the latest analysis results to state and sessionStorage
+        setAnalysisResults(modifiedResults);
+        sessionStorage.setItem('last_analysis', JSON.stringify(modifiedResults));
+        // Optionally, you can also update any other form state here if needed
     };
 
     return (
@@ -771,9 +784,9 @@ const Taxation = () => {
                                 type="button"
                                 className={styles.analysisButton}
                                 onClick={viewAnalysisResults}
-                                disabled={documents.length === 0}
+                                disabled={documents.length === 0 || isAnalyzing}
                             >
-                                Analysis
+                                {isAnalyzing ? "Analyzing..." : "Analysis"}
                             </button>
                             <button 
                                 type="submit" 
@@ -796,6 +809,7 @@ const Taxation = () => {
                     <AnalysisResults 
                         results={analysisResults}
                         onClose={() => setShowAnalysis(false)}
+                        onAutoFill={handleAutoFillFromAnalysis}
                     />
                 )}
 
@@ -804,6 +818,13 @@ const Taxation = () => {
                         filename={uploadedFilename}
                         onClose={() => setShowUploadSuccess(false)}
                     />
+                )}
+
+                {isAnalyzing && (
+                    <div className={styles.spinnerOverlay}>
+                        <div className={styles.spinner}></div>
+                        <span>Analyzing documents...</span>
+                    </div>
                 )}
             </div>
         </div>

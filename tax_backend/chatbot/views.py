@@ -2,6 +2,8 @@ from rest_framework.decorators import api_view, authentication_classes, permissi
 from rest_framework.parsers import MultiPartParser, FormParser # type: ignore
 from rest_framework.response import Response # type: ignore
 from rest_framework import status # type: ignore
+from rest_framework_simplejwt.authentication import JWTAuthentication # type: ignore
+from rest_framework.permissions import IsAuthenticated # type: ignore
 from django.db import connection # type: ignore
 from tax_calculator.models import TaxDocument
 import google.generativeai as genai # type: ignore
@@ -163,6 +165,7 @@ Provide clear, accurate, and helpful responses to tax-related queries.
 Always maintain a professional and friendly tone.
 If you're not sure about something, be honest and say so.
 Base your responses on the provided context from official tax documents when available.
+should be response for the genral chat like hi, hello greetings,thanks etc.
 
 When answering questions:
 1. First, check if the provided context contains relevant information
@@ -419,12 +422,35 @@ def generate_conversation_title(query):
         logger.error(f"Title generation error: {e}")
         return "New Tax Query"
 
+def is_general_conversation(query):
+    greetings = [
+        "hi", "hello", "hey", "good morning", "good afternoon", "good evening",
+        "how are you", "thank you", "thanks", "bye", "goodbye", "what's up", "sup"
+    ]
+    q = query.lower().strip()
+    return any(greet in q for greet in greetings)
+
+def get_gemini_general_response(query):
+    try:
+        model = configure_gemini()
+        if not model:
+            return None
+        prompt = f"{query}\nRespond in a friendly, conversational, and natural way."
+        response = model.generate_content(prompt)
+        return response.text if response else None
+    except Exception as e:
+        logger.error(f"Gemini general chat error: {e}")
+        return None
+
 @api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def chat(request):
     """Chat endpoint with conversation tracking"""
     try:
         query = request.data.get('query')
         conversation_id = request.data.get('conversation_id')
+        user = request.user  # Get the authenticated user
 
         if not query:
             return Response({
@@ -435,22 +461,27 @@ def chat(request):
         # Get existing conversation or create new one with title
         if conversation_id:
             try:
-                conversation = TaxConversation.objects.get(id=conversation_id)
+                # Only allow access to user's own conversations
+                conversation = TaxConversation.objects.get(id=conversation_id, user=user)
             except TaxConversation.DoesNotExist:
                 # Create new conversation with generated title
                 title = generate_conversation_title(query)
-                conversation = TaxConversation.objects.create(title=title)
+                conversation = TaxConversation.objects.create(title=title, user=user)
         else:
             # Always generate a new title for new conversations
             title = generate_conversation_title(query)
-            conversation = TaxConversation.objects.create(title=title)
+            conversation = TaxConversation.objects.create(title=title, user=user)
             # Update conversation title if it's first message
             if not conversation.messages.exists():
                 conversation.title = title
                 conversation.save()
 
-        # Get response from Gemini
-        response = get_gemini_web_response(query)
+        # --- NEW: General conversation logic ---
+        if is_general_conversation(query):
+            response = get_gemini_general_response(query)
+        else:
+            response = get_gemini_web_response(query)
+        # --- END NEW ---
         
         if not response:
             return Response({
@@ -807,10 +838,13 @@ def debug_gemini(request):
 from .models import TaxConversation, TaxMessage
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def get_tax_history(request):
-    """Get list of tax conversations"""
+    """Get list of tax conversations for the authenticated user"""
     try:
-        conversations = TaxConversation.objects.all().order_by('-created_at')  # Most recent first
+        user = request.user  # Get the authenticated user
+        conversations = TaxConversation.objects.filter(user=user).order_by('-created_at')  # Most recent first
         history = [{
             'id': str(conv.id),
             'title': conv.title or "New Tax Query",
@@ -830,10 +864,14 @@ def get_tax_history(request):
         }, status=500)
 
 @api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def get_conversation_history(request, conversation_id):
     """Get messages for a specific conversation"""
     try:
-        conversation = TaxConversation.objects.get(id=conversation_id)
+        user = request.user  # Get the authenticated user
+        # Only allow access to user's own conversations
+        conversation = TaxConversation.objects.get(id=conversation_id, user=user)
         messages = conversation.messages.all().order_by('created_at')
         
         return Response({
@@ -858,10 +896,14 @@ def get_conversation_history(request, conversation_id):
         }, status=500)
 
 @api_view(['DELETE'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def delete_conversation(request, conversation_id):
     """Delete a specific conversation and its messages"""
     try:
-        conversation = TaxConversation.objects.get(id=conversation_id)
+        user = request.user  # Get the authenticated user
+        # Only allow deletion of user's own conversations
+        conversation = TaxConversation.objects.get(id=conversation_id, user=user)
         conversation.delete()
         return Response({
             'message': 'Conversation deleted successfully',

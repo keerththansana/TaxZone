@@ -208,13 +208,23 @@ class DocumentProcessor:
                     })
                     total_income += amount
                 elif 'trust' in description_lower or 'beneficiary' in description_lower:
-                    income_items.append({
-                        'category': 'Business Income',
-                        'type': 'Trust Beneficiary',
-                        'description': description,
-                        'amount': amount
-                    })
-                    total_income += amount
+                    # Check if it's Samurdhi beneficiary (qualifying payment) vs regular trust beneficiary (business income)
+                    if 'samurdhi' in description_lower or 'samurthy' in description_lower:
+                        income_items.append({
+                            'category': 'Qualifying Payments',
+                            'type': 'Shop Setup for Samurdhi Beneficiary',
+                            'description': description,
+                            'amount': amount
+                        })
+                    else:
+                        # Regular trust beneficiary income
+                        income_items.append({
+                            'category': 'Business Income',
+                            'type': 'Trust Beneficiary',
+                            'description': description,
+                            'amount': amount
+                        })
+                        total_income += amount
                 elif 'betting' in description_lower or 'gaming' in description_lower:
                     income_items.append({
                         'category': 'Business Income',
@@ -280,14 +290,24 @@ class DocumentProcessor:
                     })
                     total_income += amount
                 elif 'pension' in description_lower:
-                    income_items.append({
-                        'category': 'Terminal Benefits',
-                        'type': 'Commuted Pension',
-                        'description': description,
-                        'amount': amount
-                    })
+                    # Check for commuted pension specifically
+                    if 'commuted' in description_lower or 'lump sum' in description_lower:
+                        income_items.append({
+                            'category': 'Terminal Benefits',
+                            'type': 'Commuted Pension',
+                            'description': description,
+                            'amount': amount
+                        })
+                    else:
+                        # Default to commuted pension for general pension terms
+                        income_items.append({
+                            'category': 'Terminal Benefits',
+                            'type': 'Commuted Pension',
+                            'description': description,
+                            'amount': amount
+                        })
                     total_income += amount
-                elif 'gratuity' in description_lower:
+                elif 'gratuity' in description_lower or 'retiring' in description_lower:
                     income_items.append({
                         'category': 'Terminal Benefits',
                         'type': 'Retiring Gratuity',
@@ -295,7 +315,7 @@ class DocumentProcessor:
                         'amount': amount
                     })
                     total_income += amount
-                elif 'compensation' in description_lower or 'job loss' in description_lower:
+                elif 'compensation' in description_lower or 'job loss' in description_lower or 'redundancy' in description_lower or 'severance' in description_lower:
                     income_items.append({
                         'category': 'Terminal Benefits',
                         'type': 'Compensation for Job Loss',
@@ -303,10 +323,19 @@ class DocumentProcessor:
                         'amount': amount
                     })
                     total_income += amount
-                elif 'etf' in description_lower:
+                elif 'etf' in description_lower or 'trust fund' in description_lower or 'employees trust' in description_lower:
                     income_items.append({
                         'category': 'Terminal Benefits',
                         'type': 'ETF Payment',
+                        'description': description,
+                        'amount': amount
+                    })
+                    total_income += amount
+                elif 'terminal' in description_lower or 'end of service' in description_lower or 'retirement benefit' in description_lower:
+                    # Categorize as other terminal benefits
+                    income_items.append({
+                        'category': 'Terminal Benefits',
+                        'type': 'Other Terminal Benefits',
                         'description': description,
                         'amount': amount
                     })
@@ -399,15 +428,39 @@ class DocumentProcessor:
                - Business Income (Sole Proprietorship, Partnership, Trust Beneficiary, Betting/Gaming)
                - Investment Income (Interest Income, Dividend Income, Rental Income, Capital Gains)
                - Other Income (Service Income, Royalty, Natural Resource Payment, Gem Sale)
-               - Terminal Benefits (Commuted Pension, Retiring Gratuity, Compensation, ETF)
+               - Terminal Benefits with specific subcategories:
+                 * Commuted Pension (lump sum received instead of regular pension)
+                 * Retiring Gratuity (one-time payment upon retirement)
+                 * Compensation for Job Loss (payment for loss of employment under uniform scheme)
+                 * ETF Payment (amount from Employees' Trust Fund at/after retirement)
+                 * Other Terminal Benefits (any other terminal benefits not listed above)
                - Qualifying Payments (Donations, Solar Panel, Housing Construction)
 
-            3. Categorize deductions into:
+            3. For Terminal Benefits, use these specific keywords to categorize:
+               - "commuted", "pension", "lump sum pension" → Commuted Pension
+               - "gratuity", "retiring gratuity", "retirement gratuity" → Retiring Gratuity
+               - "compensation", "job loss", "redundancy", "severance" → Compensation for Job Loss
+               - "etf", "trust fund", "employees trust fund" → ETF Payment
+               - Any other terminal benefit terms → Other Terminal Benefits
+
+            4. For Qualifying Payments, use these specific keywords:
+               - "donation", "charity", "contribution" → Donations
+               - "samurdhi", "samurthy", "shop setup" → Shop Setup for Samurdhi Beneficiary
+               - "solar", "solar panel", "solar installation" → Solar Panel Installation
+               - "cinema", "film", "movie" → Film & Cinema Industry Expenditure
+               - "housing", "low income housing" → Low-Income Housing Construction
+               - Any other qualifying payment terms → Other Qualifying Payments
+
+            5. For Business Income, distinguish between:
+               - Regular trust beneficiary income (not Samurdhi) → Trust Beneficiary
+               - Samurdhi beneficiary items should be categorized as Qualifying Payments, not Business Income
+
+            6. Categorize deductions into:
                - APIT (Advanced Personal Income Tax) - for Employment Income
                - WHT (Withholding Tax) - for Other Income
                - Other deductions
 
-            4. Return a JSON response with this exact structure:
+            7. Return a JSON response with this exact structure:
             {{
                 "document_type": "tax_document",
                 "confidence_score": 0.95,
@@ -431,11 +484,11 @@ class DocumentProcessor:
                 "total_assessable_income": total_value
             }}
 
-            5. Ensure all amounts are numeric values
-            6. Maintain the original description text
-            7. Be more accurate than the current analysis
-            8. If unsure about categorization, use the most likely category based on Sri Lankan tax law
-            9. IMPORTANT: Return ONLY the JSON response, no additional text or explanations
+            8. Ensure all amounts are numeric values
+            9. Maintain the original description text
+            10. Be more accurate than the current analysis
+            11. If unsure about categorization, use the most likely category based on Sri Lankan tax law
+            12. IMPORTANT: Return ONLY the JSON response, no additional text or explanations
             """
 
             try:

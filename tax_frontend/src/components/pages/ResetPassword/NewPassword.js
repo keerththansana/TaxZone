@@ -17,6 +17,7 @@ const NewPassword = () => {
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [showPasswordRules, setShowPasswordRules] = useState(false);
     const navigate = useNavigate();
     const { token } = useParams();
     const location = useLocation();
@@ -34,6 +35,18 @@ const NewPassword = () => {
             document.body.className = '';
         };
     }, [token, location]);
+
+    // Auto-hide error and success messages after a few seconds
+    useEffect(() => {
+        let timer;
+        if (message || error) {
+            timer = setTimeout(() => {
+                setMessage('');
+                setError('');
+            }, 3000); // 3 seconds
+        }
+        return () => clearTimeout(timer);
+    }, [message, error]);
 
     const validateToken = async () => {
         try {
@@ -57,6 +70,8 @@ const NewPassword = () => {
             ...prevState,
             [name]: value
         }));
+        setError(''); // Clear error on input change
+        setMessage(''); // Clear success on input change
     };
 
     const handleSubmit = async (e) => {
@@ -72,9 +87,16 @@ const NewPassword = () => {
             return;
         }
 
-        // Validate password strength
-        if (formData.newPassword.length < 8) {
-            setError('Password must be at least 8 characters long');
+        // Password rules validation
+        const passwordRules = [
+            /.{8,}/, // at least 8 characters
+            /[A-Z]/, // at least one uppercase
+            /[a-z]/, // at least one lowercase
+            /[0-9]/, // at least one number
+            /[^A-Za-z0-9]/ // at least one special character
+        ];
+        if (!passwordRules.every(rule => rule.test(formData.newPassword))) {
+            setError('Password must be at least 8 characters and include uppercase, lowercase, number, and special character.');
             setLoading(false);
             return;
         }
@@ -92,17 +114,41 @@ const NewPassword = () => {
 
             if (response.data.message) {
                 setMessage('Password reset successful!');
-                setTimeout(() => {
-                    navigate('/login');
-                }, 2000);
+                setTimeout(() => setMessage(''), 3000); // Hide after 3s
+                setTimeout(() => navigate('/login'), 3000);
             }
         } catch (err) {
             console.error('Reset password error:', err);
             setError(err.response?.data?.message || 'Failed to reset password. Please try again.');
+            setTimeout(() => setError(''), 3000);
         } finally {
             setLoading(false);
         }
     };
+
+    // Password rules for live validation
+    const passwordRulesList = [
+        {
+            label: 'At least 8 characters',
+            test: (v) => v.length >= 8
+        },
+        {
+            label: 'At least one uppercase letter',
+            test: (v) => /[A-Z]/.test(v)
+        },
+        {
+            label: 'At least one lowercase letter',
+            test: (v) => /[a-z]/.test(v)
+        },
+        {
+            label: 'At least one number',
+            test: (v) => /[0-9]/.test(v)
+        },
+        {
+            label: 'At least one special character',
+            test: (v) => /[^A-Za-z0-9]/.test(v)
+        }
+    ];
 
     return (
         <div className="new-password-page">
@@ -140,12 +186,26 @@ const NewPassword = () => {
                                     className={styles.inputField}
                                     required
                                     autoComplete="new-password"
+                                    onFocus={() => setShowPasswordRules(true)}
+                                    onBlur={() => setShowPasswordRules(false)}
                                 />
                                 <FontAwesomeIcon
                                     icon={showPassword ? faEye : faEyeSlash}
                                     onClick={() => setShowPassword(!showPassword)}
                                     className={styles.eyeIcon}
                                 />
+                                {showPasswordRules && (
+                                    <div className="password-rules">
+                                        <strong>Password must contain:</strong>
+                                        <ul>
+                                            <li>At least 8 characters</li>
+                                            <li>At least one uppercase letter</li>
+                                            <li>At least one lowercase letter</li>
+                                            <li>At least one number</li>
+                                            <li>At least one special character</li>
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className={styles.inputGroup}>

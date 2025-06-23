@@ -5,6 +5,8 @@ import Header from '../../common/Header/Header';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { AutoFillHelper } from '../../../utils/autoFillHelper';
+import AnalysisResults from './AnalysisResults';
+import employmentStyles from './Employment_Income.module.css';
 
 const OtherIncome = () => {
     const [selectedTypes, setSelectedTypes] = useState([]);
@@ -23,11 +25,14 @@ const OtherIncome = () => {
         resourceEntries: [],
         gemEntries: [],
         otherEntries: [],
+        whtEntries: [],
         selectedTypes: [],
         totalOtherIncome: 0
     });
     const [showForm, setShowForm] = useState(false);
     const navigate = useNavigate();
+    const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
 
     const otherIncomeTypes = [
         {
@@ -191,6 +196,31 @@ const OtherIncome = () => {
         setEntries(entries.filter((_, i) => i !== index));
     };
 
+    // Add a test function for WHT auto-fill debugging
+    const testWhtAutoFill = () => {
+        console.log('Testing WHT auto-fill...');
+        const testData = {
+            type: 'autoFillUpdate',
+            payload: {
+                OtherIncome: {
+                    otherEntries: [
+                        { name: 'Service Income', amount: '50000' },
+                        { name: 'Royalty Income', amount: '30000' }
+                    ],
+                    whtEntries: [
+                        { source: 'Service Income WHT', amount: '5000' },
+                        { source: 'Royalty WHT', amount: '3000' }
+                    ],
+                    selectedTypes: ['service', 'royalty', 'wht']
+                }
+            }
+        };
+        
+        // Simulate the auto-fill update
+        const event = { data: testData };
+        handleAutoFillUpdate(event);
+    };
+
     // Add event listener for auto-fill data
     useEffect(() => {
         const fetchAutoFillData = async () => {
@@ -209,6 +239,7 @@ const OtherIncome = () => {
                             resourceEntries: [],
                             gemEntries: [],
                             otherEntries: [],
+                            whtEntries: [],
                             selectedTypes: [],
                             totalOtherIncome: 0
                         };
@@ -220,6 +251,10 @@ const OtherIncome = () => {
                                     const description = (item.description || '').toLowerCase();
                                     const amount = item.amount || 0;
                                     let category = item.category || '';
+                                    const type = item.type || '';
+
+                                    // Debug print
+                                    console.log('Other income check:', { category, type, description });
 
                                     // Process Other Income
                                     if (category === 'Other Income') {
@@ -267,6 +302,54 @@ const OtherIncome = () => {
                                     }
                                 });
                             }
+
+                            // Process deductions (WHT entries)
+                            if (result.analysis && result.analysis.deductions) {
+                                result.analysis.deductions.forEach(deduction => {
+                                    const description = (deduction.description || '').toLowerCase();
+                                    const amount = deduction.amount || 0;
+                                    const category = deduction.category || '';
+                                    const type = deduction.type || '';
+
+                                    // Debug print
+                                    console.log('WHT deduction check:', { category, type, description });
+
+                                    // Process WHT deductions - check for both category and type
+                                    if ((category === 'Other Income' && type === 'WHT Deduction') || 
+                                        type === 'WHT Deduction' || 
+                                        description.includes('wht') || 
+                                        description.includes('withholding')) {
+                                        
+                                        // Determine the source of WHT based on description
+                                        let source = 'WHT Deduction';
+                                        if (description.includes('service')) {
+                                            source = 'Service Income WHT';
+                                        } else if (description.includes('royalty')) {
+                                            source = 'Royalty WHT';
+                                        } else if (description.includes('resource') || description.includes('natural')) {
+                                            source = 'Natural Resource WHT';
+                                        } else if (description.includes('gem') || description.includes('auction')) {
+                                            source = 'Gem Sale WHT';
+                                        } else if (description.includes('dividend')) {
+                                            source = 'Dividend WHT';
+                                        } else if (description.includes('interest')) {
+                                            source = 'Interest WHT';
+                                        }
+
+                                        // Add to WHT entries
+                                        formattedData.whtEntries = formattedData.whtEntries || [];
+                                        formattedData.whtEntries.push({
+                                            source: source,
+                                            amount: amount.toString()
+                                        });
+
+                                        // Add WHT to selected types if not already present
+                                        if (!formattedData.selectedTypes.includes('wht')) {
+                                            formattedData.selectedTypes.push('wht');
+                                        }
+                                    }
+                                });
+                            }
                         });
 
                         // Calculate total other income
@@ -282,7 +365,8 @@ const OtherIncome = () => {
                             formattedData.royaltyEntries.length > 0 || 
                             formattedData.resourceEntries.length > 0 || 
                             formattedData.gemEntries.length > 0 || 
-                            formattedData.otherEntries.length > 0) {
+                            formattedData.otherEntries.length > 0 ||
+                            formattedData.whtEntries.length > 0) {
                             console.log('Formatted data for other income form:', formattedData);
 
                             // Update the form with the formatted data
@@ -295,7 +379,20 @@ const OtherIncome = () => {
                             setResourceEntries(formattedData.resourceEntries);
                             setGemEntries(formattedData.gemEntries);
                             setOtherEntries(formattedData.otherEntries);
+                            setWhtEntries(formattedData.whtEntries || []);
                             setSelectedTypes(formattedData.selectedTypes);
+                            
+                            // Ensure WHT checkbox is checked if WHT entries exist
+                            if (formattedData.whtEntries && formattedData.whtEntries.length > 0) {
+                                if (!formattedData.selectedTypes.includes('wht')) {
+                                    const updatedSelectedTypes = [...formattedData.selectedTypes, 'wht'];
+                                    setSelectedTypes(updatedSelectedTypes);
+                                    console.log('Auto-checked WHT checkbox');
+                                }
+                            }
+                            
+                            console.log('Updated WHT entries state:', formattedData.whtEntries);
+                            console.log('Updated selected types:', formattedData.selectedTypes);
 
                             // Store the formatted data in session storage
                             sessionStorage.setItem('otherIncomeData', JSON.stringify(formattedData));
@@ -320,6 +417,24 @@ const OtherIncome = () => {
                 const parsedData = JSON.parse(storedData);
                 setFormData(parsedData);
                 setShowForm(true);
+                
+                // Update individual state variables
+                setServiceEntries(parsedData.serviceEntries || []);
+                setRoyaltyEntries(parsedData.royaltyEntries || []);
+                setResourceEntries(parsedData.resourceEntries || []);
+                setGemEntries(parsedData.gemEntries || []);
+                setOtherEntries(parsedData.otherEntries || []);
+                setWhtEntries(parsedData.whtEntries || []);
+                setSelectedTypes(parsedData.selectedTypes || []);
+                
+                // Ensure WHT checkbox is checked if WHT entries exist
+                if (parsedData.whtEntries && parsedData.whtEntries.length > 0) {
+                    if (!parsedData.selectedTypes.includes('wht')) {
+                        const updatedSelectedTypes = [...(parsedData.selectedTypes || []), 'wht'];
+                        setSelectedTypes(updatedSelectedTypes);
+                        console.log('Auto-checked WHT checkbox from session storage');
+                    }
+                }
             } catch (error) {
                 console.error('Error parsing stored data:', error);
             }
@@ -330,15 +445,19 @@ const OtherIncome = () => {
 
         // Listen for auto-fill data updates
         const handleAutoFillUpdate = (event) => {
+            console.log('Received auto-fill update event:', event.data);
             if (event.data && event.data.type === 'autoFillUpdate') {
                 const data = event.data.payload;
+                console.log('Auto-fill payload:', data);
                 if (data.OtherIncome) {
+                    console.log('Other Income data found:', data.OtherIncome);
                     const formattedData = {
-                        serviceEntries: data.OtherIncome.serviceEntries || [],
+                        serviceEntries: data.OtherIncome.otherEntries || [],
                         royaltyEntries: data.OtherIncome.royaltyEntries || [],
                         resourceEntries: data.OtherIncome.resourceEntries || [],
                         gemEntries: data.OtherIncome.gemEntries || [],
                         otherEntries: data.OtherIncome.otherEntries || [],
+                        whtEntries: data.OtherIncome.whtEntries || [],
                         selectedTypes: data.OtherIncome.selectedTypes || [],
                         totalOtherIncome: data.OtherIncome.totalOtherIncome || 0
                     };
@@ -352,6 +471,7 @@ const OtherIncome = () => {
                         formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
 
                     console.log('Setting new form data:', formattedData);
+                    console.log('WHT entries:', formattedData.whtEntries);
                     setFormData(formattedData);
                     setShowForm(true);
 
@@ -361,7 +481,20 @@ const OtherIncome = () => {
                     setResourceEntries(formattedData.resourceEntries);
                     setGemEntries(formattedData.gemEntries);
                     setOtherEntries(formattedData.otherEntries);
+                    setWhtEntries(formattedData.whtEntries || []);
                     setSelectedTypes(formattedData.selectedTypes);
+                    
+                    // Ensure WHT checkbox is checked if WHT entries exist
+                    if (formattedData.whtEntries && formattedData.whtEntries.length > 0) {
+                        if (!formattedData.selectedTypes.includes('wht')) {
+                            const updatedSelectedTypes = [...formattedData.selectedTypes, 'wht'];
+                            setSelectedTypes(updatedSelectedTypes);
+                            console.log('Auto-checked WHT checkbox');
+                        }
+                    }
+                    
+                    console.log('Updated WHT entries state:', formattedData.whtEntries);
+                    console.log('Updated selected types:', formattedData.selectedTypes);
                 }
             }
         };
@@ -419,10 +552,31 @@ const OtherIncome = () => {
         }
     };
 
+    const handleOpenAnalysis = () => {
+        const stored = sessionStorage.getItem('last_analysis');
+        setAnalysisResults(stored ? JSON.parse(stored) : []);
+        setShowAnalysisResults(true);
+    };
+
     return (
         <div className="other-income-page">
             <Header />
             <TaxationMenu />
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', margin: '16px 0 0 24px' }}>
+                <button
+                    className={styles.nextButton}
+                    onClick={handleOpenAnalysis}
+                >
+                    Analysis Result
+                </button>
+            </div>
+            {showAnalysisResults && (
+                <AnalysisResults
+                    results={analysisResults}
+                    onClose={() => setShowAnalysisResults(false)}
+                    onAutoFill={() => {}}
+                />
+            )}
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Other Income</h1>

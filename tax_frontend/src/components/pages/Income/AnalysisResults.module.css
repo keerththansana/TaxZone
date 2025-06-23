@@ -320,6 +320,10 @@ li:hover {
     background: #f8f9fa;
     border-radius: 6px;
     margin-bottom: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 .addItemForm input {
@@ -583,29 +587,29 @@ li:hover {
 
 @media (max-width: 1024px) {
     .container {
-        padding: 1.5rem;
-        max-width: 95%;
+        padding: 1rem;
+        max-width: 98vw;
     }
-
     .header h1 {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
-
     .resultCard {
-        padding: 1.25rem;
+        padding: 1rem;
     }
-
     .resultCard h2 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
-
     .totalIncome p {
-        font-size: 1.3rem;
+        font-size: 1rem;
     }
-
     .autoFillButton {
-        padding: 0.875rem 1.75rem;
-        font-size: 0.95rem;
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+    }
+    .addItemForm {
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        gap: 0.75rem;
+        padding: 0.75rem;
     }
 }
 
@@ -613,232 +617,236 @@ li:hover {
     .overlay {
         padding: 0.5rem;
     }
-
     .container {
-        padding: 1rem;
-        max-height: 95vh;
+        padding: 0.5rem;
+        max-width: 100vw;
+        min-width: 0;
     }
-
     .header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    .header h1 {
-        font-size: 1.5rem;
-    }
-
-    .headerActions {
-        width: 100%;
-        justify-content: center;
-    }
-
-    .undoButton,
-    .redoButton {
-        font-size: 1.25rem;
-        width: 2rem;
-        height: 2rem;
-    }
-
-    .closeButton {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        width: 2.5rem;
-        height: 2.5rem;
-        font-size: 1.5rem;
-    }
-
-    .resultCard {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .resultCard h2 {
-        font-size: 1.1rem;
-    }
-
-    .section {
-        padding: 0.75rem;
-    }
-
-    .section h3 {
-        font-size: 1rem;
-    }
-
-    .section li {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
-        padding: 0.75rem;
     }
-
-    .totalIncome {
-        padding: 1rem;
-    }
-
-    .totalIncome h3 {
+    .header h1 {
         font-size: 1.1rem;
     }
-
-    .totalIncome p {
-        font-size: 1.2rem;
+    .headerActions {
+        gap: 0.25rem;
     }
-
-    .autoFillButton {
-        width: 100%;
-        padding: 1rem;
+    .undoButton,
+    .redoButton {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.1rem;
+    }
+    .closeButton {
+        width: 2.2rem;
+        height: 2.2rem;
+        font-size: 1.5rem;
+    }
+    .resultCard {
+        padding: 0.5rem;
+    }
+    .resultCard h2 {
+        font-size: 1rem;
+        padding-bottom: 0.5rem;
+    }
+    .section {
+        padding: 0.5rem;
+    }
+    .section h3 {
         font-size: 1rem;
     }
-
-    .categorySection {
-        padding: 1rem;
-        margin: 1rem 0;
+    .section li {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        font-size: 0.95rem;
     }
-
+    .totalIncome {
+        padding: 0.5rem 0;
+    }
+    .totalIncome h3 {
+        font-size: 1rem;
+    }
+    .totalIncome p {
+        font-size: 0.95rem;
+    }
+    .autoFillButton {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.75rem 0;
+    }
+    .categorySection {
+        margin-bottom: 1rem;
+    }
     .categorySection h4 {
         font-size: 1rem;
     }
-
     .addItemForm {
-        grid-template-columns: 1fr;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+        width: 100% !important;
+        padding: 0.5rem !important;
+        box-sizing: border-box;
+        max-width: 100%;
     }
-
-    /* Responsive table headers */
+    .addItemForm input,
+    .addItemForm select {
+        width: 100% !important;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        box-sizing: border-box;
+    }
+    .addItemForm button {
+        width: 100% !important;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+        box-sizing: border-box;
+    }
     .tableHeader {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-        padding: 0.5rem;
-        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        font-size: 0.95rem;
     }
-
     .headerType,
     .headerDescription,
     .headerAmount,
     .headerActions {
+        width: 100%;
         text-align: left;
     }
-
     li {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-        padding: 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
     }
-
     .itemType {
-        min-width: auto;
-        padding-left: 0;
-        padding-right: 0;
-        font-weight: 600;
-        color: #023636;
+        width: 100%;
     }
-
     .itemDescription {
-        padding-left: 0;
-        padding-right: 0;
-        text-align: left;
-        justify-content: flex-start;
+        width: 100%;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
     }
-
     .itemDescription > span {
-        text-align: left;
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip;
+        width: 100%;
     }
-
     .itemAmount {
-        min-width: auto;
-        justify-content: flex-start;
-        padding-right: 0;
+        width: 100%;
+    }
+    .categoryHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    .categoryHeader h4 {
+        font-size: 1rem;
+        margin-bottom: 0.25rem;
+        word-break: break-word;
+    }
+    .addCategoryButton {
+        width: 100%;
+        font-size: 1rem;
+        padding: 0.5rem 0;
+        margin-top: 0.25rem;
     }
 }
 
 @media (max-width: 480px) {
     .overlay {
-        padding: 0.25rem;
+        padding: 0;
     }
-
     .container {
-        padding: 0.75rem;
-        border-radius: 8px;
+        padding: 0.25rem;
+        max-width: 100vw;
+        min-width: 0;
+        border-radius: 0;
     }
-
     .header h1 {
-        font-size: 1.3rem;
-    }
-
-    .closeButton {
-        top: 0.75rem;
-        right: 0.75rem;
-        width: 2rem;
-        height: 2rem;
-        font-size: 1.25rem;
-    }
-
-    .resultCard {
-        padding: 0.75rem;
-    }
-
-    .resultCard h2 {
         font-size: 1rem;
     }
-
-    .section {
-        padding: 0.5rem;
+    .closeButton {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1.2rem;
     }
-
+    .resultCard {
+        padding: 0.25rem;
+    }
+    .resultCard h2 {
+        font-size: 0.95rem;
+        padding-bottom: 0.25rem;
+    }
+    .section {
+        padding: 0.25rem;
+    }
     .section h3 {
         font-size: 0.95rem;
     }
-
     .section li {
-        padding: 0.5rem;
         font-size: 0.9rem;
+        padding: 0.5rem 0.25rem;
     }
-
-    .totalIncome {
-        padding: 0.75rem;
-    }
-
     .totalIncome h3 {
-        font-size: 1rem;
-    }
-
-    .totalIncome p {
-        font-size: 1.1rem;
-    }
-
-    .autoFillButton {
-        padding: 0.875rem;
         font-size: 0.95rem;
     }
-
-    .categorySection {
-        padding: 0.75rem;
+    .totalIncome p {
+        font-size: 0.9rem;
     }
-
+    .autoFillButton {
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 0.5rem 0;
+    }
     .categorySection h4 {
         font-size: 0.95rem;
     }
-
-    /* Responsive table headers for small screens */
+    .addItemForm {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.25rem !important;
+        width: 100% !important;
+        padding: 0.25rem !important;
+        box-sizing: border-box;
+        max-width: 100%;
+    }
+    .addItemForm input,
+    .addItemForm select {
+        width: 100% !important;
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+        box-sizing: border-box;
+    }
+    .addItemForm button {
+        width: 100% !important;
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+        box-sizing: border-box;
+    }
     .tableHeader {
-        font-size: 0.75rem;
-        padding: 0.5rem;
-    }
-
-    .summary {
-        padding: 1rem;
-    }
-
-    .summary p {
+        flex-direction: column;
+        gap: 0.1rem;
         font-size: 0.9rem;
     }
-
-    .error {
-        padding: 0.75rem;
-        font-size: 0.9rem;
+    .categoryHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        padding-bottom: 0.25rem;
+    }
+    .categoryHeader h4 {
+        font-size: 0.95rem;
+        margin-bottom: 0.15rem;
+        word-break: break-word;
+    }
+    .addCategoryButton {
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 0.4rem 0;
+        margin-top: 0.15rem;
     }
 }

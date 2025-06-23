@@ -641,71 +641,237 @@ def auto_fill_forms(request):
                 'deductions': []
             },
             'OtherIncome': {
-                'otherEntries': []
+                'otherEntries': [],
+                'whtEntries': []
             },
             'TerminalBenefits': {
-                'benefitEntries': []
+                'commutedEntries': [],
+                'gratuityEntries': [],
+                'compensationEntries': [],
+                'etfEntries': [],
+                'otherEntries': []
             },
             'QualifyingPayments': {
-                'paymentEntries': []
+                'paymentEntries': [],
+                'samurdhiEntries': [],
+                'donationEntries': [],
+                'solarEntries': [],
+                'housingEntries': [],
+                'otherEntries': []
             }
         }
 
-        # Process income items
+        # Process income items with enhanced categorization
         for item in analysis_data.get('income_items', []):
             category = item.get('category', '')
+            item_type = item.get('type', '')
+            description = item.get('description', '').lower()
+            
             if category == 'Employment Income':
-                if item.get('type') == 'SALARY':
+                if item_type == 'Primary Employment' or 'primary' in description or 'salary' in description:
                     formatted_mappings['EmploymentIncome']['primaryEntries'].append({
                         'name': 'Primary Salary',
                         'amount': str(item.get('amount', 0))
                     })
-                elif item.get('type') == 'SECONDARY_SALARY':
+                elif item_type == 'Secondary Employment' or 'secondary' in description or 'part-time' in description:
                     formatted_mappings['EmploymentIncome']['secondaryEntries'].append({
                         'name': 'Secondary Salary',
                         'amount': str(item.get('amount', 0))
                     })
+                else:
+                    # Default to primary employment
+                    formatted_mappings['EmploymentIncome']['primaryEntries'].append({
+                        'name': 'Primary Salary',
+                        'amount': str(item.get('amount', 0))
+                    })
+                    
             elif category == 'Business Income':
-                formatted_mappings['BusinessIncome']['businessEntries'].append({
-                    'name': item.get('description', 'Business Income'),
-                    'amount': str(item.get('amount', 0))
-                })
+                # Enhanced business income categorization
+                if item_type == 'Sole Proprietorship' or 'sole proprietor' in description or 'self-employed' in description:
+                    formatted_mappings['BusinessIncome']['businessEntries'].append({
+                        'name': 'Sole Proprietorship',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Partnership' or 'partnership' in description:
+                    formatted_mappings['BusinessIncome']['businessEntries'].append({
+                        'name': 'Partnership',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Trust Beneficiary' or 'trust' in description:
+                    formatted_mappings['BusinessIncome']['businessEntries'].append({
+                        'name': 'Trust Beneficiary',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Betting, Gaming, Liquor & Tobacco' or any(keyword in description for keyword in ['betting', 'gaming', 'casino', 'lottery']):
+                    formatted_mappings['BusinessIncome']['businessEntries'].append({
+                        'name': 'Betting, Gaming, Liquor & Tobacco',
+                        'amount': str(item.get('amount', 0))
+                    })
+                else:
+                    # Default business income
+                    formatted_mappings['BusinessIncome']['businessEntries'].append({
+                        'name': item.get('description', 'Business Income'),
+                        'amount': str(item.get('amount', 0))
+                    })
+                    
             elif category == 'Investment Income':
-                formatted_mappings['InvestmentIncome']['investmentEntries'].append({
-                    'name': item.get('description', 'Investment Income'),
-                    'amount': str(item.get('amount', 0))
-                })
+                # Enhanced investment income categorization
+                if item_type == 'Interest Income' or 'interest' in description:
+                    formatted_mappings['InvestmentIncome']['investmentEntries'].append({
+                        'name': 'Interest Income',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Dividend Income' or 'dividend' in description:
+                    formatted_mappings['InvestmentIncome']['investmentEntries'].append({
+                        'name': 'Dividend Income',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Rental Income' or 'rent' in description or 'rental' in description:
+                    formatted_mappings['InvestmentIncome']['investmentEntries'].append({
+                        'name': 'Rental Income',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Capital Gains' or 'capital' in description or 'gain' in description:
+                    formatted_mappings['InvestmentIncome']['investmentEntries'].append({
+                        'name': 'Capital Gains',
+                        'amount': str(item.get('amount', 0))
+                    })
+                else:
+                    # Default investment income
+                    formatted_mappings['InvestmentIncome']['investmentEntries'].append({
+                        'name': item.get('description', 'Investment Income'),
+                        'amount': str(item.get('amount', 0))
+                    })
+                    
             elif category == 'Other Income':
-                formatted_mappings['OtherIncome']['otherEntries'].append({
-                    'name': item.get('description', 'Other Income'),
-                    'amount': str(item.get('amount', 0))
-                })
+                # Enhanced other income categorization
+                if item_type == 'Service Income (WHT)' or 'service' in description:
+                    formatted_mappings['OtherIncome']['otherEntries'].append({
+                        'name': 'Service Income',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Royalty (WHT)' or 'royalty' in description:
+                    formatted_mappings['OtherIncome']['otherEntries'].append({
+                        'name': 'Royalty',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Natural Resource Payment (WHT)' or 'natural resource' in description:
+                    formatted_mappings['OtherIncome']['otherEntries'].append({
+                        'name': 'Natural Resource Payment',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Auctioned Gem Sale (WHT)' or 'gem' in description or 'auction' in description:
+                    formatted_mappings['OtherIncome']['otherEntries'].append({
+                        'name': 'Auctioned Gem Sale',
+                        'amount': str(item.get('amount', 0))
+                    })
+                else:
+                    # Default other income
+                    formatted_mappings['OtherIncome']['otherEntries'].append({
+                        'name': item.get('description', 'Other Income'),
+                        'amount': str(item.get('amount', 0))
+                    })
+                    
             elif category == 'Terminal Benefits':
-                formatted_mappings['TerminalBenefits']['benefitEntries'].append({
-                    'name': item.get('description', 'Terminal Benefit'),
-                    'amount': str(item.get('amount', 0))
-                })
+                # Enhanced terminal benefits categorization
+                if item_type == 'Commuted Pension' or 'commuted' in description or 'lump sum pension' in description:
+                    formatted_mappings['TerminalBenefits']['commutedEntries'].append({
+                        'name': 'Commuted Pension',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Retiring Gratuity' or 'gratuity' in description:
+                    formatted_mappings['TerminalBenefits']['gratuityEntries'].append({
+                        'name': 'Retiring Gratuity',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Compensation for Job Loss' or 'compensation' in description or 'job loss' in description:
+                    formatted_mappings['TerminalBenefits']['compensationEntries'].append({
+                        'name': 'Compensation for Job Loss',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'ETF Payment' or 'etf' in description or 'trust fund' in description:
+                    formatted_mappings['TerminalBenefits']['etfEntries'].append({
+                        'name': 'ETF Payment',
+                        'amount': str(item.get('amount', 0))
+                    })
+                else:
+                    # Default to other terminal benefits
+                    formatted_mappings['TerminalBenefits']['otherEntries'].append({
+                        'name': item.get('description', 'Other Terminal Benefit'),
+                        'amount': str(item.get('amount', 0))
+                    })
+                    
             elif category == 'Qualifying Payments':
-                formatted_mappings['QualifyingPayments']['paymentEntries'].append({
-                    'name': item.get('description', 'Qualifying Payment'),
-                    'amount': str(item.get('amount', 0))
-                })
+                # Enhanced qualifying payments categorization
+                if item_type == 'Donations' or 'donation' in description or 'charity' in description:
+                    formatted_mappings['QualifyingPayments']['donationEntries'].append({
+                        'name': 'Donations',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Shop Setup for Samurdhi Beneficiary' or 'samurdhi' in description or 'samurthy' in description:
+                    formatted_mappings['QualifyingPayments']['samurdhiEntries'].append({
+                        'name': 'Shop Setup for Samurdhi Beneficiary',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Solar Panel Installation' or 'solar' in description:
+                    formatted_mappings['QualifyingPayments']['solarEntries'].append({
+                        'name': 'Solar Panel Installation',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Low-Income Housing Construction' or 'housing' in description:
+                    formatted_mappings['QualifyingPayments']['housingEntries'].append({
+                        'name': 'Low-Income Housing Construction',
+                        'amount': str(item.get('amount', 0))
+                    })
+                elif item_type == 'Film & Cinema Industry Expenditure' or 'cinema' in description or 'film' in description:
+                    formatted_mappings['QualifyingPayments']['otherEntries'].append({
+                        'name': 'Film & Cinema Industry Expenditure',
+                        'amount': str(item.get('amount', 0))
+                    })
+                else:
+                    # Default to other qualifying payments
+                    formatted_mappings['QualifyingPayments']['otherEntries'].append({
+                        'name': item.get('description', 'Other Qualifying Payment'),
+                        'amount': str(item.get('amount', 0))
+                    })
 
-        # Process deductions
+        # Process deductions with enhanced categorization
         for deduction in analysis_data.get('deductions', []):
             deduction_type = deduction.get('type', '')
-            if deduction_type == 'APIT':
+            description = deduction.get('description', '').lower()
+            
+            if deduction_type == 'APIT Deduction' or 'apit' in description:
                 formatted_mappings['EmploymentIncome']['apitEntries'].append({
                     'source': deduction.get('source', 'Primary Employment'),
                     'name': 'APIT Deduction',
                     'amount': str(deduction.get('amount', 0))
                 })
-            elif deduction_type == 'BUSINESS_DEDUCTION':
+            elif deduction_type == 'WHT Deduction' or 'wht' in description or 'withholding' in description:
+                # Enhanced WHT source determination
+                source = 'WHT Deduction'
+                if 'service' in description:
+                    source = 'Service Income WHT'
+                elif 'royalty' in description:
+                    source = 'Royalty WHT'
+                elif 'resource' in description or 'natural' in description:
+                    source = 'Natural Resource WHT'
+                elif 'gem' in description or 'auction' in description:
+                    source = 'Gem Sale WHT'
+                elif 'dividend' in description:
+                    source = 'Dividend WHT'
+                elif 'interest' in description:
+                    source = 'Interest WHT'
+
+                formatted_mappings['OtherIncome']['whtEntries'].append({
+                    'source': source,
+                    'amount': str(deduction.get('amount', 0))
+                })
+            elif deduction_type == 'BUSINESS_DEDUCTION' or 'business' in description:
                 formatted_mappings['BusinessIncome']['deductions'].append({
                     'name': deduction.get('description', 'Business Deduction'),
                     'amount': str(deduction.get('amount', 0))
                 })
-            elif deduction_type == 'INVESTMENT_DEDUCTION':
+            elif deduction_type == 'INVESTMENT_DEDUCTION' or 'investment' in description:
                 formatted_mappings['InvestmentIncome']['deductions'].append({
                     'name': deduction.get('description', 'Investment Deduction'),
                     'amount': str(deduction.get('amount', 0))

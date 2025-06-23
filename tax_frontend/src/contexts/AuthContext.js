@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { initializeUserSession, clearPreviousUserData } from '../components/pages/Income/Data_Persistence';
 
 const AuthContext = createContext();
 
@@ -89,6 +90,9 @@ export const AuthProvider = ({ children }) => {
 
   // Function to login user
   const login = (userData, tokens) => {
+    // Initialize user session to clear previous user's data
+    initializeUserSession();
+    
     localStorage.setItem('user', JSON.stringify(userData));
     localStorage.setItem('accessToken', tokens.access);
     localStorage.setItem('refreshToken', tokens.refresh);
@@ -97,6 +101,9 @@ export const AuthProvider = ({ children }) => {
 
   // Function to logout user
   const logout = () => {
+    // Clear all user data when logging out
+    clearPreviousUserData();
+    
     localStorage.removeItem('user');
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');

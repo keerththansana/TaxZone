@@ -5,6 +5,8 @@ import Header from '../../common/Header/Header';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { useFormPersist } from './Data_Persistence';
+import AnalysisResults from './AnalysisResults';
+import employmentStyles from './Employment_Income.module.css';
 
 const QualifyingPayments = () => {
     const [selectedTypes, setSelectedTypes] = useState([]);
@@ -18,7 +20,8 @@ const QualifyingPayments = () => {
     const [totalQualifyingPayments, setTotalQualifyingPayments] = useState(0);
     const [formData, setFormData] = useState(null);
     const [showForm, setShowForm] = useState(false);
-    const [paymentEntries, setPaymentEntries] = useState([{ name: 'Qualifying Payment', amount: '' }]);
+    const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
     const navigate = useNavigate();
 
     const paymentTypes = [
@@ -90,7 +93,12 @@ const QualifyingPayments = () => {
                         
                         // Format the data for the qualifying payments form
                         const formattedData = {
-                            paymentEntries: [],
+                            donationEntries: [],
+                            samurdhiEntries: [],
+                            solarEntries: [],
+                            cinemaEntries: [],
+                            housingEntries: [],
+                            otherEntries: [],
                             selectedTypes: [],
                             totalQualifyingPayments: 0
                         };
@@ -102,39 +110,120 @@ const QualifyingPayments = () => {
                                     const description = (item.description || '').toLowerCase();
                                     const amount = item.amount || 0;
                                     let category = item.category || '';
+                                    const type = item.type || '';
 
-                                    // Process Qualifying Payments
-                                    if (category === 'Qualifying Payments' || 
-                                        description.includes('qualifying') || 
-                                        description.includes('payment') ||
-                                        description.includes('donation') ||
-                                        description.includes('charity') ||
-                                        description.includes('contribution')) {
-                                        
-                                        // Determine the type of payment
-                                        let paymentType = 'other';
-                                        if (description.includes('donation') || description.includes('charity')) {
-                                            paymentType = 'donations';
-                                        } else if (description.includes('samurdhi')) {
-                                            paymentType = 'samurdhi';
-                                        } else if (description.includes('solar')) {
-                                            paymentType = 'solar';
-                                        } else if (description.includes('cinema') || description.includes('film')) {
-                                            paymentType = 'cinema';
-                                        } else if (description.includes('housing')) {
-                                            paymentType = 'housing';
-                                        }
+                                    // Debug print
+                                    console.log('Qualifying payment check:', { category, type, description });
 
-                                        // Add to payment entries with type information
-                                        formattedData.paymentEntries.push({
-                                            name: item.description || 'Qualifying Payment',
-                                            amount: amount.toString(),
-                                            type: paymentType
-                                        });
-                                        
-                                        // Add to selected types if not already present
-                                        if (!formattedData.selectedTypes.includes(paymentType)) {
-                                            formattedData.selectedTypes.push(paymentType);
+                                    // Process Qualifying Payments - check both category and type
+                                    const isQualifyingPayment = 
+                                        (category && category.includes('qualifying')) ||
+                                        (type && type.includes('qualifying')) ||
+                                        (type && type.includes('donation')) ||
+                                        (type && type.includes('samurdhi')) ||
+                                        (type && type.includes('solar')) ||
+                                        (type && type.includes('housing')) ||
+                                        (description.includes('donation')) ||
+                                        (description.includes('charity')) ||
+                                        (description.includes('contribution')) ||
+                                        (description.includes('samurdhi')) ||
+                                        (description.includes('samurthy')) ||
+                                        (description.includes('solar')) ||
+                                        (description.includes('housing'));
+
+                                    if (isQualifyingPayment) {
+                                        // Use type field from AI analysis for more accurate categorization
+                                        if (type && (type.includes('Donation') || type.includes('Donations'))) {
+                                            formattedData.donationEntries.push({
+                                                name: item.description || 'Donation',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('donations')) {
+                                                formattedData.selectedTypes.push('donations');
+                                            }
+                                        } else if (type && (type.includes('Samurdhi') || type.includes('Shop Setup'))) {
+                                            formattedData.samurdhiEntries.push({
+                                                name: item.description || 'Shop Setup for Samurdhi Beneficiary',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('samurdhi')) {
+                                                formattedData.selectedTypes.push('samurdhi');
+                                            }
+                                        } else if (type && type.includes('Solar')) {
+                                            formattedData.solarEntries.push({
+                                                name: item.description || 'Solar Panel Installation',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('solar')) {
+                                                formattedData.selectedTypes.push('solar');
+                                            }
+                                        } else if (type && type.includes('Housing')) {
+                                            formattedData.housingEntries.push({
+                                                name: item.description || 'Low-Income Housing Construction',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('housing')) {
+                                                formattedData.selectedTypes.push('housing');
+                                            }
+                                        } else if (type && (type.includes('Cinema') || type.includes('Film'))) {
+                                            formattedData.cinemaEntries.push({
+                                                name: item.description || 'Film & Cinema Industry Expenditure',
+                                                amount: amount.toString()
+                                            });
+                                            if (!formattedData.selectedTypes.includes('cinema')) {
+                                                formattedData.selectedTypes.push('cinema');
+                                            }
+                                        } else {
+                                            // Fallback to description-based categorization
+                                            if (description.includes('donation') || description.includes('charity')) {
+                                                formattedData.donationEntries.push({
+                                                    name: item.description || 'Donation',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('donations')) {
+                                                    formattedData.selectedTypes.push('donations');
+                                                }
+                                            } else if (description.includes('samurdhi') || description.includes('samurthy')) {
+                                                formattedData.samurdhiEntries.push({
+                                                    name: item.description || 'Shop Setup for Samurdhi Beneficiary',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('samurdhi')) {
+                                                    formattedData.selectedTypes.push('samurdhi');
+                                                }
+                                            } else if (description.includes('solar')) {
+                                                formattedData.solarEntries.push({
+                                                    name: item.description || 'Solar Panel Installation',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('solar')) {
+                                                    formattedData.selectedTypes.push('solar');
+                                                }
+                                            } else if (description.includes('housing')) {
+                                                formattedData.housingEntries.push({
+                                                    name: item.description || 'Low-Income Housing Construction',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('housing')) {
+                                                    formattedData.selectedTypes.push('housing');
+                                                }
+                                            } else if (description.includes('cinema') || description.includes('film')) {
+                                                formattedData.cinemaEntries.push({
+                                                    name: item.description || 'Film & Cinema Industry Expenditure',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('cinema')) {
+                                                    formattedData.selectedTypes.push('cinema');
+                                                }
+                                            } else {
+                                                formattedData.otherEntries.push({
+                                                    name: item.description || 'Other Qualifying Payment',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('other')) {
+                                                    formattedData.selectedTypes.push('other');
+                                                }
+                                            }
                                         }
                                     }
                                 });
@@ -143,10 +232,20 @@ const QualifyingPayments = () => {
 
                         // Calculate total qualifying payments
                         formattedData.totalQualifyingPayments = 
-                            formattedData.paymentEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+                            formattedData.donationEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.samurdhiEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.solarEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.cinemaEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.housingEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                            formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
 
                         // Only update if we have data
-                        if (formattedData.paymentEntries.length > 0) {
+                        if (formattedData.donationEntries.length > 0 || 
+                            formattedData.samurdhiEntries.length > 0 || 
+                            formattedData.solarEntries.length > 0 || 
+                            formattedData.cinemaEntries.length > 0 || 
+                            formattedData.housingEntries.length > 0 || 
+                            formattedData.otherEntries.length > 0) {
                             console.log('Formatted data for qualifying payments form:', formattedData);
 
                             // Update the form with the formatted data
@@ -154,55 +253,23 @@ const QualifyingPayments = () => {
                             setShowForm(true);
 
                             // Update individual state variables
-                            setPaymentEntries(formattedData.paymentEntries);
+                            setDonationEntries(formattedData.donationEntries);
+                            setSamurdhiEntries(formattedData.samurdhiEntries);
+                            setSolarEntries(formattedData.solarEntries);
+                            setCinemaEntries(formattedData.cinemaEntries);
+                            setHousingEntries(formattedData.housingEntries);
+                            setOtherEntries(formattedData.otherEntries);
                             setSelectedTypes(formattedData.selectedTypes);
                             setTotalQualifyingPayments(formattedData.totalQualifyingPayments);
-
-                            // Update specific entry types based on the data
-                            formattedData.paymentEntries.forEach(entry => {
-                                switch(entry.type) {
-                                    case 'donations':
-                                        setDonationEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                        break;
-                                    case 'samurdhi':
-                                        setSamurdhiEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                        break;
-                                    case 'solar':
-                                        setSolarEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                        break;
-                                    case 'cinema':
-                                        setCinemaEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                        break;
-                                    case 'housing':
-                                        setHousingEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                        break;
-                                    case 'other':
-                                        setOtherEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                        break;
-                                }
-                            });
 
                             // Store the formatted data in session storage
                             sessionStorage.setItem('qualifyingPaymentsData', JSON.stringify(formattedData));
                         } else {
                             console.log('No relevant qualifying payments data found in analysis');
-                            // Reset form to default state if no data found
-                            setPaymentEntries([{ name: 'Qualifying Payment', amount: '' }]);
-                            setSelectedTypes([]);
-                            setTotalQualifyingPayments(0);
-                            setDonationEntries([]);
-                            setSamurdhiEntries([]);
-                            setSolarEntries([]);
-                            setCinemaEntries([]);
-                            setHousingEntries([]);
-                            setOtherEntries([]);
                         }
                     } catch (error) {
                         console.error('Error processing stored analysis data:', error);
                         // Reset form to default state on error
-                        setPaymentEntries([{ name: 'Qualifying Payment', amount: '' }]);
-                        setSelectedTypes([]);
-                        setTotalQualifyingPayments(0);
                         setDonationEntries([]);
                         setSamurdhiEntries([]);
                         setSolarEntries([]);
@@ -213,9 +280,6 @@ const QualifyingPayments = () => {
                 } else {
                     console.log('No analysis data found in session storage - using default form');
                     // Reset form to default state
-                    setPaymentEntries([{ name: 'Qualifying Payment', amount: '' }]);
-                    setSelectedTypes([]);
-                    setTotalQualifyingPayments(0);
                     setDonationEntries([]);
                     setSamurdhiEntries([]);
                     setSolarEntries([]);
@@ -226,9 +290,6 @@ const QualifyingPayments = () => {
             } catch (error) {
                 console.error('Error fetching auto-fill data:', error);
                 // Reset form to default state on error
-                setPaymentEntries([{ name: 'Qualifying Payment', amount: '' }]);
-                setSelectedTypes([]);
-                setTotalQualifyingPayments(0);
                 setDonationEntries([]);
                 setSamurdhiEntries([]);
                 setSolarEntries([]);
@@ -243,62 +304,47 @@ const QualifyingPayments = () => {
         if (storedData) {
             try {
                 const parsedData = JSON.parse(storedData);
-                if (parsedData.paymentEntries && parsedData.paymentEntries.length > 0) {
+                if ((parsedData.donationEntries && parsedData.donationEntries.length > 0) ||
+                    (parsedData.samurdhiEntries && parsedData.samurdhiEntries.length > 0) ||
+                    (parsedData.solarEntries && parsedData.solarEntries.length > 0) ||
+                    (parsedData.cinemaEntries && parsedData.cinemaEntries.length > 0) ||
+                    (parsedData.housingEntries && parsedData.housingEntries.length > 0) ||
+                    (parsedData.otherEntries && parsedData.otherEntries.length > 0)) {
+                    
                     setFormData(parsedData);
                     setShowForm(true);
 
                     // Update individual state variables
-                    setPaymentEntries(parsedData.paymentEntries);
-                    setSelectedTypes(parsedData.selectedTypes);
-                    setTotalQualifyingPayments(parsedData.totalQualifyingPayments);
-
-                    // Update specific entry types based on the stored data
-                    parsedData.paymentEntries.forEach(entry => {
-                        switch(entry.type) {
-                            case 'donations':
-                                setDonationEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                break;
-                            case 'samurdhi':
-                                setSamurdhiEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                break;
-                            case 'solar':
-                                setSolarEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                break;
-                            case 'cinema':
-                                setCinemaEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                break;
-                            case 'housing':
-                                setHousingEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                break;
-                            case 'other':
-                                setOtherEntries(prev => [...prev, { name: entry.name, amount: entry.amount }]);
-                                break;
-                        }
-                    });
+                    setDonationEntries(parsedData.donationEntries || []);
+                    setSamurdhiEntries(parsedData.samurdhiEntries || []);
+                    setSolarEntries(parsedData.solarEntries || []);
+                    setCinemaEntries(parsedData.cinemaEntries || []);
+                    setHousingEntries(parsedData.housingEntries || []);
+                    setOtherEntries(parsedData.otherEntries || []);
+                    setSelectedTypes(parsedData.selectedTypes || []);
+                    setTotalQualifyingPayments(parsedData.totalQualifyingPayments || 0);
                 } else {
                     // Reset to default if stored data is invalid
-                    setPaymentEntries([{ name: 'Qualifying Payment', amount: '' }]);
-                    setSelectedTypes([]);
-                    setTotalQualifyingPayments(0);
                     setDonationEntries([]);
                     setSamurdhiEntries([]);
                     setSolarEntries([]);
                     setCinemaEntries([]);
                     setHousingEntries([]);
                     setOtherEntries([]);
+                    setSelectedTypes([]);
+                    setTotalQualifyingPayments(0);
                 }
             } catch (error) {
                 console.error('Error parsing stored data:', error);
                 // Reset to default on error
-                setPaymentEntries([{ name: 'Qualifying Payment', amount: '' }]);
-                setSelectedTypes([]);
-                setTotalQualifyingPayments(0);
                 setDonationEntries([]);
                 setSamurdhiEntries([]);
                 setSolarEntries([]);
                 setCinemaEntries([]);
                 setHousingEntries([]);
                 setOtherEntries([]);
+                setSelectedTypes([]);
+                setTotalQualifyingPayments(0);
             }
         }
 
@@ -311,21 +357,36 @@ const QualifyingPayments = () => {
                 const data = event.data.payload;
                 if (data.QualifyingPayments) {
                     const formattedData = {
-                        paymentEntries: data.QualifyingPayments.paymentEntries || [],
+                        donationEntries: data.QualifyingPayments.donationEntries || [],
+                        samurdhiEntries: data.QualifyingPayments.samurdhiEntries || [],
+                        solarEntries: data.QualifyingPayments.solarEntries || [],
+                        cinemaEntries: data.QualifyingPayments.cinemaEntries || [],
+                        housingEntries: data.QualifyingPayments.housingEntries || [],
+                        otherEntries: data.QualifyingPayments.otherEntries || [],
                         selectedTypes: data.QualifyingPayments.selectedTypes || [],
                         totalQualifyingPayments: data.QualifyingPayments.totalQualifyingPayments || 0
                     };
 
                     // Calculate total qualifying payments
                     formattedData.totalQualifyingPayments = 
-                        formattedData.paymentEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
+                        formattedData.donationEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.samurdhiEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.solarEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.cinemaEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.housingEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
+                        formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
 
                     console.log('Setting new form data:', formattedData);
                     setFormData(formattedData);
                     setShowForm(true);
 
                     // Update individual state variables
-                    setPaymentEntries(formattedData.paymentEntries);
+                    setDonationEntries(formattedData.donationEntries);
+                    setSamurdhiEntries(formattedData.samurdhiEntries);
+                    setSolarEntries(formattedData.solarEntries);
+                    setCinemaEntries(formattedData.cinemaEntries);
+                    setHousingEntries(formattedData.housingEntries);
+                    setOtherEntries(formattedData.otherEntries);
                     setSelectedTypes(formattedData.selectedTypes);
                     setTotalQualifyingPayments(formattedData.totalQualifyingPayments);
                 }
@@ -338,9 +399,15 @@ const QualifyingPayments = () => {
 
     // Update total when entries change
     useEffect(() => {
-        const total = paymentEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
+        const total = 
+            donationEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) +
+            samurdhiEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) +
+            solarEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) +
+            cinemaEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) +
+            housingEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0) +
+            otherEntries.reduce((sum, entry) => sum + (Number(entry.amount) || 0), 0);
         setTotalQualifyingPayments(total);
-    }, [paymentEntries]);
+    }, [donationEntries, samurdhiEntries, solarEntries, cinemaEntries, housingEntries, otherEntries]);
 
     const handleTypeToggle = (typeId) => {
         setSelectedTypes(prev => {
@@ -348,31 +415,102 @@ const QualifyingPayments = () => {
                 ? prev.filter(id => id !== typeId)
                 : [...prev, typeId];
             
-            // Handle entry initialization
-            if (typeId === 'payment') {
-                if (!prev.includes('payment')) {
-                    setPaymentEntries([{ name: 'Qualifying Payment', amount: '' }]);
-                } else {
-                    setPaymentEntries([]);
-                }
+            // Initialize entries when type is selected
+            switch(typeId) {
+                case 'donations':
+                    if (!prev.includes(typeId)) {
+                        setDonationEntries([{ name: 'Donation', amount: '' }]);
+                    } else {
+                        setDonationEntries([]);
+                    }
+                    break;
+                case 'samurdhi':
+                    if (!prev.includes(typeId)) {
+                        setSamurdhiEntries([{ name: 'Shop Setup for Samurdhi Beneficiary', amount: '' }]);
+                    } else {
+                        setSamurdhiEntries([]);
+                    }
+                    break;
+                case 'solar':
+                    if (!prev.includes(typeId)) {
+                        setSolarEntries([{ name: 'Solar Panel Installation', amount: '' }]);
+                    } else {
+                        setSolarEntries([]);
+                    }
+                    break;
+                case 'cinema':
+                    if (!prev.includes(typeId)) {
+                        setCinemaEntries([{ name: 'Film & Cinema Industry Expenditure', amount: '' }]);
+                    } else {
+                        setCinemaEntries([]);
+                    }
+                    break;
+                case 'housing':
+                    if (!prev.includes(typeId)) {
+                        setHousingEntries([{ name: 'Low-Income Housing Construction', amount: '' }]);
+                    } else {
+                        setHousingEntries([]);
+                    }
+                    break;
+                case 'other':
+                    if (!prev.includes(typeId)) {
+                        setOtherEntries([{ name: 'Other Qualifying Payment', amount: '' }]);
+                    } else {
+                        setOtherEntries([]);
+                    }
+                    break;
             }
-
+            
             return newTypes;
         });
     };
 
-    const handleEntryChange = (index, field, value) => {
-        const newEntries = [...paymentEntries];
-        newEntries[index][field] = value;
-        setPaymentEntries(newEntries);
+    const handleEntryChange = (index, field, value, type) => {
+        const entries = {
+            'donations': [donationEntries, setDonationEntries],
+            'samurdhi': [samurdhiEntries, setSamurdhiEntries],
+            'solar': [solarEntries, setSolarEntries],
+            'cinema': [cinemaEntries, setCinemaEntries],
+            'housing': [housingEntries, setHousingEntries],
+            'other': [otherEntries, setOtherEntries]
+        }[type];
+
+        if (entries) {
+            const [currentEntries, setEntries] = entries;
+            const newEntries = [...currentEntries];
+            newEntries[index][field] = value;
+            setEntries(newEntries);
+        }
     };
 
-    const handleAddEntry = () => {
-        setPaymentEntries([...paymentEntries, { name: 'Qualifying Payment', amount: '' }]);
+    const handleAddEntry = (type) => {
+        const [entries, setEntries] = {
+            'donations': [donationEntries, setDonationEntries],
+            'samurdhi': [samurdhiEntries, setSamurdhiEntries],
+            'solar': [solarEntries, setSolarEntries],
+            'cinema': [cinemaEntries, setCinemaEntries],
+            'housing': [housingEntries, setHousingEntries],
+            'other': [otherEntries, setOtherEntries]
+        }[type];
+
+        if (entries && setEntries) {
+            setEntries([...entries, { name: '', amount: '' }]);
+        }
     };
 
-    const handleRemoveEntry = (index) => {
-        setPaymentEntries(paymentEntries.filter((_, i) => i !== index));
+    const handleRemoveEntry = (index, type) => {
+        const setEntries = {
+            'donations': setDonationEntries,
+            'samurdhi': setSamurdhiEntries,
+            'solar': setSolarEntries,
+            'cinema': setCinemaEntries,
+            'housing': setHousingEntries,
+            'other': setOtherEntries
+        }[type];
+
+        if (setEntries) {
+            setEntries(prev => prev.filter((_, i) => i !== index));
+        }
     };
 
     const handleSubmit = (e) => {
@@ -393,10 +531,31 @@ const QualifyingPayments = () => {
         navigate('/preview');
     };
 
+    const handleOpenAnalysis = () => {
+        const stored = sessionStorage.getItem('last_analysis');
+        setAnalysisResults(stored ? JSON.parse(stored) : []);
+        setShowAnalysisResults(true);
+    };
+
     return (
         <div className="qualifying-payments-page">
             <Header />
             <TaxationMenu />
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', margin: '16px 0 0 24px' }}>
+                <button
+                    className={styles.nextButton}
+                    onClick={handleOpenAnalysis}
+                >
+                    Analysis Result
+                </button>
+            </div>
+            {showAnalysisResults && (
+                <AnalysisResults
+                    results={analysisResults}
+                    onClose={() => setShowAnalysisResults(false)}
+                    onAutoFill={() => {}}
+                />
+            )}
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Qualifying Payments</h1>
@@ -442,27 +601,27 @@ const QualifyingPayments = () => {
                                     <input
                                         type="text"
                                         value={entry.name}
-                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value)}
+                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, 'donations')}
                                         placeholder="Description"
                                         className={styles.inputField}
                                     />
                                     <input
                                         type="number"
                                         value={entry.amount}
-                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value)}
+                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'donations')}
                                         placeholder="Amount"
                                         className={styles.inputField}
                                     />
                                     <button 
                                         type="button" 
-                                        onClick={() => handleRemoveEntry(index)}
+                                        onClick={() => handleRemoveEntry(index, 'donations')}
                                         className={styles.removeButton}
                                     >
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
                             ))}
-                            <button type="button" onClick={handleAddEntry} className={styles.addButton}>
+                            <button type="button" onClick={() => handleAddEntry('donations')} className={styles.addButton}>
                                 <Plus size={16} />
                             </button>
                         </div>
@@ -476,27 +635,27 @@ const QualifyingPayments = () => {
                                     <input
                                         type="text"
                                         value={entry.name}
-                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value)}
+                                        onChange={(e) => handleEntryChange(index, 'name', e.target.value, 'cinema')}
                                         placeholder="Description"
                                         className={styles.inputField}
                                     />
                                     <input
                                         type="number"
                                         value={entry.amount}
-                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value)}
+                                        onChange={(e) => handleEntryChange(index, 'amount', e.target.value, 'cinema')}
                                         placeholder="Amount"
                                         className={styles.inputField}
                                     />
                                     <button 
                                         type="button" 
-                                        onClick={() => handleRemoveEntry(index)}
+                                        onClick={() => handleRemoveEntry(index, 'cinema')}
                                         className={styles.removeButton}
                                     >
                                         <Trash2 size={16} />
                                     </button>
                                 </div>
                             ))}
-                            <button type="button" onClick={handleAddEntry} className={styles.addButton}>
+                            <button type="button" onClick={() => handleAddEntry('cinema')} className={styles.addButton}>
                                 <Plus size={16} />
                             </button>
                         </div>
@@ -516,20 +675,20 @@ const QualifyingPayments = () => {
                                         <input
                                             type="text"
                                             value={entry.name}
-                                            onChange={(e) => handleEntryChange(index, 'name', e.target.value)}
+                                            onChange={(e) => handleEntryChange(index, 'name', e.target.value, type)}
                                             placeholder="Description"
                                             className={styles.inputField}
                                         />
                                         <input
                                             type="number"
                                             value={entry.amount}
-                                            onChange={(e) => handleEntryChange(index, 'amount', e.target.value)}
+                                            onChange={(e) => handleEntryChange(index, 'amount', e.target.value, type)}
                                             placeholder="Amount"
                                             className={styles.inputField}
                                         />
                                         <button 
                                             type="button" 
-                                            onClick={() => handleRemoveEntry(index)}
+                                            onClick={() => handleRemoveEntry(index, type)}
                                             className={styles.removeButton}
                                         >
                                             <Trash2 size={16} />
@@ -538,7 +697,7 @@ const QualifyingPayments = () => {
                                 ))}
                                 <button 
                                     type="button" 
-                                    onClick={() => handleAddEntry()} 
+                                    onClick={() => handleAddEntry(type)} 
                                     className={styles.addButton}
                                 >
                                     <Plus size={16} />

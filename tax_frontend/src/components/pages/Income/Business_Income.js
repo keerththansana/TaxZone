@@ -6,11 +6,14 @@ import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { useFormPersist } from './Data_Persistence';
 import { AutoFillHelper } from '../../../utils/autoFillHelper';
+import AnalysisResults from './AnalysisResults';
 
 const BusinessIncome = () => {
     const [openDescription, setOpenDescription] = useState(null);
     const [selectedDeductions, setSelectedDeductions] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
 
     // Initialize form data with persistence
     const [formData, setFormData] = useFormPersist('businessIncomeData', {
@@ -127,13 +130,8 @@ const BusinessIncome = () => {
                                     const amount = item.amount || 0;
                                     let category = item.category || '';
 
-                                    // Re-categorize trust beneficiary income as business income
-                                    if (description.includes('trust') || 
-                                        description.includes('beneficiary') || 
-                                        description.includes('samurdhi')) {
-                                        category = 'Business Income';
-                                    }
-
+                                    // Only process items that are actually Business Income
+                                    // Note: Samurdhi beneficiary items should be Qualifying Payments, not Business Income
                                     if (category === 'Business Income') {
                                         if (description.includes('sole') || description.includes('proprietorship')) {
                                             formattedData.soleProprietorshipEntries.push({
@@ -152,18 +150,20 @@ const BusinessIncome = () => {
                                                 formattedData.selectedTypes.push('partnership');
                                             }
                                         } else if (description.includes('trust') || 
-                                                description.includes('beneficiary') || 
-                                                description.includes('samurdhi')) {
-                                            formattedData.trustEntries.push({
-                                                name: item.description || 'Trust Beneficiary',
-                                                amount: amount.toString()
-                                            });
-                                            if (!formattedData.selectedTypes.includes('trust-beneficiary')) {
-                                                formattedData.selectedTypes.push('trust-beneficiary');
+                                                description.includes('beneficiary')) {
+                                            // Only include regular trust beneficiary income, not Samurdhi
+                                            if (!description.includes('samurdhi') && !description.includes('samurthy')) {
+                                                formattedData.trustEntries.push({
+                                                    name: item.description || 'Trust Beneficiary',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('trust-beneficiary')) {
+                                                    formattedData.selectedTypes.push('trust-beneficiary');
+                                                }
                                             }
-                                        } else if (description.includes('betting') || description.includes('gambling')) {
+                                        } else if (description.includes('betting') || description.includes('gaming')) {
                                             formattedData.bettingEntries.push({
-                                                name: 'Betting',
+                                                name: 'Betting, Gaming, Liquor & Tobacco',
                                                 amount: amount.toString()
                                             });
                                             if (!formattedData.selectedTypes.includes('betting-gaming')) {
@@ -522,10 +522,31 @@ const BusinessIncome = () => {
         setEntries(prev => prev.filter((_, i) => i !== index));
     };
 
+    const handleOpenAnalysis = () => {
+        const stored = sessionStorage.getItem('last_analysis');
+        setAnalysisResults(stored ? JSON.parse(stored) : []);
+        setShowAnalysisResults(true);
+    };
+
     return (
         <div className="business-income-page">
             <Header />
             <TaxationMenu />
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', margin: '16px 0 0 24px' }}>
+                <button
+                    className={styles.nextButton}
+                    onClick={handleOpenAnalysis}
+                >
+                    Analysis Result
+                </button>
+            </div>
+            {showAnalysisResults && (
+                <AnalysisResults
+                    results={analysisResults}
+                    onClose={() => setShowAnalysisResults(false)}
+                    onAutoFill={() => {}}
+                />
+            )}
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Business Income</h1>

@@ -5,6 +5,8 @@ import Header from '../../common/Header/Header';
 import styles from './Employment_Income.module.css';
 import TaxationMenu from './Taxation_Menu';
 import { AutoFillHelper } from '../../../utils/autoFillHelper';
+import AnalysisResults from './AnalysisResults';
+import employmentStyles from './Employment_Income.module.css';
 
 const TerminalBenefits = () => {
     const [selectedTypes, setSelectedTypes] = useState([]);
@@ -17,6 +19,8 @@ const TerminalBenefits = () => {
     const [totalTerminalBenefits, setTotalTerminalBenefits] = useState(0); // Added state for total
     const [formData, setFormData] = useState(null);
     const [showForm, setShowForm] = useState(false);
+    const [showAnalysisResults, setShowAnalysisResults] = useState(false);
+    const [analysisResults, setAnalysisResults] = useState([]);
     const navigate = useNavigate();
 
     const benefitTypes = [
@@ -51,7 +55,7 @@ const TerminalBenefits = () => {
         const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
         const currentCategory = sessionStorage.getItem('currentCategory');
         
-        if (!selectedCategories.includes('terminal') || currentCategory !== 'terminal') {
+        if (!selectedCategories || !Array.isArray(selectedCategories) || !selectedCategories.includes('terminal') || currentCategory !== 'terminal') {
             navigate('/taxation');
         }
     }, [navigate]);
@@ -101,23 +105,26 @@ const TerminalBenefits = () => {
                                     const description = (item.description || '').toLowerCase();
                                     const amount = item.amount || 0;
                                     let category = item.category || '';
+                                    const type = item.type || '';
                                     category = category.toLowerCase();
 
                                     // Debug print
-                                    console.log('Terminal benefit check:', { category, description });
+                                    console.log('Terminal benefit check:', { category, type, description });
 
-                                    // Enhanced matching
+                                    // Enhanced matching with null checks - check both category and type
                                     const isTerminalBenefit = 
                                         (category && category.includes('terminal')) ||
-                                        description.includes('commuted') ||
-                                        description.includes('pension') ||
-                                        description.includes('gratuity') ||
-                                        description.includes('compensation') ||
-                                        description.includes('etf') ||
-                                        description.includes('trust fund');
+                                        (type && type.includes('terminal')) ||
+                                        (description && description.includes('commuted')) ||
+                                        (description && description.includes('pension')) ||
+                                        (description && description.includes('gratuity')) ||
+                                        (description && description.includes('compensation')) ||
+                                        (description && description.includes('etf')) ||
+                                        (description && description.includes('trust fund'));
 
                                     if (isTerminalBenefit) {
-                                        if (description.includes('commuted') || description.includes('pension')) {
+                                        // Use the type field from AI analysis for more accurate categorization
+                                        if (type && (type.includes('Commuted Pension') || type.includes('Commuted'))) {
                                             formattedData.commutedEntries.push({
                                                 name: item.description || 'Commuted Pension',
                                                 amount: amount.toString()
@@ -125,23 +132,23 @@ const TerminalBenefits = () => {
                                             if (!formattedData.selectedTypes.includes('commuted')) {
                                                 formattedData.selectedTypes.push('commuted');
                                             }
-                                        } else if (description.includes('gratuity')) {
+                                        } else if (type && (type.includes('Retiring Gratuity') || type.includes('Gratuity'))) {
                                             formattedData.gratuityEntries.push({
-                                                name: item.description || 'Gratuity',
+                                                name: item.description || 'Retiring Gratuity',
                                                 amount: amount.toString()
                                             });
                                             if (!formattedData.selectedTypes.includes('gratuity')) {
                                                 formattedData.selectedTypes.push('gratuity');
                                             }
-                                        } else if (description.includes('compensation')) {
+                                        } else if (type && (type.includes('Compensation') || type.includes('Job Loss'))) {
                                             formattedData.compensationEntries.push({
-                                                name: item.description || 'Compensation',
+                                                name: item.description || 'Compensation for Job Loss',
                                                 amount: amount.toString()
                                             });
                                             if (!formattedData.selectedTypes.includes('compensation')) {
                                                 formattedData.selectedTypes.push('compensation');
                                             }
-                                        } else if (description.includes('etf') || description.includes('trust fund')) {
+                                        } else if (type && (type.includes('ETF') || type.includes('Trust Fund'))) {
                                             formattedData.etfEntries.push({
                                                 name: item.description || 'ETF Payment',
                                                 amount: amount.toString()
@@ -149,13 +156,56 @@ const TerminalBenefits = () => {
                                             if (!formattedData.selectedTypes.includes('etf')) {
                                                 formattedData.selectedTypes.push('etf');
                                             }
-                                        } else {
+                                        } else if (type && type.includes('Other Terminal Benefits')) {
                                             formattedData.otherEntries.push({
                                                 name: item.description || 'Other Terminal Benefit',
                                                 amount: amount.toString()
                                             });
                                             if (!formattedData.selectedTypes.includes('other')) {
                                                 formattedData.selectedTypes.push('other');
+                                            }
+                                        } else {
+                                            // Fallback to description-based categorization if type is not specific
+                                            if (description && (description.includes('commuted') || description.includes('pension'))) {
+                                                formattedData.commutedEntries.push({
+                                                    name: item.description || 'Commuted Pension',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('commuted')) {
+                                                    formattedData.selectedTypes.push('commuted');
+                                                }
+                                            } else if (description && description.includes('gratuity')) {
+                                                formattedData.gratuityEntries.push({
+                                                    name: item.description || 'Retiring Gratuity',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('gratuity')) {
+                                                    formattedData.selectedTypes.push('gratuity');
+                                                }
+                                            } else if (description && description.includes('compensation')) {
+                                                formattedData.compensationEntries.push({
+                                                    name: item.description || 'Compensation for Job Loss',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('compensation')) {
+                                                    formattedData.selectedTypes.push('compensation');
+                                                }
+                                            } else if (description && (description.includes('etf') || description.includes('trust fund'))) {
+                                                formattedData.etfEntries.push({
+                                                    name: item.description || 'ETF Payment',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('etf')) {
+                                                    formattedData.selectedTypes.push('etf');
+                                                }
+                                            } else {
+                                                formattedData.otherEntries.push({
+                                                    name: item.description || 'Other Terminal Benefit',
+                                                    amount: amount.toString()
+                                                });
+                                                if (!formattedData.selectedTypes.includes('other')) {
+                                                    formattedData.selectedTypes.push('other');
+                                                }
                                             }
                                         }
                                     }
@@ -234,40 +284,27 @@ const TerminalBenefits = () => {
         const handleAutoFillUpdate = (event) => {
             if (event.data && event.data.type === 'autoFillUpdate') {
                 const data = event.data.payload;
-                if (data.TerminalBenefits) {
-                    const formattedData = {
-                        commutedEntries: data.TerminalBenefits.commutedEntries || [],
-                        gratuityEntries: data.TerminalBenefits.gratuityEntries || [],
+                // Support both new and legacy keys
+                if (data.terminalBenefits) {
+                    const term = data.terminalBenefits;
+                    updateFormData({
+                        commutedPensionEntries: term.commutedPensionEntries || [],
+                        retiringGratuityEntries: term.retiringGratuityEntries || [],
+                        compensationEntries: term.compensationEntries || [],
+                        etfPaymentEntries: term.etfPaymentEntries || [],
+                        otherTerminalEntries: term.otherTerminalEntries || [],
+                    });
+                } else if (data.TerminalBenefits) {
+                    updateFormData({
+                        commutedPensionEntries: data.TerminalBenefits.commutedPensionEntries || [],
+                        retiringGratuityEntries: data.TerminalBenefits.retiringGratuityEntries || [],
                         compensationEntries: data.TerminalBenefits.compensationEntries || [],
-                        etfEntries: data.TerminalBenefits.etfEntries || [],
-                        otherEntries: data.TerminalBenefits.otherEntries || [],
-                        selectedTypes: data.TerminalBenefits.selectedTypes || [],
-                        totalTerminalBenefits: data.TerminalBenefits.totalTerminalBenefits || 0
-                    };
-
-                    // Calculate total terminal benefits
-                    formattedData.totalTerminalBenefits = 
-                        formattedData.commutedEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.gratuityEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.compensationEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.etfEntries.reduce((sum, entry) => sum + Number(entry.amount), 0) +
-                        formattedData.otherEntries.reduce((sum, entry) => sum + Number(entry.amount), 0);
-
-                    console.log('Setting new form data:', formattedData);
-                    setFormData(formattedData);
-                    setShowForm(true);
-
-                    // Update individual state variables
-                    setCommutedEntries(formattedData.commutedEntries);
-                    setGratuityEntries(formattedData.gratuityEntries);
-                    setCompensationEntries(formattedData.compensationEntries);
-                    setEtfEntries(formattedData.etfEntries);
-                    setOtherEntries(formattedData.otherEntries);
-                    setSelectedTypes(formattedData.selectedTypes);
+                        etfPaymentEntries: data.TerminalBenefits.etfPaymentEntries || [],
+                        otherTerminalEntries: data.TerminalBenefits.otherTerminalEntries || [],
+                    });
                 }
             }
         };
-
         window.addEventListener('message', handleAutoFillUpdate);
         return () => window.removeEventListener('message', handleAutoFillUpdate);
     }, []);
@@ -366,9 +403,9 @@ const TerminalBenefits = () => {
 
         // Update selected categories
         const currentCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-        if (!currentCategories.includes('terminal')) {
+        if (!currentCategories || !Array.isArray(currentCategories) || !currentCategories.includes('terminal')) {
             sessionStorage.setItem('selectedCategories', 
-                JSON.stringify([...currentCategories, 'terminal']));
+                JSON.stringify([...(currentCategories || []), 'terminal']));
         }
         
         // Trigger preview update
@@ -376,8 +413,8 @@ const TerminalBenefits = () => {
 
         // Get next form to navigate to
         const selectedCategories = JSON.parse(sessionStorage.getItem('selectedCategories') || '[]');
-        const currentIndex = selectedCategories.indexOf('terminal');
-        const nextCategory = selectedCategories[currentIndex + 1];
+        const currentIndex = selectedCategories && Array.isArray(selectedCategories) ? selectedCategories.indexOf('terminal') : -1;
+        const nextCategory = selectedCategories && Array.isArray(selectedCategories) ? selectedCategories[currentIndex + 1] : null;
 
         // Update current category
         if (nextCategory) {
@@ -405,10 +442,31 @@ const TerminalBenefits = () => {
         }
     };
 
+    const handleOpenAnalysis = () => {
+        const stored = sessionStorage.getItem('last_analysis');
+        setAnalysisResults(stored ? JSON.parse(stored) : []);
+        setShowAnalysisResults(true);
+    };
+
     return (
         <div className="terminal-benefits-page">
             <Header />
             <TaxationMenu />
+            <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', margin: '16px 0 0 24px' }}>
+                <button
+                    className={styles.nextButton}
+                    onClick={handleOpenAnalysis}
+                >
+                    Analysis Result
+                </button>
+            </div>
+            {showAnalysisResults && (
+                <AnalysisResults
+                    results={analysisResults}
+                    onClose={() => setShowAnalysisResults(false)}
+                    onAutoFill={() => {}}
+                />
+            )}
             <div className={styles.container}>
                 <div className={styles.header}>
                     <h1 className={styles.title}>Terminal Benefits</h1>
@@ -423,7 +481,7 @@ const TerminalBenefits = () => {
                                     <label className={styles.checkboxLabel}>
                                         <input
                                             type="checkbox"
-                                            checked={selectedTypes.includes(type.id)}
+                                            checked={selectedTypes && Array.isArray(selectedTypes) && selectedTypes.includes(type.id)}
                                             onChange={() => handleTypeToggle(type.id)}
                                             className={styles.checkbox}
                                         />
@@ -453,7 +511,7 @@ const TerminalBenefits = () => {
                         'etf': [etfEntries, 'ETF Payment'],
                         'other': [otherEntries, 'Other Terminal Benefits']
                     }).map(([type, [entries, title]]) => (
-                        selectedTypes.includes(type) && (
+                        selectedTypes && Array.isArray(selectedTypes) && selectedTypes.includes(type) && (
                             <div key={type} className={styles.section}>
                                 <h3>{title}</h3>
                                 {entries.map((entry, index) => (
