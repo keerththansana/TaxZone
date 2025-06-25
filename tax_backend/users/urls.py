@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SigninView, LoginView, ResetPasswordView, ResetPasswordConfirmView, ResetPasswordValidateView, TokenValidationView, GoogleLoginView
+from .views import SigninView, LoginView, ResetPasswordView, ResetPasswordConfirmView, ResetPasswordValidateView, TokenValidationView, GoogleLoginView, TaxReviewCreateUpdateView, TaxReviewListView
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from .views import ContactView
@@ -14,4 +14,6 @@ urlpatterns = [
     path('reset-password/validate/<str:token>/', ResetPasswordValidateView.as_view(), name='reset_password_validate'),
     path('reset-password/confirm/', ResetPasswordConfirmView.as_view(), name='reset_password_confirm'),
     path('contact/', ContactView.as_view(), name='contact'),
+    path('tax-reviews/', TaxReviewCreateUpdateView.as_view(), name='tax-review-create-update'),
+    path('tax-reviews/list/', TaxReviewListView.as_view(), name='tax-review-list'),
 ]

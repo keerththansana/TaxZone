@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS user_reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    name VARCHAR(255) NOT NULL,
+    role VARCHAR(255),
+    rating INT NOT NULL,
+    comment TEXT,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    image VARCHAR(500),
+    FOREIGN KEY (user_id) REFERENCES auth_user(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; 

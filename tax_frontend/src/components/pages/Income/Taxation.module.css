@@ -13,15 +13,33 @@
 }
 
 .title {
+    text-align: center;
+    margin-bottom: 1.5rem;
     color: #023636;
-    font-size: 2rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+    font-size: 38px;
+    position: relative;
+    padding-bottom: 1rem;
+}
+.title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background-color: #023636;
 }
 
 .subtitle {
-    color: #023636;
+   text-align: center;
+    color: #464646;
     font-size: 1rem;
+    line-height: 1.6;
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+    margin-top: -1rem;
     
 }
 
@@ -878,4 +896,12 @@
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+}
+
+.help-description {
+  color: #6b6b6b !important; 
+  font-size: 1rem !important;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  text-align: left;
 }

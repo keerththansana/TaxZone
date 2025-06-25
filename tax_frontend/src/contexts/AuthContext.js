@@ -15,6 +15,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   // Function to validate token with backend
   const validateToken = async (token) => {
@@ -62,6 +63,7 @@ export const AuthProvider = ({ children }) => {
         
         if (isTokenValid) {
           setUser(parsedUser);
+          setIsLoggedIn(true);
           setLoading(false);
           return;
         }
@@ -71,6 +73,7 @@ export const AuthProvider = ({ children }) => {
           const newAccessToken = await refreshToken(refreshTokenValue);
           if (newAccessToken) {
             setUser(parsedUser);
+            setIsLoggedIn(true);
             setLoading(false);
             return;
           }
@@ -84,6 +87,7 @@ export const AuthProvider = ({ children }) => {
       }
     } else {
       setUser(null);
+      setIsLoggedIn(false);
       setLoading(false);
     }
   };
@@ -97,6 +101,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('accessToken', tokens.access);
     localStorage.setItem('refreshToken', tokens.refresh);
     setUser(userData);
+    setIsLoggedIn(true);
   };
 
   // Function to logout user
@@ -108,6 +113,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     setUser(null);
+    setIsLoggedIn(false);
   };
 
   useEffect(() => {
@@ -119,7 +125,8 @@ export const AuthProvider = ({ children }) => {
     loading,
     login,
     logout,
-    checkAuth
+    checkAuth,
+    isLoggedIn
   };
 
   return (
@@ -127,4 +134,4 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-}; 
+};

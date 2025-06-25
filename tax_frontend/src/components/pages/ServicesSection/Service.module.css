@@ -1,3 +1,11 @@
+body {
+  background: linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8);
+  margin-bottom: 10px;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', Arial, sans-serif;
+}
 .servicePageContainer {
   display: flex;
   min-height: 100vh; /* Ensures the container takes at least the full viewport height */
@@ -5,6 +13,12 @@
   align-items: stretch; /* Stretches items to fill the container height */
   font-family: 'Arial', sans-serif;
   overflow: hidden; /* Hide overflow during initial animation */
+  background: linear-gradient(to bottom,  #cef8f8,#f0fafa, #cef8f8);
+  border: solid 0.1px #6ebaf9;
+  border-radius: 10px;
+  margin-bottom: 1px;
+  margin-top: 0;
+
 }
 
 .servicePageContainer.reverse {
@@ -21,7 +35,7 @@
   justify-content: center;
   align-items: center;
   /* Consistent padding */
-  border-radius: 8px;/* Consistent border-radius */
+  border-radius: 10px;/* Consistent border-radius */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Consistent shadow */
   background-color: #e8f8f8; /* Image background */
 }
@@ -55,8 +69,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 15px;
-  background: linear-gradient(85deg, #e8f8f8, #c9eded, #c5f8f8); /* Gradient background with animations */
+  gap: 15px; /* Gradient background with animations */
   background-size: 200% 200%;
   animation: backgroundPan 10s ease infinite alternate, slideInRight 1s ease-out forwards;
   position: relative;
@@ -88,7 +101,7 @@
     20px 20px 0 30px rgba(255, 255, 255, 0.05), /* Larger bubble */
     -30px -30px 0 50px rgba(255, 255, 255, 0.03), /* Even larger bubble */
     40px -10px 0 20px rgba(255, 255, 255, 0.08); /* Another subtle bubble */
-  animation: bubbleFloat 15s linear infinite;
+
   z-index: -1; /* Place behind content */
 }
 
@@ -146,11 +159,16 @@
   }
 }
 
+
 .serviceHeading {
-  font-size: 2.5em;
-  color: #023636;
-  margin-bottom: 10px;
+    text-align: center;
+    margin-bottom: 0rem;
+    color: #023636;
+    font-size: 38px;
+    position: relative;
+    padding-bottom: 1rem;
 }
+
 
 .serviceSubheading {
   font-size: 1.2em;
@@ -193,13 +211,13 @@
     width: 100%; /* Full width on smaller screens */
     height: 300px; /* Fixed height for image on mobile */
     margin-bottom: 30px;
-    animation: slideInUp 1s ease-out forwards; /* Adjust animation for mobile */
+    /* Adjust animation for mobile */
   }
 
   .serviceContentWrapper {
     width: 100%; /* Full width on smaller screens */
     padding: 30px;
-    animation: slideInUp 1s ease-out forwards; /* Adjust animation for mobile */
+     /* Adjust animation for mobile */
   }
 
   @keyframes slideInUp {
@@ -224,4 +242,11 @@
   .serviceWhyMattersHeading {
     font-size: 1.5em;
   }
+}
+
+.service-main-page {
+  background: linear-gradient(120deg, #023636 0%, #0e5c6b 50%, #6ebaf9 100%);
+  min-height: 100vh;
+  width: 100%;
+  padding: 2rem 0;
 }

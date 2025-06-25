@@ -91,6 +91,7 @@ const Calculator = () => {
     };
 
     return (
+        
         <div className="calculator-page">
             <Header />
             <div className={styles.container}>
@@ -100,6 +101,9 @@ const Calculator = () => {
                             <CalcIcon className={styles.icon} />
                             <h1>Tax Calculator</h1>
                         </div>
+                        <div><p className={styles.note}>
+                                <em>Note: This calculation is for guidance only and is not a final tax assessment.</em>
+                            </p></div>
 
                         <form className={styles.form} onSubmit={handleSubmit}>
                             <div className={styles.formGroup}>
@@ -216,14 +220,19 @@ const Calculator = () => {
                                 >
                                     {loading ? 'Calculating...' : 'Calculate Tax'}
                                 </button>
+                                
                             </div>
                         </form>
                     </div>
+                   
 
                     {results && <CalculatorResponse results={results} />}
                 </div>
+                
             </div>
+            
         </div>
+        
     );
 };
 

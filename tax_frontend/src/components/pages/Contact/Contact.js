@@ -45,24 +45,20 @@ const Contact = () => {
     return (
         <div className="contact-page">
             <Header />
+            <div className={styles.contactHeader}>
+                <h2>Contact Us</h2>
+                <p>
+                    Ready to simplify your tax filing process? Get in touch with our expert team for personalized assistance, 
+                    technical support, or any questions about our AI-powered tax platform. We're here to help you navigate 
+                    Sri Lanka's tax regulations with confidence.
+                </p>
+            </div>
             <div className={styles.container}>
                 <div className={styles.leftSection}>
                     <div className={styles.contactInfo}>
                         <h2>Get in Touch</h2>
                         <p>Have questions about our tax services? We're here to help. Our team of tax experts is ready to assist you with any inquiries about tax calculations, filing, or general tax-related matters.</p>
                         <div className={styles.infoDetails}>
-                            <div className={styles.infoItem}>
-                                <img src={mailIcon} alt="Email" /> 
-                                <p>support@tax.x</p>
-                            </div>
-                            <div className={styles.infoItem}>
-                                <img src={phoneIcon} alt="Phone" /> 
-                                <p>+94 11 234 5678</p>
-                            </div>
-                            <div className={styles.infoItem}>
-                                <img src={locationIcon} alt="Location" /> 
-                                <p>123 Tax Street, Colombo 03, Sri Lanka</p>
-                            </div>
                         </div>
                     </div>
                 </div>

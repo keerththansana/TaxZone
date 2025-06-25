@@ -10,7 +10,7 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from .serializers import UserSerializer, AuthNewUserSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-from .models import AuthNewUser, ResetPassword
+from .models import AuthNewUser, ResetPassword, TaxReview
 from rest_framework.decorators import api_view
 from django.core.mail import send_mail
 from django.conf import settings
@@ -18,8 +18,10 @@ import secrets
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
-from .serializers import ContactSerializer
+from .serializers import ContactSerializer, TaxReviewSerializer
 from .models import ContactUser
+from rest_framework import generics
+from rest_framework.generics import ListAPIView
 
 User = get_user_model()
 
@@ -379,3 +381,12 @@ class TokenValidationView(APIView):
                 'valid': False,
                 'message': 'Error validating token'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class TaxReviewCreateUpdateView(generics.CreateAPIView, generics.UpdateAPIView):
+    queryset = TaxReview.objects.all()
+    serializer_class = TaxReviewSerializer
+    lookup_field = 'name'  # or use user if you want to link to user
+
+class TaxReviewListView(ListAPIView):
+    queryset = TaxReview.objects.all()
+    serializer_class = TaxReviewSerializer

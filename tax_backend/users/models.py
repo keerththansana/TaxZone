@@ -85,3 +85,20 @@ class ContactUser(models.Model):
 
     def __str__(self):
         return f"Contact from {self.name} ({self.email})"
+
+class TaxReview(models.Model):
+    name = models.CharField(max_length=255)
+    role = models.CharField(max_length=255, null=True, blank=True)
+    rating = models.PositiveIntegerField()
+    comment = models.TextField()
+    date = models.DateTimeField(auto_now_add=True)
+    image = models.URLField(max_length=500, null=True, blank=True)
+
+    class Meta:
+        db_table = 'tax_reviews'
+        verbose_name = 'Tax Review'
+        verbose_name_plural = 'Tax Reviews'
+        ordering = ['-date']  # Show newest reviews first
+
+    def __str__(self):
+        return f"Review by {self.name} - {self.rating} stars"

@@ -13533,3 +13533,1115 @@ INFO 2025-06-24 00:51:20,489 document_processor 4996 6244 Starting Gemini API an
 INFO 2025-06-24 00:51:31,581 document_processor 4996 6244 Gemini API response received: 4586 characters
 INFO 2025-06-24 00:51:31,581 document_processor 4996 6244 Gemini analysis successful: 24 income items, 5 deductions
 INFO 2025-06-24 00:51:31,581 views 4996 6244 Gemini-enhanced analysis results: {'document_type': 'tax_document', 'confidence_score': 0.98, 'processing_time': 0, 'income_items': [{'category': 'Employment Income', 'type': 'Primary Employment', 'description': 'Primary income', 'amount': 10000000.0}, {'category': 'Employment Income', 'type': 'Secondary Employment', 'description': 'Secondary income', 'amount': 8000000.0}, {'category': 'Business Income', 'type': 'Sole Proprietorship', 'description': 'Sole Proprietorship', 'amount': 400000.0}, {'category': 'Business Income', 'type': 'Partnership', 'description': 'Partnership', 'amount': 50000.0}, {'category': 'Business Income', 'type': 'Trust Beneficiary', 'description': 'Trust Beneficiary', 'amount': 60000.0}, {'category': 'Business Income', 'type': 'Other Business Income', 'description': 'New Business Income', 'amount': 70000.0}, {'category': 'Investment Income', 'type': 'Interest Income', 'description': 'Interest', 'amount': 70000.0}, {'category': 'Investment Income', 'type': 'Dividend Income', 'description': 'Dividend Income', 'amount': 50000.0}, {'category': 'Investment Income', 'type': 'Rental Income', 'description': 'Rental Income', 'amount': 40000.0}, {'category': 'Investment Income', 'type': 'Capital Gains', 'description': 'Capital Gains Income', 'amount': 90000.0}, {'category': 'Other Income', 'type': 'Service Income', 'description': 'Service Income', 'amount': 30000.0}, {'category': 'Other Income', 'type': 'Royalty', 'description': 'Royalty', 'amount': 30000.0}, {'category': 'Other Income', 'type': 'Natural Resource Payment', 'description': 'Natural Resource income', 'amount': 40000.0}, {'category': 'Other Income', 'type': 'Gem Sale', 'description': 'Auctioned Gem Sale income', 'amount': 40000.0}, {'category': 'Terminal Benefits', 'type': 'Commuted Pension', 'description': 'Commuted Pension', 'amount': 9000.0}, {'category': 'Terminal Benefits', 'type': 'Retiring Gratuity', 'description': 'Retiring Gratuity', 'amount': 7000.0}, {'category': 'Terminal Benefits', 'type': 'Compensation for Job Loss', 'description': 'Compensation for Job Loss', 'amount': 5000.0}, {'category': 'Terminal Benefits', 'type': 'ETF Payment', 'description': 'ETF Payment', 'amount': 70000.0}, {'category': 'Terminal Benefits', 'type': 'Other Terminal Benefits', 'description': 'Old work Terminal Benefits', 'amount': 40000.0}, {'category': 'Qualifying Payments', 'type': 'Donations', 'description': 'Donations', 'amount': 400000.0}, {'category': 'Qualifying Payments', 'type': 'Shop Setup for Samurdhi Beneficiary', 'description': 'Samurdhi Beneficiary', 'amount': 50000.0}, {'category': 'Qualifying Payments', 'type': 'Solar Panel Installation', 'description': 'Solar Panel Installation', 'amount': 200000.0}, {'category': 'Qualifying Payments', 'type': 'Low-Income Housing Construction', 'description': 'Housing Construction', 'amount': 40000.0}, {'category': 'Investment Income', 'type': 'Other Investment Income', 'description': 'Old Investment Income', 'amount': 40000.0}], 'deductions': [{'category': 'Employment Income', 'type': 'APIT Deduction', 'description': 'APIT primary', 'amount': 7000.0}, {'category': 'Employment Income', 'type': 'APIT Deduction', 'description': 'APIT Secondary', 'amount': 9000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Service Income WHT', 'amount': 7000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Royalty WHT', 'amount': 6000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Natural Resource WHT', 'amount': 9000.0}], 'total_assessable_income': 19793000.0}
+INFO 2025-06-24 09:56:23,972 loader 22020 15268 Loading faiss with AVX512 support.
+INFO 2025-06-24 09:56:23,978 loader 22020 15268 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 09:56:23,982 loader 22020 15268 Loading faiss with AVX2 support.
+INFO 2025-06-24 09:56:25,053 loader 22020 15268 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 09:56:25,724 views 22020 15268 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:00:46,892 loader 26696 3288 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:00:46,894 loader 26696 3288 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:00:46,894 loader 26696 3288 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:00:46,984 loader 26696 3288 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:00:47,001 views 26696 3288 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:01:01,352 autoreload 5480 11384 Watching for file changes with StatReloader
+INFO 2025-06-24 10:01:10,869 loader 5480 11384 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:01:10,869 loader 5480 11384 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:01:10,884 loader 5480 11384 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:01:10,897 loader 5480 11384 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:01:10,907 views 5480 11384 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:03:37,338 views 5480 24584 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 10:04:07,855 views 5480 20300 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 10:04:36,884 views 5480 26480 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 10:05:25,624 views 5480 26480 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 10:05:53,908 views 5480 26480 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 10:06:22,902 views 5480 26480 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 10:46:01,015 views 5480 27508 Extracted text: Calculation of Income Tax Liability
+
+Rs.
+
+Employment Income
+
+9,200,000
+
+Business Income
+
+31,000,000
+
+Investment Income
+‘© Interest Income
+* Rent Income
+© Other Income
+
+5,000,000
+900,000
+500,000
+
+Asses...
+INFO 2025-06-24 10:46:01,024 document_processor 5480 27508 Starting Gemini API analysis...
+INFO 2025-06-24 10:46:07,954 document_processor 5480 27508 Gemini API response received: 2337 characters
+INFO 2025-06-24 10:46:07,958 document_processor 5480 27508 Gemini analysis successful: 5 income items, 9 deductions
+INFO 2025-06-24 10:46:07,959 views 5480 27508 Gemini-enhanced analysis results: {'document_type': 'tax_document', 'confidence_score': 0.95, 'processing_time': 0, 'income_items': [{'category': 'Employment Income', 'type': 'Primary Employment', 'description': 'Employment Income', 'amount': 9200000}, {'category': 'Business Income', 'type': 'Sole Proprietorship', 'description': 'Business Income', 'amount': 31000000}, {'category': 'Investment Income', 'type': 'Interest Income', 'description': 'Interest Income', 'amount': 5000000}, {'category': 'Investment Income', 'type': 'Rental Income', 'description': 'Rent Income', 'amount': 900000}, {'category': 'Investment Income', 'type': 'Other Income', 'description': 'Other Income', 'amount': 500000}], 'deductions': [{'category': 'Other deductions', 'type': 'Rent Relief', 'description': 'Rent Relief', 'amount': 225000}, {'category': 'Other deductions', 'type': 'Personal Relief', 'description': 'Personal Relief', 'amount': 1200000}, {'category': 'Qualifying Payments', 'type': 'Solar Panel Installation', 'description': 'Solar Panel', 'amount': 200000}, {'category': 'Qualifying Payments', 'type': 'Donations', 'description': 'Donations to District Hospital', 'amount': 75000}, {'category': 'Qualifying Payments', 'type': 'Shop Setup for Samurdhi Beneficiary', 'description': 'Establish a shop for a Samurdhi female', 'amount': 700000}, {'category': 'Qualifying Payments', 'type': 'Film & Cinema Industry Expenditure', 'description': 'New equipment for Cinema', 'amount': 5000000}, {'category': 'Employment Income', 'type': 'APIT Deduction', 'description': 'Less ~ APIT', 'amount': 2430000}, {'category': 'Investment Income', 'type': 'WHT Deduction', 'description': 'WHT on Interest 250,000', 'amount': 250000}, {'category': 'Investment Income', 'type': 'WHT Deduction', 'description': 'WHT on Rent', 'amount': 90000}], 'total_assessable_income': 36430000}
+INFO 2025-06-24 10:56:07,189 autoreload 5480 11384 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 10:56:12,191 autoreload 5400 11848 Watching for file changes with StatReloader
+INFO 2025-06-24 10:56:18,798 loader 5400 11848 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:56:18,798 loader 5400 11848 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:56:18,798 loader 5400 11848 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:56:18,872 loader 5400 11848 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:56:18,891 views 5400 11848 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:56:33,066 autoreload 5400 11848 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 10:56:36,678 autoreload 20840 24872 Watching for file changes with StatReloader
+INFO 2025-06-24 10:56:42,691 loader 20840 24872 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:56:42,692 loader 20840 24872 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:56:42,693 loader 20840 24872 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:56:42,709 loader 20840 24872 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:56:42,723 views 20840 24872 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:56:56,171 autoreload 20840 24872 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 10:57:00,001 autoreload 24716 27240 Watching for file changes with StatReloader
+INFO 2025-06-24 10:57:05,705 loader 24716 27240 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:57:05,705 loader 24716 27240 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:57:05,705 loader 24716 27240 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:57:05,721 loader 24716 27240 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:57:05,731 views 24716 27240 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:57:43,384 autoreload 24716 27240 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 10:57:46,911 autoreload 14284 27336 Watching for file changes with StatReloader
+INFO 2025-06-24 10:57:52,657 loader 14284 27336 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:57:52,658 loader 14284 27336 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:57:52,658 loader 14284 27336 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:57:52,670 loader 14284 27336 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:57:52,692 views 14284 27336 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:57:55,844 autoreload 14284 27336 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 10:57:59,546 autoreload 17852 13192 Watching for file changes with StatReloader
+INFO 2025-06-24 10:58:05,410 loader 17852 13192 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:58:05,410 loader 17852 13192 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:58:05,410 loader 17852 13192 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:58:05,436 loader 17852 13192 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:58:05,450 views 17852 13192 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:58:16,137 autoreload 17852 13192 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 10:58:19,536 autoreload 4820 5720 Watching for file changes with StatReloader
+INFO 2025-06-24 10:58:24,616 loader 4820 5720 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:58:24,616 loader 4820 5720 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:58:24,616 loader 4820 5720 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:58:24,632 loader 4820 5720 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:58:24,651 views 4820 5720 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:58:26,578 autoreload 4820 5720 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 10:58:30,267 autoreload 23764 5284 Watching for file changes with StatReloader
+INFO 2025-06-24 10:58:35,727 loader 23764 5284 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:58:35,728 loader 23764 5284 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:58:35,729 loader 23764 5284 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:58:35,746 loader 23764 5284 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:58:35,762 views 23764 5284 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:58:51,041 autoreload 23764 5284 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 10:58:54,496 autoreload 27136 25924 Watching for file changes with StatReloader
+INFO 2025-06-24 10:58:59,661 loader 27136 25924 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:58:59,661 loader 27136 25924 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:58:59,661 loader 27136 25924 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:58:59,690 loader 27136 25924 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:58:59,702 views 27136 25924 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:59:02,647 autoreload 27136 25924 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 10:59:05,930 autoreload 9296 8968 Watching for file changes with StatReloader
+INFO 2025-06-24 10:59:11,538 loader 9296 8968 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:59:11,538 loader 9296 8968 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:59:11,538 loader 9296 8968 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:59:11,559 loader 9296 8968 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:59:11,564 views 9296 8968 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 10:59:49,494 loader 21784 3844 Loading faiss with AVX512 support.
+INFO 2025-06-24 10:59:49,494 loader 21784 3844 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 10:59:49,494 loader 21784 3844 Loading faiss with AVX2 support.
+INFO 2025-06-24 10:59:49,518 loader 21784 3844 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 10:59:49,533 views 21784 3844 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:00:30,050 loader 23584 26644 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:00:30,052 loader 23584 26644 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:00:30,052 loader 23584 26644 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:00:30,072 loader 23584 26644 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:00:30,093 views 23584 26644 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:00:51,087 autoreload 21964 24652 Watching for file changes with StatReloader
+INFO 2025-06-24 11:00:57,527 loader 21964 24652 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:00:57,527 loader 21964 24652 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:00:57,530 loader 21964 24652 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:00:57,546 loader 21964 24652 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:00:57,561 views 21964 24652 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:02:11,742 autoreload 21964 24652 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:02:15,193 autoreload 18448 21424 Watching for file changes with StatReloader
+INFO 2025-06-24 11:02:21,699 loader 18448 21424 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:02:21,700 loader 18448 21424 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:02:21,700 loader 18448 21424 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:02:21,723 loader 18448 21424 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:02:21,738 views 18448 21424 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:02:25,872 autoreload 18448 21424 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:02:29,157 autoreload 24336 27072 Watching for file changes with StatReloader
+INFO 2025-06-24 11:02:36,205 loader 24336 27072 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:02:36,216 loader 24336 27072 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:02:36,216 loader 24336 27072 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:02:36,236 loader 24336 27072 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:02:36,249 views 24336 27072 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:03:01,414 autoreload 24336 27072 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:03:04,871 autoreload 22112 16996 Watching for file changes with StatReloader
+INFO 2025-06-24 11:03:08,255 autoreload 22112 16996 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:03:09,446 autoreload 22472 23288 Watching for file changes with StatReloader
+INFO 2025-06-24 11:03:26,401 autoreload 22472 23288 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:03:27,264 autoreload 27392 19128 Watching for file changes with StatReloader
+INFO 2025-06-24 11:03:29,656 autoreload 27392 19128 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:03:30,830 autoreload 18388 19200 Watching for file changes with StatReloader
+INFO 2025-06-24 11:04:14,681 autoreload 27256 16740 Watching for file changes with StatReloader
+INFO 2025-06-24 11:04:55,594 autoreload 27256 16740 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:04:56,765 autoreload 7636 20868 Watching for file changes with StatReloader
+INFO 2025-06-24 11:05:02,487 loader 7636 20868 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:05:02,487 loader 7636 20868 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:05:02,496 loader 7636 20868 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:05:02,517 loader 7636 20868 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:05:02,530 views 7636 20868 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:05:22,150 autoreload 7636 20868 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:05:25,548 autoreload 25176 9924 Watching for file changes with StatReloader
+INFO 2025-06-24 11:05:31,222 loader 25176 9924 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:05:31,222 loader 25176 9924 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:05:31,222 loader 25176 9924 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:05:31,254 loader 25176 9924 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:05:31,261 views 25176 9924 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:05:36,765 autoreload 25176 9924 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:05:40,484 autoreload 344 26308 Watching for file changes with StatReloader
+INFO 2025-06-24 11:05:45,828 loader 344 26308 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:05:45,828 loader 344 26308 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:05:45,828 loader 344 26308 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:05:45,851 loader 344 26308 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:05:45,867 views 344 26308 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:05:47,840 autoreload 344 26308 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:05:51,448 autoreload 26708 25040 Watching for file changes with StatReloader
+INFO 2025-06-24 11:05:56,810 loader 26708 25040 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:05:56,810 loader 26708 25040 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:05:56,810 loader 26708 25040 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:05:56,836 loader 26708 25040 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:05:56,846 views 26708 25040 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:06:04,310 autoreload 26708 25040 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:06:07,704 autoreload 26392 21832 Watching for file changes with StatReloader
+INFO 2025-06-24 11:06:10,017 autoreload 26392 21832 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:06:11,143 autoreload 10552 24328 Watching for file changes with StatReloader
+INFO 2025-06-24 11:06:16,378 loader 10552 24328 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:06:16,378 loader 10552 24328 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:06:16,378 loader 10552 24328 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:06:16,400 loader 10552 24328 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:06:16,416 views 10552 24328 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:06:20,857 autoreload 10552 24328 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 11:06:24,571 autoreload 13696 22040 Watching for file changes with StatReloader
+INFO 2025-06-24 11:06:29,749 loader 13696 22040 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:06:29,749 loader 13696 22040 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:06:29,751 loader 13696 22040 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:06:29,768 loader 13696 22040 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:06:29,783 views 13696 22040 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:06:54,925 autoreload 13696 22040 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 11:06:58,148 autoreload 13368 3128 Watching for file changes with StatReloader
+INFO 2025-06-24 11:07:14,585 loader 13368 3128 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:07:14,585 loader 13368 3128 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:07:14,585 loader 13368 3128 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:07:14,614 loader 13368 3128 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:07:14,627 views 13368 3128 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:07:32,773 loader 22320 12412 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:07:32,773 loader 22320 12412 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:07:32,773 loader 22320 12412 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:07:32,805 loader 22320 12412 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:07:32,823 views 22320 12412 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:07:54,329 loader 18044 21244 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:07:54,329 loader 18044 21244 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:07:54,329 loader 18044 21244 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:07:54,350 loader 18044 21244 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:07:54,369 views 18044 21244 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:08:11,490 autoreload 25772 18192 Watching for file changes with StatReloader
+INFO 2025-06-24 11:08:18,397 loader 25772 18192 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:08:18,397 loader 25772 18192 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:08:18,397 loader 25772 18192 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:08:18,418 loader 25772 18192 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:08:18,434 views 25772 18192 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-24 11:09:16,618 log 25772 27324 Unauthorized: /api/users/login/
+INFO 2025-06-24 11:11:40,985 autoreload 25772 18192 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:11:44,348 autoreload 22232 16740 Watching for file changes with StatReloader
+INFO 2025-06-24 11:11:49,766 loader 22232 16740 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:11:49,768 loader 22232 16740 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:11:49,768 loader 22232 16740 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:11:49,792 loader 22232 16740 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:11:49,802 views 22232 16740 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:11:55,546 autoreload 22232 16740 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:11:59,195 autoreload 17440 23040 Watching for file changes with StatReloader
+INFO 2025-06-24 11:12:05,029 loader 17440 23040 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:12:05,030 loader 17440 23040 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:12:05,030 loader 17440 23040 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:12:05,048 loader 17440 23040 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:12:05,068 views 17440 23040 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:12:26,114 loader 26828 12280 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:12:26,114 loader 26828 12280 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:12:26,114 loader 26828 12280 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:12:26,134 loader 26828 12280 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:12:26,149 views 26828 12280 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:13:12,834 loader 25980 27556 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:13:12,834 loader 25980 27556 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:13:12,834 loader 25980 27556 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:13:12,864 loader 25980 27556 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:13:12,873 views 25980 27556 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:14:27,210 loader 19756 16988 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:14:27,210 loader 19756 16988 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:14:27,210 loader 19756 16988 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:14:27,238 loader 19756 16988 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:14:27,242 views 19756 16988 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:14:46,849 loader 17932 12008 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:14:46,850 loader 17932 12008 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:14:46,850 loader 17932 12008 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:14:46,869 loader 17932 12008 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:14:46,888 views 17932 12008 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:15:33,054 autoreload 25772 9348 Watching for file changes with StatReloader
+INFO 2025-06-24 11:15:40,536 loader 25772 9348 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:15:40,536 loader 25772 9348 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:15:40,536 loader 25772 9348 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:15:40,568 loader 25772 9348 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:15:40,586 views 25772 9348 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:17:22,169 autoreload 25772 9348 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:17:25,536 autoreload 8000 18240 Watching for file changes with StatReloader
+INFO 2025-06-24 11:17:44,596 autoreload 8000 18240 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:17:46,178 autoreload 1008 4944 Watching for file changes with StatReloader
+INFO 2025-06-24 11:17:52,198 loader 1008 4944 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:17:52,199 loader 1008 4944 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:17:52,200 loader 1008 4944 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:17:52,217 loader 1008 4944 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:17:52,227 views 1008 4944 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:18:47,195 autoreload 1008 4944 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:18:50,873 autoreload 12512 960 Watching for file changes with StatReloader
+INFO 2025-06-24 11:18:57,880 loader 12512 960 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:18:57,880 loader 12512 960 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:18:57,880 loader 12512 960 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:18:57,907 loader 12512 960 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:18:57,921 views 12512 960 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:19:12,453 autoreload 12512 960 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:19:16,146 autoreload 14916 27132 Watching for file changes with StatReloader
+INFO 2025-06-24 11:19:22,635 loader 14916 27132 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:19:22,637 loader 14916 27132 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:19:22,637 loader 14916 27132 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:19:22,656 loader 14916 27132 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:19:22,666 views 14916 27132 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:19:25,899 autoreload 14916 27132 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:19:29,050 autoreload 17492 4844 Watching for file changes with StatReloader
+INFO 2025-06-24 11:19:31,375 autoreload 17492 4844 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:19:32,355 autoreload 18384 17716 Watching for file changes with StatReloader
+INFO 2025-06-24 11:19:39,214 loader 18384 17716 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:19:39,214 loader 18384 17716 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:19:39,214 loader 18384 17716 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:19:39,230 loader 18384 17716 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:19:39,252 views 18384 17716 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:19:41,436 autoreload 18384 17716 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:19:44,902 autoreload 2216 21168 Watching for file changes with StatReloader
+INFO 2025-06-24 11:19:51,050 loader 2216 21168 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:19:51,051 loader 2216 21168 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:19:51,052 loader 2216 21168 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:19:51,074 loader 2216 21168 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:19:51,085 views 2216 21168 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:19:56,595 autoreload 2216 21168 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:20:00,284 autoreload 24064 2584 Watching for file changes with StatReloader
+INFO 2025-06-24 11:20:06,194 loader 24064 2584 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:20:06,194 loader 24064 2584 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:20:06,194 loader 24064 2584 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:20:06,226 loader 24064 2584 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:20:06,247 views 24064 2584 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:20:34,234 loader 22484 12260 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:20:34,236 loader 22484 12260 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:20:34,236 loader 22484 12260 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:20:34,259 loader 22484 12260 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:20:34,282 views 22484 12260 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:21:09,352 loader 6176 27420 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:21:09,368 loader 6176 27420 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:21:09,368 loader 6176 27420 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:21:09,385 loader 6176 27420 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:21:09,405 views 6176 27420 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:21:17,327 autoreload 9192 26168 Watching for file changes with StatReloader
+INFO 2025-06-24 11:21:23,859 loader 9192 26168 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:21:23,860 loader 9192 26168 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:21:23,860 loader 9192 26168 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:21:23,890 loader 9192 26168 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:21:23,907 views 9192 26168 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:30:33,919 autoreload 9192 26168 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 11:30:37,761 autoreload 13648 25872 Watching for file changes with StatReloader
+INFO 2025-06-24 11:30:46,903 loader 13648 25872 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:30:46,903 loader 13648 25872 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:30:46,903 loader 13648 25872 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:30:46,926 loader 13648 25872 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:30:46,939 views 13648 25872 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:30:51,129 autoreload 13648 25872 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 11:30:54,657 autoreload 27080 27172 Watching for file changes with StatReloader
+INFO 2025-06-24 11:31:00,909 loader 27080 27172 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:31:00,911 loader 27080 27172 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:31:00,911 loader 27080 27172 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:31:00,928 loader 27080 27172 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:31:00,944 views 27080 27172 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:31:31,785 loader 19084 25904 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:31:31,785 loader 19084 25904 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:31:31,785 loader 19084 25904 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:31:31,803 loader 19084 25904 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:31:31,818 views 19084 25904 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:31:45,520 loader 27348 27448 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:31:45,520 loader 27348 27448 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:31:45,520 loader 27348 27448 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:31:45,543 loader 27348 27448 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:31:45,558 views 27348 27448 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:31:51,936 autoreload 22432 24304 Watching for file changes with StatReloader
+INFO 2025-06-24 11:32:00,426 loader 22432 24304 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:32:00,426 loader 22432 24304 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:32:00,426 loader 22432 24304 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:32:00,472 loader 22432 24304 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:32:00,492 views 22432 24304 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:33:35,041 autoreload 22432 24304 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:33:38,562 autoreload 20712 17472 Watching for file changes with StatReloader
+INFO 2025-06-24 11:33:44,361 loader 20712 17472 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:33:44,361 loader 20712 17472 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:33:44,361 loader 20712 17472 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:33:44,384 loader 20712 17472 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:33:44,398 views 20712 17472 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:35:14,440 autoreload 20712 17472 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 11:35:18,759 autoreload 25880 22852 Watching for file changes with StatReloader
+INFO 2025-06-24 11:35:24,163 loader 25880 22852 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:35:24,163 loader 25880 22852 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:35:24,163 loader 25880 22852 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:35:24,180 loader 25880 22852 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:35:24,185 views 25880 22852 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:35:29,713 autoreload 25880 22852 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 11:35:33,548 autoreload 12836 15564 Watching for file changes with StatReloader
+INFO 2025-06-24 11:35:39,480 loader 12836 15564 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:35:39,480 loader 12836 15564 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:35:39,480 loader 12836 15564 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:35:39,511 loader 12836 15564 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:35:39,518 views 12836 15564 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:35:43,992 autoreload 12836 15564 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 11:35:47,460 autoreload 20664 22056 Watching for file changes with StatReloader
+INFO 2025-06-24 11:35:53,874 loader 20664 22056 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:35:53,875 loader 20664 22056 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:35:53,875 loader 20664 22056 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:35:53,894 loader 20664 22056 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:35:53,906 views 20664 22056 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:35:56,649 autoreload 20664 22056 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 11:36:00,552 autoreload 22184 26648 Watching for file changes with StatReloader
+INFO 2025-06-24 11:36:07,575 loader 22184 26648 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:36:07,575 loader 22184 26648 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:36:07,575 loader 22184 26648 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:36:07,681 loader 22184 26648 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:36:07,697 views 22184 26648 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:36:10,984 autoreload 22184 26648 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 11:36:14,480 autoreload 26660 27036 Watching for file changes with StatReloader
+INFO 2025-06-24 11:36:20,385 loader 26660 27036 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:36:20,386 loader 26660 27036 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:36:20,386 loader 26660 27036 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:36:20,412 loader 26660 27036 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:36:20,428 views 26660 27036 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 11:36:30,923 autoreload 26660 27036 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 11:36:35,052 autoreload 26088 26440 Watching for file changes with StatReloader
+INFO 2025-06-24 11:36:44,819 loader 26088 26440 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:36:44,819 loader 26088 26440 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:36:44,819 loader 26088 26440 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:36:44,841 loader 26088 26440 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:36:44,853 views 26088 26440 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-24 11:52:33,949 log 26088 25388 Unauthorized: /api/users/reviews/me/
+WARNING 2025-06-24 11:52:40,821 log 26088 4160 Unauthorized: /api/users/reviews/me/
+WARNING 2025-06-24 11:53:24,116 log 26088 22672 Unauthorized: /api/users/reviews/me/
+WARNING 2025-06-24 11:54:29,973 log 26088 7856 Unauthorized: /api/users/reviews/me/
+WARNING 2025-06-24 11:55:53,116 log 26088 4356 Unauthorized: /api/users/reviews/me/
+INFO 2025-06-24 11:57:23,401 autoreload 26088 26440 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-06-24 11:57:27,746 autoreload 14352 25836 Watching for file changes with StatReloader
+INFO 2025-06-24 11:57:34,552 loader 14352 25836 Loading faiss with AVX512 support.
+INFO 2025-06-24 11:57:34,552 loader 14352 25836 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 11:57:34,552 loader 14352 25836 Loading faiss with AVX2 support.
+INFO 2025-06-24 11:57:34,619 loader 14352 25836 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 11:57:34,657 views 14352 25836 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-24 11:57:58,890 log 14352 25976 Unauthorized: /api/users/reviews/me/
+INFO 2025-06-24 11:59:30,039 autoreload 14352 25836 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:59:33,497 autoreload 7648 18472 Watching for file changes with StatReloader
+INFO 2025-06-24 11:59:34,777 autoreload 7648 18472 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 11:59:35,804 autoreload 25072 11700 Watching for file changes with StatReloader
+INFO 2025-06-24 12:02:58,163 loader 10352 3028 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:02:58,163 loader 10352 3028 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:02:58,163 loader 10352 3028 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:02:58,235 loader 10352 3028 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:02:58,265 views 10352 3028 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 12:04:19,335 loader 18776 23672 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:04:19,335 loader 18776 23672 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:04:19,335 loader 18776 23672 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:04:19,356 loader 18776 23672 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:04:19,358 views 18776 23672 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 12:04:46,028 loader 17764 20396 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:04:46,042 loader 17764 20396 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:04:46,043 loader 17764 20396 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:04:46,058 loader 17764 20396 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:04:46,071 views 17764 20396 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 12:08:07,086 autoreload 23212 26548 Watching for file changes with StatReloader
+INFO 2025-06-24 12:08:14,224 loader 23212 26548 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:08:14,224 loader 23212 26548 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:08:14,224 loader 23212 26548 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:08:14,289 loader 23212 26548 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:08:14,321 views 23212 26548 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 12:08:33,397 autoreload 23212 26548 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 12:08:36,713 autoreload 22204 21352 Watching for file changes with StatReloader
+INFO 2025-06-24 12:08:43,059 loader 22204 21352 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:08:43,059 loader 22204 21352 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:08:43,059 loader 22204 21352 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:08:43,082 loader 22204 21352 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:08:43,095 views 22204 21352 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 12:08:54,500 autoreload 22204 21352 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 12:08:58,043 autoreload 27252 27496 Watching for file changes with StatReloader
+INFO 2025-06-24 12:09:03,623 loader 27252 27496 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:09:03,623 loader 27252 27496 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:09:03,623 loader 27252 27496 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:09:03,645 loader 27252 27496 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:09:03,665 views 27252 27496 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 12:09:13,773 autoreload 27252 27496 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 12:09:17,042 autoreload 25640 27196 Watching for file changes with StatReloader
+INFO 2025-06-24 12:09:23,536 loader 25640 27196 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:09:23,536 loader 25640 27196 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:09:23,536 loader 25640 27196 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:09:23,571 loader 25640 27196 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:09:23,577 views 25640 27196 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 12:09:45,540 autoreload 25640 27196 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-06-24 12:09:48,980 autoreload 24192 9740 Watching for file changes with StatReloader
+INFO 2025-06-24 12:09:54,039 loader 24192 9740 Loading faiss with AVX512 support.
+INFO 2025-06-24 12:09:54,041 loader 24192 9740 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 12:09:54,041 loader 24192 9740 Loading faiss with AVX2 support.
+INFO 2025-06-24 12:09:54,062 loader 24192 9740 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 12:09:54,077 views 24192 9740 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 13:34:09,795 autoreload 24192 9740 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 13:34:14,496 autoreload 25740 24616 Watching for file changes with StatReloader
+INFO 2025-06-24 13:34:22,838 loader 25740 24616 Loading faiss with AVX512 support.
+INFO 2025-06-24 13:34:22,839 loader 25740 24616 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 13:34:22,840 loader 25740 24616 Loading faiss with AVX2 support.
+INFO 2025-06-24 13:34:22,902 loader 25740 24616 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 13:34:22,925 views 25740 24616 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 13:34:50,912 loader 26904 22804 Loading faiss with AVX512 support.
+INFO 2025-06-24 13:34:50,912 loader 26904 22804 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 13:34:50,912 loader 26904 22804 Loading faiss with AVX2 support.
+INFO 2025-06-24 13:34:50,934 loader 26904 22804 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 13:34:50,966 views 26904 22804 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:02:35,008 loader 9192 18692 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:02:35,008 loader 9192 18692 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:02:35,008 loader 9192 18692 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:02:35,264 loader 9192 18692 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:02:35,325 views 9192 18692 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:03:16,297 loader 6728 24300 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:03:16,297 loader 6728 24300 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:03:16,297 loader 6728 24300 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:03:16,321 loader 6728 24300 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:03:16,337 views 6728 24300 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:03:31,875 loader 20896 13328 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:03:31,875 loader 20896 13328 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:03:31,875 loader 20896 13328 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:03:31,909 loader 20896 13328 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:03:31,923 views 20896 13328 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:05:17,627 loader 15072 4628 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:05:17,627 loader 15072 4628 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:05:17,627 loader 15072 4628 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:05:17,718 loader 15072 4628 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:05:17,733 views 15072 4628 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:05:33,423 loader 25060 21072 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:05:33,423 loader 25060 21072 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:05:33,423 loader 25060 21072 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:05:33,448 loader 25060 21072 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:05:33,471 views 25060 21072 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:07:30,727 loader 17820 26972 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:07:30,727 loader 17820 26972 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:07:30,727 loader 17820 26972 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:07:30,759 loader 17820 26972 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:07:30,776 views 17820 26972 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:07:44,326 loader 10152 10852 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:07:44,326 loader 10152 10852 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:07:44,326 loader 10152 10852 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:07:44,361 loader 10152 10852 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:07:44,373 views 10152 10852 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:14:43,201 loader 6596 20620 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:14:43,201 loader 6596 20620 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:14:43,201 loader 6596 20620 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:14:43,225 loader 6596 20620 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:14:43,239 views 6596 20620 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:15:46,731 loader 13940 14312 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:15:46,731 loader 13940 14312 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:15:46,733 loader 13940 14312 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:15:46,752 loader 13940 14312 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:15:46,766 views 13940 14312 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:16:04,213 loader 27160 26848 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:16:04,213 loader 27160 26848 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:16:04,213 loader 27160 26848 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:16:04,247 loader 27160 26848 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:16:04,260 views 27160 26848 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:16:13,055 autoreload 23764 22896 Watching for file changes with StatReloader
+INFO 2025-06-24 14:16:21,707 loader 23764 22896 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:16:21,707 loader 23764 22896 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:16:21,707 loader 23764 22896 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:16:21,732 loader 23764 22896 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:16:21,746 views 23764 22896 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:18:27,846 autoreload 23764 22896 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 14:18:31,277 autoreload 24480 23204 Watching for file changes with StatReloader
+INFO 2025-06-24 14:18:38,032 loader 24480 23204 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:18:38,032 loader 24480 23204 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:18:38,032 loader 24480 23204 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:18:38,058 loader 24480 23204 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:18:38,070 views 24480 23204 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:18:40,421 autoreload 24480 23204 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\models.py changed, reloading.
+INFO 2025-06-24 14:18:43,931 autoreload 25796 21956 Watching for file changes with StatReloader
+INFO 2025-06-24 14:18:51,423 loader 25796 21956 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:18:51,439 loader 25796 21956 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:18:51,439 loader 25796 21956 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:18:51,460 loader 25796 21956 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:18:51,472 views 25796 21956 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:19:13,296 loader 22184 21024 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:19:13,296 loader 22184 21024 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:19:13,296 loader 22184 21024 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:19:13,331 loader 22184 21024 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:19:13,341 views 22184 21024 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:19:29,251 loader 15856 22684 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:19:29,251 loader 15856 22684 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:19:29,251 loader 15856 22684 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:19:29,274 loader 15856 22684 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:19:29,288 views 15856 22684 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:19:37,141 autoreload 5296 13344 Watching for file changes with StatReloader
+INFO 2025-06-24 14:19:45,062 loader 5296 13344 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:19:45,062 loader 5296 13344 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:19:45,062 loader 5296 13344 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:19:45,107 loader 5296 13344 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:19:45,124 views 5296 13344 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:22:43,960 autoreload 5296 13344 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 14:22:47,192 autoreload 23788 19760 Watching for file changes with StatReloader
+INFO 2025-06-24 14:22:54,656 loader 23788 19760 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:22:54,659 loader 23788 19760 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:22:54,659 loader 23788 19760 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:22:54,680 loader 23788 19760 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:22:54,689 views 23788 19760 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:22:57,353 autoreload 23788 19760 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 14:23:01,537 autoreload 19896 22664 Watching for file changes with StatReloader
+INFO 2025-06-24 14:23:09,169 loader 19896 22664 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:23:09,170 loader 19896 22664 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:23:09,171 loader 19896 22664 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:23:09,190 loader 19896 22664 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:23:09,201 views 19896 22664 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:24:52,199 autoreload 19896 22664 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 14:24:55,594 autoreload 17156 3872 Watching for file changes with StatReloader
+INFO 2025-06-24 14:25:03,557 loader 17156 3872 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:25:03,571 loader 17156 3872 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:25:03,572 loader 17156 3872 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:25:03,591 loader 17156 3872 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:25:03,609 views 17156 3872 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:25:12,681 autoreload 17156 3872 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 14:25:17,421 autoreload 23712 25176 Watching for file changes with StatReloader
+INFO 2025-06-24 14:25:24,635 loader 23712 25176 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:25:24,635 loader 23712 25176 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:25:24,635 loader 23712 25176 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:25:24,661 loader 23712 25176 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:25:24,673 views 23712 25176 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:25:30,386 autoreload 23712 25176 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 14:25:33,837 autoreload 26752 20492 Watching for file changes with StatReloader
+INFO 2025-06-24 14:25:41,136 loader 26752 20492 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:25:41,136 loader 26752 20492 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:25:41,137 loader 26752 20492 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:25:41,153 loader 26752 20492 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:25:41,170 views 26752 20492 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:26:35,438 loader 21820 2392 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:26:35,438 loader 21820 2392 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:26:35,438 loader 21820 2392 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:26:35,456 loader 21820 2392 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:26:35,471 views 21820 2392 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:26:52,736 loader 17128 17768 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:26:52,736 loader 17128 17768 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:26:52,736 loader 17128 17768 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:26:52,751 loader 17128 17768 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:26:52,775 views 17128 17768 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:27:02,358 autoreload 22564 2520 Watching for file changes with StatReloader
+INFO 2025-06-24 14:27:09,676 loader 22564 2520 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:27:09,676 loader 22564 2520 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:27:09,676 loader 22564 2520 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:27:09,705 loader 22564 2520 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:27:09,722 views 22564 2520 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-24 14:28:56,669 log 22564 4060 Not Found: /api/tax-reviews/
+WARNING 2025-06-24 14:30:09,389 log 22564 16528 Not Found: /api/tax-reviews/
+WARNING 2025-06-24 14:30:24,711 log 22564 2424 Not Found: /api/tax-reviews/
+INFO 2025-06-24 14:30:54,209 autoreload 22564 2520 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\serializers.py changed, reloading.
+INFO 2025-06-24 14:30:57,872 autoreload 3844 4824 Watching for file changes with StatReloader
+INFO 2025-06-24 14:31:07,416 loader 3844 4824 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:31:07,416 loader 3844 4824 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:31:07,416 loader 3844 4824 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:31:07,457 loader 3844 4824 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:31:07,480 views 3844 4824 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:33:04,385 autoreload 3844 4824 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 14:33:07,731 autoreload 6572 5040 Watching for file changes with StatReloader
+INFO 2025-06-24 14:33:14,781 loader 6572 5040 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:33:14,781 loader 6572 5040 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:33:14,781 loader 6572 5040 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:33:14,823 loader 6572 5040 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:33:14,841 views 6572 5040 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 14:33:45,715 autoreload 6572 5040 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 14:33:49,146 autoreload 22780 18984 Watching for file changes with StatReloader
+INFO 2025-06-24 14:33:56,957 loader 22780 18984 Loading faiss with AVX512 support.
+INFO 2025-06-24 14:33:56,957 loader 22780 18984 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 14:33:56,957 loader 22780 18984 Loading faiss with AVX2 support.
+INFO 2025-06-24 14:33:56,995 loader 22780 18984 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 14:33:57,018 views 22780 18984 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-24 15:06:43,891 log 22780 23284 Not Found: /api/tax-reviews/
+INFO 2025-06-24 15:07:56,606 autoreload 22780 18984 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 15:08:00,386 autoreload 8084 19584 Watching for file changes with StatReloader
+INFO 2025-06-24 15:08:10,601 loader 8084 19584 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:08:10,609 loader 8084 19584 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:08:10,609 loader 8084 19584 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:08:10,661 loader 8084 19584 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:08:10,694 views 8084 19584 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:12:20,061 autoreload 8084 19584 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\urls.py changed, reloading.
+INFO 2025-06-24 15:12:23,890 autoreload 23408 9700 Watching for file changes with StatReloader
+INFO 2025-06-24 15:12:32,415 loader 23408 9700 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:12:32,415 loader 23408 9700 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:12:32,415 loader 23408 9700 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:12:32,453 loader 23408 9700 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:12:32,482 views 23408 9700 Vector store initialized with 93 chunks from 12 documents
+ERROR 2025-06-24 15:12:35,062 log 23408 1172 Internal Server Error: /api/users/tax-reviews/
+Traceback (most recent call last):
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\generics.py", line 226, in put
+    return self.update(request, *args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\mixins.py", line 65, in update
+    instance = self.get_object()
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\generics.py", line 88, in get_object
+    assert lookup_url_kwarg in self.kwargs, (
+AssertionError: Expected view TaxReviewCreateUpdateView to be called with a URL keyword argument named "name". Fix your URL conf, or set the `.lookup_field` attribute on the view correctly.
+ERROR 2025-06-24 15:12:44,667 log 23408 20492 Internal Server Error: /api/users/tax-reviews/
+Traceback (most recent call last):
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\views\decorators\csrf.py", line 56, in wrapper_view
+    return view_func(*args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\generics.py", line 226, in put
+    return self.update(request, *args, **kwargs)
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\mixins.py", line 65, in update
+    instance = self.get_object()
+  File "C:\Users\Keerththansana\Desktop\Project\TaxZone\venv\lib\site-packages\rest_framework\generics.py", line 88, in get_object
+    assert lookup_url_kwarg in self.kwargs, (
+AssertionError: Expected view TaxReviewCreateUpdateView to be called with a URL keyword argument named "name". Fix your URL conf, or set the `.lookup_field` attribute on the view correctly.
+INFO 2025-06-24 15:14:20,260 autoreload 23408 9700 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:14:23,844 autoreload 15856 26120 Watching for file changes with StatReloader
+INFO 2025-06-24 15:14:31,871 loader 15856 26120 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:14:31,871 loader 15856 26120 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:14:31,871 loader 15856 26120 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:14:31,897 loader 15856 26120 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:14:31,904 views 15856 26120 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:14:57,642 autoreload 15856 26120 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:15:00,939 autoreload 16368 23976 Watching for file changes with StatReloader
+INFO 2025-06-24 15:15:09,171 loader 16368 23976 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:15:09,171 loader 16368 23976 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:15:09,172 loader 16368 23976 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:15:09,192 loader 16368 23976 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:15:09,203 views 16368 23976 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:16:20,637 autoreload 16368 23976 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 15:16:24,470 autoreload 14568 15268 Watching for file changes with StatReloader
+INFO 2025-06-24 15:16:31,970 loader 14568 15268 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:16:31,970 loader 14568 15268 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:16:31,971 loader 14568 15268 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:16:31,998 loader 14568 15268 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:16:32,013 views 14568 15268 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:18:38,145 autoreload 14568 15268 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:18:41,607 autoreload 23832 1952 Watching for file changes with StatReloader
+INFO 2025-06-24 15:18:49,447 loader 23832 1952 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:18:49,447 loader 23832 1952 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:18:49,447 loader 23832 1952 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:18:49,482 loader 23832 1952 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:18:49,497 views 23832 1952 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:18:52,144 autoreload 23832 1952 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 15:18:55,558 autoreload 10388 9484 Watching for file changes with StatReloader
+INFO 2025-06-24 15:19:03,669 loader 10388 9484 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:19:03,669 loader 10388 9484 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:19:03,669 loader 10388 9484 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:19:03,692 loader 10388 9484 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:19:03,704 views 10388 9484 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:20:56,644 autoreload 10388 9484 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:20:59,905 autoreload 21152 15244 Watching for file changes with StatReloader
+INFO 2025-06-24 15:21:06,896 loader 21152 15244 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:21:06,897 loader 21152 15244 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:21:06,897 loader 21152 15244 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:21:06,900 loader 21152 15244 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:21:06,930 views 21152 15244 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:22:28,487 autoreload 21152 15244 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:22:31,888 autoreload 24412 1172 Watching for file changes with StatReloader
+INFO 2025-06-24 15:22:39,461 loader 24412 1172 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:22:39,461 loader 24412 1172 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:22:39,461 loader 24412 1172 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:22:39,569 loader 24412 1172 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:22:39,598 views 24412 1172 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:23:10,425 autoreload 24412 1172 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:23:14,022 autoreload 9700 344 Watching for file changes with StatReloader
+INFO 2025-06-24 15:23:21,475 loader 9700 344 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:23:21,475 loader 9700 344 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:23:21,475 loader 9700 344 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:23:21,510 loader 9700 344 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:23:21,527 views 9700 344 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:23:24,991 autoreload 9700 344 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 15:23:28,331 autoreload 2700 14588 Watching for file changes with StatReloader
+INFO 2025-06-24 15:23:35,436 loader 2700 14588 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:23:35,437 loader 2700 14588 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:23:35,437 loader 2700 14588 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:23:35,458 loader 2700 14588 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:23:35,468 views 2700 14588 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:25:00,905 autoreload 2700 14588 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 15:25:04,570 autoreload 26264 21956 Watching for file changes with StatReloader
+INFO 2025-06-24 15:25:14,159 loader 26264 21956 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:25:14,160 loader 26264 21956 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:25:14,161 loader 26264 21956 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:25:14,186 loader 26264 21956 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:25:14,194 views 26264 21956 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:25:48,679 autoreload 26264 21956 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:25:52,213 autoreload 25036 25904 Watching for file changes with StatReloader
+INFO 2025-06-24 15:25:59,161 loader 25036 25904 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:25:59,161 loader 25036 25904 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:25:59,163 loader 25036 25904 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:25:59,188 loader 25036 25904 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:25:59,200 views 25036 25904 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:26:48,472 autoreload 25036 25904 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 15:26:51,998 autoreload 1068 27444 Watching for file changes with StatReloader
+INFO 2025-06-24 15:26:59,999 loader 1068 27444 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:26:59,999 loader 1068 27444 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:26:59,999 loader 1068 27444 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:27:00,045 loader 1068 27444 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:27:00,063 views 1068 27444 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-24 15:28:26,804 log 1068 23744 Not Found: /api/users/tax-reviews/list/
+WARNING 2025-06-24 15:28:45,430 log 1068 25240 Not Found: /api/users/tax-reviews/list/
+WARNING 2025-06-24 15:29:24,190 log 1068 18604 Not Found: /api/users/tax-reviews/list/
+WARNING 2025-06-24 15:30:42,724 log 1068 1764 Not Found: /api/users/tax-reviews/list/
+INFO 2025-06-24 15:32:38,225 autoreload 1068 27444 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:32:42,069 autoreload 23616 15104 Watching for file changes with StatReloader
+INFO 2025-06-24 15:32:49,364 loader 23616 15104 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:32:49,364 loader 23616 15104 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:32:49,364 loader 23616 15104 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:32:49,404 loader 23616 15104 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:32:49,421 views 23616 15104 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:34:19,307 autoreload 23616 15104 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\views.py changed, reloading.
+INFO 2025-06-24 15:34:22,940 autoreload 10900 23128 Watching for file changes with StatReloader
+INFO 2025-06-24 15:34:29,168 loader 10900 23128 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:34:29,168 loader 10900 23128 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:34:29,168 loader 10900 23128 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:34:29,185 loader 10900 23128 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:34:29,201 views 10900 23128 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:36:41,306 autoreload 10900 23128 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\users\urls.py changed, reloading.
+INFO 2025-06-24 15:36:44,657 autoreload 14312 10508 Watching for file changes with StatReloader
+INFO 2025-06-24 15:36:51,492 loader 14312 10508 Loading faiss with AVX512 support.
+INFO 2025-06-24 15:36:51,492 loader 14312 10508 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-24 15:36:51,493 loader 14312 10508 Loading faiss with AVX2 support.
+INFO 2025-06-24 15:36:51,511 loader 14312 10508 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-24 15:36:51,522 views 14312 10508 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-24 15:50:58,477 views 14312 17816 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 15:53:34,095 views 14312 17816 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-24 15:59:30,183 views 14312 13588 Extracted text: Primary income  	10000000
+Secondary income 	8000000
+APIT primary 		7000
+APIT Secondary 		9000
+Sole Proprietorship		400000		
+Partnership 			50000
+Trust Beneficiary 		60000
+New Business Income		70000
+In...
+INFO 2025-06-24 15:59:30,183 document_processor 14312 13588 Starting Gemini API analysis...
+INFO 2025-06-24 15:59:41,777 document_processor 14312 13588 Gemini API response received: 4586 characters
+INFO 2025-06-24 15:59:41,784 document_processor 14312 13588 Gemini analysis successful: 24 income items, 5 deductions
+INFO 2025-06-24 15:59:41,784 views 14312 13588 Gemini-enhanced analysis results: {'document_type': 'tax_document', 'confidence_score': 0.95, 'processing_time': 0, 'income_items': [{'category': 'Employment Income', 'type': 'Primary Employment', 'description': 'Primary income', 'amount': 10000000.0}, {'category': 'Employment Income', 'type': 'Secondary Employment', 'description': 'Secondary income', 'amount': 8000000.0}, {'category': 'Business Income', 'type': 'Sole Proprietorship', 'description': 'Sole Proprietorship', 'amount': 400000.0}, {'category': 'Business Income', 'type': 'Partnership', 'description': 'Partnership', 'amount': 50000.0}, {'category': 'Business Income', 'type': 'Trust Beneficiary', 'description': 'Trust Beneficiary', 'amount': 60000.0}, {'category': 'Business Income', 'type': 'Other Business Income', 'description': 'New Business Income', 'amount': 70000.0}, {'category': 'Investment Income', 'type': 'Interest Income', 'description': 'Interest', 'amount': 70000.0}, {'category': 'Investment Income', 'type': 'Dividend Income', 'description': 'Dividend Income', 'amount': 50000.0}, {'category': 'Investment Income', 'type': 'Rental Income', 'description': 'Rental Income', 'amount': 40000.0}, {'category': 'Investment Income', 'type': 'Capital Gains', 'description': 'Capital Gains Income', 'amount': 90000.0}, {'category': 'Other Income', 'type': 'Service Income', 'description': 'Service Income', 'amount': 30000.0}, {'category': 'Other Income', 'type': 'Royalty', 'description': 'Royalty', 'amount': 30000.0}, {'category': 'Other Income', 'type': 'Natural Resource Payment', 'description': 'Natural Resource income', 'amount': 40000.0}, {'category': 'Other Income', 'type': 'Gem Sale', 'description': 'Auctioned Gem Sale income', 'amount': 40000.0}, {'category': 'Terminal Benefits', 'type': 'Commuted Pension', 'description': 'Commuted Pension', 'amount': 9000.0}, {'category': 'Terminal Benefits', 'type': 'Retiring Gratuity', 'description': 'Retiring Gratuity', 'amount': 7000.0}, {'category': 'Terminal Benefits', 'type': 'Compensation for Job Loss', 'description': 'Compensation for Job Loss', 'amount': 5000.0}, {'category': 'Terminal Benefits', 'type': 'ETF Payment', 'description': 'ETF Payment', 'amount': 70000.0}, {'category': 'Terminal Benefits', 'type': 'Other Terminal Benefits', 'description': 'Old work Terminal Benefits', 'amount': 40000.0}, {'category': 'Qualifying Payments', 'type': 'Donations', 'description': 'Donations', 'amount': 400000.0}, {'category': 'Qualifying Payments', 'type': 'Shop Setup for Samurdhi Beneficiary', 'description': 'Samurdhi Beneficiary', 'amount': 50000.0}, {'category': 'Qualifying Payments', 'type': 'Solar Panel Installation', 'description': 'Solar Panel Installation', 'amount': 200000.0}, {'category': 'Qualifying Payments', 'type': 'Low-Income Housing Construction', 'description': 'Housing Construction', 'amount': 40000.0}, {'category': 'Investment Income', 'type': 'Other Investment Income', 'description': 'Old Investment Income', 'amount': 40000.0}], 'deductions': [{'category': 'Employment Income', 'type': 'APIT Deduction', 'description': 'APIT primary', 'amount': 7000.0}, {'category': 'Employment Income', 'type': 'APIT Deduction', 'description': 'APIT Secondary', 'amount': 9000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Service Income WHT', 'amount': 7000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Royalty WHT', 'amount': 6000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Natural Resource WHT', 'amount': 9000.0}], 'total_assessable_income': 19793000.0}
+INFO 2025-06-24 16:07:09,534 views 14312 23120 User authenticated: True
+INFO 2025-06-24 16:07:09,535 views 14312 23120 User ID: 39
+INFO 2025-06-24 16:07:09,536 views 14312 23120 User username: Tharsan
+INFO 2025-06-24 16:07:09,536 views 14312 23120 User email: tharsan1715@gmail.com
+INFO 2025-06-24 16:07:09,536 views 14312 23120 Document file received: Tax_Calculation_2024_2025.pdf
+INFO 2025-06-24 16:07:09,536 views 14312 23120 Document file size: 694731 bytes
+INFO 2025-06-24 16:07:09,536 views 14312 23120 Document file type: image/png
+INFO 2025-06-24 16:07:09,566 views 14312 23120 Document saved successfully:
+INFO 2025-06-24 16:07:09,567 views 14312 23120   - User ID: 39
+INFO 2025-06-24 16:07:09,569 views 14312 23120   - Username: Tharsan
+INFO 2025-06-24 16:07:09,569 views 14312 23120   - Email: tharsan1715@gmail.com
+INFO 2025-06-24 16:07:09,570 views 14312 23120   - Document: downloaded_docs/Tax_Calculation_2024_2025_RXVlCuX.pdf
+INFO 2025-06-24 16:07:09,570 views 14312 23120   - Document size: 694731 bytes
+INFO 2025-06-24 16:07:09,572 views 14312 23120   - Document path: C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\media\downloaded_docs\Tax_Calculation_2024_2025_RXVlCuX.pdf
+INFO 2025-06-24 16:07:09,572 views 14312 23120   - Downloaded at: 2025-06-24 10:37:09.549831+00:00
+WARNING 2025-06-24 16:56:45,758 log 14312 25152 Not Found: /favicon.ico.png />    <meta name=
+WARNING 2025-06-24 17:00:14,772 log 14312 7008 Not Found: /favicon.ico />    <meta name=
+WARNING 2025-06-24 17:00:49,473 log 14312 8816 Not Found: /favicon.ico />    <meta name=
+WARNING 2025-06-24 17:00:51,233 log 14312 15872 Not Found: /favicon.ico />    <meta name=
+WARNING 2025-06-24 17:01:49,467 log 14312 27508 Not Found: /favicon.ico />    <meta name=
+WARNING 2025-06-24 17:02:47,409 log 14312 26996 Not Found: /favicon.ico />    <meta name=
+WARNING 2025-06-24 17:02:49,221 log 14312 3768 Not Found: /favicon.ico />    <meta name=
+WARNING 2025-06-24 17:03:28,552 log 14312 23336 Not Found: />    <meta name=
+WARNING 2025-06-24 17:03:35,834 log 14312 25784 Not Found: />    <meta name=
+WARNING 2025-06-24 17:06:02,848 log 14312 23596 Not Found: /favicon.ico/>    <meta name=
+WARNING 2025-06-24 17:06:11,567 log 14312 21844 Not Found: /favicon.ico />    <meta name=
+WARNING 2025-06-24 17:06:15,171 log 14312 12916 Not Found: /favicon.ico/>    <meta name=
+WARNING 2025-06-24 17:06:17,125 log 14312 27580 Not Found: /favicon.ico/>    <meta name=
+WARNING 2025-06-24 17:06:32,338 log 14312 24820 Not Found: /favicon.ico/>    <meta name=
+WARNING 2025-06-24 17:06:35,277 log 14312 24192 Not Found: /favicon.ico/>    <meta name=
+WARNING 2025-06-24 17:07:54,602 log 14312 20824 Not Found: />    <meta name=
+WARNING 2025-06-24 17:10:48,824 log 14312 22804 Not Found: /favicon.ico/>    <meta name=
+WARNING 2025-06-24 17:10:50,890 log 14312 22060 Not Found: /favicon.ico/>    <meta name=
+WARNING 2025-06-24 17:11:02,454 log 14312 26592 Not Found: /favicon.ico/>    <link rel=
+WARNING 2025-06-24 17:11:04,141 log 14312 26468 Not Found: /favicon.ico/>    <link rel=
+INFO 2025-06-25 00:44:35,711 loader 26388 1140 Loading faiss with AVX512 support.
+INFO 2025-06-25 00:44:35,713 loader 26388 1140 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 00:44:35,713 loader 26388 1140 Loading faiss with AVX2 support.
+INFO 2025-06-25 00:44:36,025 loader 26388 1140 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 00:44:36,108 views 26388 1140 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 00:55:23,374 loader 4348 1928 Loading faiss with AVX512 support.
+INFO 2025-06-25 00:55:23,374 loader 4348 1928 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 00:55:23,374 loader 4348 1928 Loading faiss with AVX2 support.
+INFO 2025-06-25 00:55:23,483 loader 4348 1928 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 00:55:23,508 views 4348 1928 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 00:55:47,393 autoreload 22644 4132 Watching for file changes with StatReloader
+INFO 2025-06-25 00:55:53,414 loader 22644 4132 Loading faiss with AVX512 support.
+INFO 2025-06-25 00:55:53,414 loader 22644 4132 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 00:55:53,414 loader 22644 4132 Loading faiss with AVX2 support.
+INFO 2025-06-25 00:55:53,443 loader 22644 4132 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 00:55:53,467 views 22644 4132 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 09:43:53,732 loader 15052 17580 Loading faiss with AVX512 support.
+INFO 2025-06-25 09:43:53,734 loader 15052 17580 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 09:43:53,734 loader 15052 17580 Loading faiss with AVX2 support.
+INFO 2025-06-25 09:43:54,065 loader 15052 17580 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 09:43:54,150 views 15052 17580 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 09:45:19,913 loader 21696 15560 Loading faiss with AVX512 support.
+INFO 2025-06-25 09:45:19,917 loader 21696 15560 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 09:45:19,918 loader 21696 15560 Loading faiss with AVX2 support.
+INFO 2025-06-25 09:45:19,951 loader 21696 15560 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 09:45:19,972 views 21696 15560 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 09:45:35,804 autoreload 13640 12840 Watching for file changes with StatReloader
+INFO 2025-06-25 09:45:42,529 loader 13640 12840 Loading faiss with AVX512 support.
+INFO 2025-06-25 09:45:42,529 loader 13640 12840 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 09:45:42,529 loader 13640 12840 Loading faiss with AVX2 support.
+INFO 2025-06-25 09:45:42,610 loader 13640 12840 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 09:45:42,666 views 13640 12840 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 10:19:34,785 autoreload 13640 12840 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_notifications\urls.py changed, reloading.
+INFO 2025-06-25 10:19:39,595 autoreload 13800 16304 Watching for file changes with StatReloader
+INFO 2025-06-25 10:19:46,689 loader 13800 16304 Loading faiss with AVX512 support.
+INFO 2025-06-25 10:19:46,691 loader 13800 16304 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 10:19:46,691 loader 13800 16304 Loading faiss with AVX2 support.
+INFO 2025-06-25 10:19:46,781 loader 13800 16304 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 10:19:46,810 views 13800 16304 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 12:47:36,035 loader 14664 13048 Loading faiss with AVX512 support.
+INFO 2025-06-25 12:47:36,035 loader 14664 13048 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 12:47:36,035 loader 14664 13048 Loading faiss with AVX2 support.
+INFO 2025-06-25 12:47:36,205 loader 14664 13048 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 12:47:36,240 views 14664 13048 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 12:48:33,672 loader 13932 14308 Loading faiss with AVX512 support.
+INFO 2025-06-25 12:48:33,672 loader 13932 14308 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 12:48:33,672 loader 13932 14308 Loading faiss with AVX2 support.
+INFO 2025-06-25 12:48:33,692 loader 13932 14308 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 12:48:33,709 views 13932 14308 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 12:48:49,715 autoreload 13100 13368 Watching for file changes with StatReloader
+INFO 2025-06-25 12:48:55,429 loader 13100 13368 Loading faiss with AVX512 support.
+INFO 2025-06-25 12:48:55,429 loader 13100 13368 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 12:48:55,429 loader 13100 13368 Loading faiss with AVX2 support.
+INFO 2025-06-25 12:48:55,454 loader 13100 13368 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 12:48:55,466 views 13100 13368 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-25 16:12:14,290 log 13100 12024 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 16:12:26,191 log 13100 2416 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 16:40:00,609 log 13100 12148 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 16:49:45,545 log 13100 6592 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 16:50:13,239 log 13100 14648 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 16:51:26,481 log 13100 14160 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 16:51:37,195 log 13100 12892 Unauthorized: /api/users/login/
+WARNING 2025-06-25 16:51:55,834 log 13100 17056 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 18:57:02,621 log 13100 13796 Unauthorized: /api/users/login/
+WARNING 2025-06-25 19:06:57,366 log 13100 18316 Unauthorized: /api/users/login/
+WARNING 2025-06-25 19:09:28,692 log 13100 24168 Not Found: /api/notifications/calendar-data/
+INFO 2025-06-25 19:13:46,406 views 13100 23772 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-25 19:14:04,817 views 13100 8632 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-25 19:14:21,322 views 13100 12844 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-25 19:14:36,058 views 13100 5488 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-25 19:14:59,336 views 13100 5488 Gemini 1.5 Flash model configured successfully
+INFO 2025-06-25 19:16:09,818 views 13100 5488 Gemini 1.5 Flash model configured successfully
+WARNING 2025-06-25 20:04:33,008 log 13100 22224 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 20:04:57,236 log 13100 23892 Not Found: /api/notifications/calendar-data/
+INFO 2025-06-25 20:07:14,769 autoreload 13100 13368 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\urls.py changed, reloading.
+INFO 2025-06-25 20:07:28,255 autoreload 7156 14644 Watching for file changes with StatReloader
+INFO 2025-06-25 20:07:40,890 loader 7156 14644 Loading faiss with AVX512 support.
+INFO 2025-06-25 20:07:40,895 loader 7156 14644 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 20:07:40,895 loader 7156 14644 Loading faiss with AVX2 support.
+INFO 2025-06-25 20:07:41,043 loader 7156 14644 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 20:07:41,100 views 7156 14644 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 20:09:04,728 autoreload 5792 23924 Watching for file changes with StatReloader
+INFO 2025-06-25 20:09:25,537 loader 5792 23924 Loading faiss with AVX512 support.
+INFO 2025-06-25 20:09:25,538 loader 5792 23924 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 20:09:25,540 loader 5792 23924 Loading faiss with AVX2 support.
+INFO 2025-06-25 20:09:25,792 loader 5792 23924 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 20:09:25,861 views 5792 23924 Vector store initialized with 93 chunks from 12 documents
+WARNING 2025-06-25 20:09:43,248 log 5792 23600 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 20:09:47,455 log 5792 23600 Not Found: /api/notifications/calendar-data/
+INFO 2025-06-25 20:12:56,799 views 5792 26468 Extracted text: Primary income  	10000000
+Secondary income 	8000000
+APIT primary 		7000
+APIT Secondary 		9000
+Sole Proprietorship		400000		
+Partnership 			50000
+Trust Beneficiary 		60000
+New Business Income		70000
+In...
+INFO 2025-06-25 20:12:56,809 document_processor 5792 26468 Starting Gemini API analysis...
+INFO 2025-06-25 20:13:08,382 document_processor 5792 26468 Gemini API response received: 4558 characters
+INFO 2025-06-25 20:13:08,386 document_processor 5792 26468 Gemini analysis successful: 24 income items, 5 deductions
+INFO 2025-06-25 20:13:08,388 views 5792 26468 Gemini-enhanced analysis results: {'document_type': 'tax_document', 'confidence_score': 0.95, 'processing_time': 0, 'income_items': [{'category': 'Employment Income', 'type': 'Primary Employment', 'description': 'Primary income', 'amount': 10000000.0}, {'category': 'Employment Income', 'type': 'Secondary Employment', 'description': 'Secondary income', 'amount': 8000000.0}, {'category': 'Business Income', 'type': 'Sole Proprietorship', 'description': 'Sole Proprietorship', 'amount': 400000.0}, {'category': 'Business Income', 'type': 'Partnership', 'description': 'Partnership', 'amount': 50000.0}, {'category': 'Business Income', 'type': 'Trust Beneficiary', 'description': 'Trust Beneficiary', 'amount': 60000.0}, {'category': 'Other Income', 'type': 'Other Income', 'description': 'New Business Income', 'amount': 70000.0}, {'category': 'Investment Income', 'type': 'Interest Income', 'description': 'Interest', 'amount': 70000.0}, {'category': 'Investment Income', 'type': 'Dividend Income', 'description': 'Dividend Income', 'amount': 50000.0}, {'category': 'Investment Income', 'type': 'Rental Income', 'description': 'Rental Income', 'amount': 40000.0}, {'category': 'Investment Income', 'type': 'Capital Gains', 'description': 'Capital Gains Income', 'amount': 90000.0}, {'category': 'Other Income', 'type': 'Other Income', 'description': 'Old Investment Income', 'amount': 40000.0}, {'category': 'Other Income', 'type': 'Service Income', 'description': 'Service Income', 'amount': 30000.0}, {'category': 'Other Income', 'type': 'Royalty', 'description': 'Royalty', 'amount': 30000.0}, {'category': 'Other Income', 'type': 'Natural Resource Payment', 'description': 'Natural Resource income', 'amount': 40000.0}, {'category': 'Other Income', 'type': 'Gem Sale', 'description': 'Auctioned Gem Sale income', 'amount': 40000.0}, {'category': 'Terminal Benefits', 'type': 'Commuted Pension', 'description': 'Commuted Pension', 'amount': 9000.0}, {'category': 'Terminal Benefits', 'type': 'Retiring Gratuity', 'description': 'Retiring Gratuity', 'amount': 7000.0}, {'category': 'Terminal Benefits', 'type': 'Compensation for Job Loss', 'description': 'Compensation for Job Loss', 'amount': 5000.0}, {'category': 'Terminal Benefits', 'type': 'ETF Payment', 'description': 'ETF Payment', 'amount': 70000.0}, {'category': 'Terminal Benefits', 'type': 'Other Terminal Benefits', 'description': 'Old work Terminal Benefits', 'amount': 40000.0}, {'category': 'Qualifying Payments', 'type': 'Donations', 'description': 'Donations', 'amount': 400000.0}, {'category': 'Qualifying Payments', 'type': 'Shop Setup for Samurdhi Beneficiary', 'description': 'Samurdhi Beneficiary', 'amount': 50000.0}, {'category': 'Qualifying Payments', 'type': 'Solar Panel Installation', 'description': 'Solar Panel Installation', 'amount': 200000.0}, {'category': 'Qualifying Payments', 'type': 'Low-Income Housing Construction', 'description': 'Housing Construction', 'amount': 40000.0}], 'deductions': [{'category': 'Employment Income', 'type': 'APIT Deduction', 'description': 'APIT primary', 'amount': 7000.0}, {'category': 'Employment Income', 'type': 'APIT Deduction', 'description': 'APIT Secondary', 'amount': 9000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Service Income WHT', 'amount': 7000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Royalty WHT', 'amount': 6000.0}, {'category': 'Other Income', 'type': 'WHT Deduction', 'description': 'Natural Resource WHT', 'amount': 9000.0}], 'total_assessable_income': 19793000.0}
+WARNING 2025-06-25 20:27:41,369 log 5792 21876 Not Found: /api/notifications/calendar-data/
+WARNING 2025-06-25 20:29:13,851 log 5792 12216 Not Found: /api/notifications/calendar-data/
+INFO 2025-06-25 20:29:45,010 autoreload 5792 23924 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\urls.py changed, reloading.
+INFO 2025-06-25 20:29:51,058 autoreload 832 22832 Watching for file changes with StatReloader
+INFO 2025-06-25 20:29:57,658 loader 832 22832 Loading faiss with AVX512 support.
+INFO 2025-06-25 20:29:57,658 loader 832 22832 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 20:29:57,658 loader 832 22832 Loading faiss with AVX2 support.
+INFO 2025-06-25 20:29:57,762 loader 832 22832 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 20:29:57,795 views 832 22832 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 20:30:14,701 autoreload 832 22832 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_notifications\views.py changed, reloading.
+INFO 2025-06-25 20:30:18,616 autoreload 16576 13664 Watching for file changes with StatReloader
+INFO 2025-06-25 20:30:25,204 loader 16576 13664 Loading faiss with AVX512 support.
+INFO 2025-06-25 20:30:25,204 loader 16576 13664 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 20:30:25,204 loader 16576 13664 Loading faiss with AVX2 support.
+INFO 2025-06-25 20:30:25,237 loader 16576 13664 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 20:30:25,266 views 16576 13664 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-06-25 20:30:50,497 autoreload 16576 13664 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\urls.py changed, reloading.
+INFO 2025-06-25 20:30:54,219 autoreload 21152 16180 Watching for file changes with StatReloader
+INFO 2025-06-25 20:31:00,078 loader 21152 16180 Loading faiss with AVX512 support.
+INFO 2025-06-25 20:31:00,078 loader 21152 16180 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-06-25 20:31:00,078 loader 21152 16180 Loading faiss with AVX2 support.
+INFO 2025-06-25 20:31:00,097 loader 21152 16180 Successfully loaded faiss with AVX2 support.
+INFO 2025-06-25 20:31:00,114 views 21152 16180 Vector store initialized with 93 chunks from 12 documents

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react"; // Changed to ChevronDown
 import { useNavigate } from "react-router-dom"; // Import React Router's useNavigate hook
 import Header from "../../common/Header/Header";
+import Footer from "../../common/Footer/Footer";
 import Button from "../../common/Button/Button"; // Import your Button component
 import "./Guidelines.css"; // CSS for this component
 
@@ -72,6 +73,10 @@ export default function GuidelinesSection() {
       <section className="guidelines-section">
         <div className="guidelines-container">
           <h1 className="title">Tax Guidelines</h1>
+          <p className="guidelines-description">
+            Navigate through our comprehensive tax guidelines designed to help you understand Sri Lanka's tax system. 
+            From basic concepts to detailed procedures, these guidelines about taxation and compliance requirements.
+          </p>
           <div className="guidelines-list">
             {guidelinesData.map((item, index) => (
               <div 
@@ -106,6 +111,7 @@ export default function GuidelinesSection() {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }

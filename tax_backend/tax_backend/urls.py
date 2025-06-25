@@ -18,6 +18,7 @@ from django.contrib import admin # type: ignore
 from django.urls import path, include # type: ignore
 from django.conf import settings
 from django.conf.urls.static import static
+from tax_notifications import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +27,5 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/tax-report/', include('tax_report.urls')),
     path('api/notifications/', include('tax_notifications.urls')),
+    path('api/notifications/calendar-data/', views.calendar_data, name='calendar-data')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

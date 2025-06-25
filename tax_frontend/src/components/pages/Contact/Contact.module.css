@@ -1,18 +1,59 @@
 .container {
     display: flex;
     width: 90%;
-    max-width: 1200px;
-    background-color: white;
-    border-radius: 16px;
+    max-width: 1100px;
+    background: linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8);
+    border-radius: 10px;
+    border: solid 0.1px #6ebaf9;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     margin: 40px auto;
     min-height: 300px;
+    margin-top: 1.5rem;
+    margin-bottom: 7rem;
+}
+
+.contactHeader {
+    padding: 0;
+    margin-top: -2rem;
+    margin-bottom: 0;
+    background: linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8);
+}
+
+.contactHeader h2 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #023636;
+    font-size: 38px;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.contactHeader h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background-color: #023636;
+}
+
+.contactHeader p {
+    text-align: center;
+    color: #464646;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+    margin-bottom: 0rem;
 }
 
 .leftSection {
     flex: 1;
-    background-color: #ffffff;
+    background: linear-gradient(to left, #e8f8f8, #c9eded, #c5f8f8);
     padding: 48px;
     display: flex;
     flex-direction: column;
@@ -85,7 +126,7 @@
 
 .rightSection {
     flex: 1;
-    background-color: #023636;
+    background: linear-gradient(to left, #023636 0%, #034f4f  100%);
     color: white;
     display: flex;
     justify-content: center;
@@ -109,14 +150,14 @@
 .rightSection .contactForm input, 
 .rightSection .contactForm textarea {
     width: 100%;
-    padding: 16px;
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-bottom: 10px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
+    border-radius: 5px;
     background-color: rgba(255, 255, 255, 0.05);
     color: white;
     box-sizing: border-box;
-    font-size: 1rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
 }
 
@@ -141,9 +182,9 @@
 .rightSection .contactForm button {
     background-color: #e8f8f8;
     color: #023636;
-    padding: 16px 24px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 5px;
     cursor: pointer;
     font-size: 1.1rem;
     font-weight: 600;
@@ -176,6 +217,19 @@
 
     .rightSection .contactForm h2 {
         font-size: 1.8rem;
+    }
+
+    .contactHeader {
+        max-width: 800px;
+        padding: 2.5rem 1.5rem 1rem 1.5rem;
+    }
+
+    .contactHeader h1 {
+        font-size: 2.5rem;
+    }
+
+    .contactHeader p {
+        font-size: 1.1rem;
     }
 }
 
@@ -214,6 +268,21 @@
     .rightSection .contactForm textarea {
         padding: 14px;
         font-size: 1rem;
+    }
+
+    .contactHeader {
+        max-width: 100%;
+        padding: 2rem 1rem 1rem 1rem;
+    }
+
+    .contactHeader h1 {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+    }
+
+    .contactHeader p {
+        font-size: 1rem;
+        line-height: 1.6;
     }
 }
 
@@ -268,5 +337,19 @@
     .rightSection .contactForm button {
         padding: 14px 20px;
         font-size: 1rem;
+    }
+
+    .contactHeader {
+        padding: 1.5rem 0.5rem 0.5rem 0.5rem;
+    }
+
+    .contactHeader h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .contactHeader p {
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
 }

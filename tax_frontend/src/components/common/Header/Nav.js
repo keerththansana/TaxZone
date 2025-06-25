@@ -27,7 +27,7 @@ const Nav = () => {
         { to: '/tax-calendar', label: 'Tax Calendar', requiresAuth: true },
       ],
     },
-    { to: '/#guidelines', label: 'Guidelines' },
+    { to: '/guidelines', label: 'Guidelines' },
     { to: '/contact', label: 'Contact' },
   ];
 
@@ -197,28 +197,14 @@ const Nav = () => {
                 {item.label}
               </a>
             ) : item.label === 'Guidelines' ? (
-              <a
+              <Link
                 key={index}
-                href="/#guidelines"
+                to="/guidelines"
                 className="nav-item"
-                onClick={e => {
-                  e.preventDefault();
-                  if (location.pathname === '/' || location.pathname === '/home') {
-                    // If already on home, just scroll
-                    const el = document.getElementById('guidelines');
-                    if (el) {
-                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    } else {
-                      window.location.hash = '#guidelines';
-                    }
-                  } else {
-                    navigate('/#guidelines');
-                  }
-                  handleNavItemClick();
-                }}
+                onClick={handleNavItemClick}
               >
                 {item.label}
-              </a>
+              </Link>
             ) : item.label === 'Contact' ? (
               <a
                 key={index}

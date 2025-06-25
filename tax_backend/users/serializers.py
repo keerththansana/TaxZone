@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import AuthNewUser
 from .models import ContactUser
+from .models import TaxReview
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -50,3 +51,8 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = ContactUser
         fields = ['name', 'email', 'phone', 'message']
+
+class TaxReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TaxReview
+        fields = '__all__'

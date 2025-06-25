@@ -13,7 +13,8 @@ body {
 
 /* Navigation Bar */
 .nav {
-  background-color: #023636;
+  
+  background: linear-gradient(to bottom, #023636 0%, #034f4f  100%);
   color: white;
   display: flex;
   justify-content: space-between;

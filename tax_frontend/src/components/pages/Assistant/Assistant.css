@@ -483,6 +483,15 @@
 .chat-message.user .chat-avatar {
     margin-left: 12px;
     border-color: #023636;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ffffff;
+}
+
+.chat-message.user .chat-avatar svg {
+    width: 24px;
+    height: 24px;
 }
 
 .chat-message.assistant .chat-avatar {

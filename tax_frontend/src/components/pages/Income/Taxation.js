@@ -645,7 +645,9 @@ const Taxation = () => {
                                 onChange={handleSelectAll}
                             />
                             <span>Select All Categories</span>
+                            
                         </label>
+                        
                         <div className={styles.yearSelectContainer}>
                             <label className={styles.yearSelectLabel}>Taxation Year:</label>
                             <select 
@@ -661,6 +663,11 @@ const Taxation = () => {
                             </select>
                         </div>
                     </div>
+                    <p className="help-description">
+      <em>
+        Tip: Select the checkbox for each category you need. You can view and understand the items in each category by clicking the down arrow next to the category name.
+      </em>
+    </p>
 
                     <div className={styles.categoryList}>
                         {categories.map((category) => (

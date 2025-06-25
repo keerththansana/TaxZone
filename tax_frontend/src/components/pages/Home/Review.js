@@ -8,40 +8,17 @@ const Review = () => {
 
     // Function to load reviews from localStorage
     const loadReviews = () => {
-        const storedReviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-        // If no reviews in localStorage, use default reviews
-        if (storedReviews.length === 0) {
-            const defaultReviews = [
-                {
-                    id: 1,
-                    name: "John Smith",
-                    role: "Small Business Owner",
-                    rating: 5,
-                    comment: "This AI tax assistant has transformed how I handle my business taxes. The real-time guidance and automated calculations are invaluable.",
-                    image: "https://randomuser.me/api/portraits/men/1.jpg"
-                },
-                {
-                    id: 2,
-                    name: "Sarah Fernando",
-                    role: "Freelancer",
-                    rating: 5,
-                    comment: "As a freelancer, keeping track of tax obligations was challenging. This platform makes it simple and intuitive. Highly recommended!",
-                    image: "https://randomuser.me/api/portraits/women/2.jpg"
-                },
-                {
-                    id: 3,
-                    name: "David Perera",
-                    role: "Corporate Employee",
-                    rating: 4,
-                    comment: "The APIT calculator and policy updates have been extremely helpful. It's like having a personal tax consultant available 24/7.",
-                    image: "https://randomuser.me/api/portraits/men/3.jpg"
-                }
-            ];
-            setReviews(defaultReviews);
-            localStorage.setItem('reviews', JSON.stringify(defaultReviews));
-        } else {
-            setReviews(storedReviews);
-        }
+        fetch('/api/users/tax-reviews/list/')
+            .then(res => res.json())
+            .then(data => {
+                setReviews(data);
+                localStorage.setItem('reviews', JSON.stringify(data));
+            })
+            .catch(() => {
+                // fallback to localStorage if needed
+                const storedReviews = JSON.parse(localStorage.getItem('reviews') || '[]');
+                setReviews(storedReviews);
+            });
     };
 
     useEffect(() => {
@@ -74,6 +51,13 @@ const Review = () => {
     return (
         <section className="review-section">
             <h2>What Our Users Say</h2>
+            <div className="review-description">
+                <p>
+                    Discover what our valued users have to say about their experience with our AI-powered tax platform. 
+                    From accurate calculations to personalized guidance, our users trust us to simplify their tax filing process 
+                    and ensure compliance with Sri Lanka's tax.
+                </p>
+            </div>
             <div className="review-container">
                 {reviews.length > 3 && (
                     <button className="nav-button prev" onClick={prevSlide}>

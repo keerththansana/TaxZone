@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -10,6 +9,7 @@ import TaxLogo from '../../../assets/logo4.png';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import './Login.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -123,6 +123,13 @@ const Login = () => {
             console.error('Google login failed:', err);
             setStatusMessage('Google login failed. Please try again.');
         }
+    };
+
+    const handleLogin = async () => {
+        // ...your login logic...
+        // After successful login:
+        const redirectTo = location.state?.redirectTo || '/';
+        navigate(redirectTo);
     };
 
     return (

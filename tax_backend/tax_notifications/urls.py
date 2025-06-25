@@ -8,7 +8,7 @@ router.register(r'preferences', views.UserNotificationPreferenceViewSet, basenam
 router.register(r'notifications', views.NotificationHistoryViewSet, basename='notifications')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('calendar-data/', views.calendar_data, name='calendar_data'),
-    path('available-years/', views.available_years, name='available_years'),
+    path('api/', include(router.urls)),
+    path('api/calendar-data/', views.calendar_data, name='calendar_data'),
+    path('api/available-years/', views.available_years, name='available_years'),
 ] 

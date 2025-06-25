@@ -1,14 +1,16 @@
 /* ServicesSection.css */
 .services-section {
-    padding: 4rem 2rem;
-    background-color:  #e8f8f8;
+    padding: 0;
+    margin-top: 0rem;
+    margin-bottom: 0;
+    background: linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8);
 }
 
 .services-section h2 {
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
     color: #023636;
-    font-size: 3rem;
+    font-size: 38px;
     position: relative;
     padding-bottom: 1rem;
 }
@@ -24,13 +26,24 @@
     background-color: #023636;
 }
 
+.services-description {
+    text-align: center;
+    color: #464646;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+    margin-bottom: 0rem;
+}
+
 .services-section-content {
     display: flex;
     gap: 1.5rem;
     max-width: 100%;
     margin: 0 auto;
     overflow-x: auto;
-    padding: 1rem 0;
+    padding: 2rem;
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
 }
@@ -40,7 +53,8 @@
 }
 
 .service-block {
-    background: white;
+    background: linear-gradient(to left, #e8f8f8, #c9eded, #c5f8f8);
+    border: solid 0.1px #6ebaf9;
     min-width: 300px;
     flex: 1;
     border-radius: 10px;
@@ -50,10 +64,12 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    margin-top:0rem;
 }
 
 .service-block:hover {
     transform: translateY(-5px);
+    box-shadow: #e8f8f8
 }
 
 .service-block img {
@@ -151,11 +167,20 @@
 
 @media (max-width: 992px) {
     .services-section {
-        padding: 3rem 1.5rem;
+        padding: 0;
+    }
+
+    .services-section-content {
+        padding: 2rem;
     }
 
     .services-section h2 {
         font-size: 2.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .services-description {
+        font-size: 1rem;
         margin-bottom: 2.5rem;
     }
 
@@ -175,6 +200,12 @@
         flex-direction: column;
         overflow-x: visible;
         gap: 2rem;
+    }
+
+    .services-description {
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+        padding: 0 0.5rem;
     }
 
     .service-block {
@@ -208,7 +239,7 @@
 
 @media (max-width: 576px) {
     .services-section {
-        padding: 2rem 1rem;
+        padding: 1rem 1rem;
     }
 
     .services-section h2 {

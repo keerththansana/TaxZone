@@ -1,3 +1,9 @@
+.guidelines-page {
+  background: linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8);
+  min-height: 100vh;
+  margin-top: 2rem;
+}
+
 .guidelines-section {
   color: #023636;
   width: 100vw;
@@ -7,38 +13,64 @@
   right: 50%;
   margin-left: -50vw;
   margin-right: -50vw;
-  background-color: #e8f8f8;
+  background: linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8);
+  margin-top: 0rem;
+  
 }
 
 .guidelines-container {
-  max-width: 1000px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
 }
 
 .title {
-  color: #023636;
-  font-size: 2rem;
-  font-weight: 600;
-  font-style: bold;
-  margin-bottom: 1rem;
-  text-align: center;
-  padding: 0.5rem 0;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #023636;
+    font-size: 38px;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background-color: #023636;
+}
+
+.guidelines-description {
+    text-align: center;
+    color: #000000;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+    padding: 0 1rem;
+    margin-bottom: 1rem;
 }
 
 .guidelines-list {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  align-items: center;
+  margin-top: 2rem;
 }
 
 .guideline-item {
   margin-bottom: 1rem;
   width: 100%;
-  background-color:white;
+  max-width: 1200px;
+  background: linear-gradient(to top, #e8f8f8, #c9eded, #aef5f5);
+  border: solid 0.1px #6ebaf9;  /* Blue border */
   padding: 0.1rem;
-  border-radius: 5px;
-  border-color: #023636;
+  border-radius: 10px;
   transition: all 0.3s ease;
 }
 
@@ -111,6 +143,11 @@
     margin-bottom: 0.875rem;
   }
 
+  .guidelines-description {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
   .toggle-button {
     font-size: 1.05rem;
   }
@@ -124,6 +161,12 @@
   .title {
     font-size: 1rem;
     margin-bottom: 0.75rem;
+  }
+
+  .guidelines-description {
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
   }
 
   .guideline-item {
@@ -160,6 +203,12 @@
     margin-bottom: 0.625rem;
   }
 
+  .guidelines-description {
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    padding: 0 0.25rem;
+  }
+
   .guideline-item {
     padding: 0.875rem;
   }
@@ -186,3 +235,4 @@
     text-align: center;
   }
 }
+

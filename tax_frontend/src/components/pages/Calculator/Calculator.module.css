@@ -1,6 +1,5 @@
 .container {
     min-height: 100vh;
-    background-color: #e8f8f8;
     padding: 2rem;
     display: flex;
     justify-content: center;
@@ -578,6 +577,16 @@
 .wht {
     color: #2c5282;
     font-weight: 500;
+}
+
+.note {
+  color: rgb(252, 108, 108);
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+  text-align: center;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+  margin-top: -1rem;
 }
 
 @media (max-width: 768px) {

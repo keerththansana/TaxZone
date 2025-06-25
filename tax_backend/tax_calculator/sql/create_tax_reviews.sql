@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS tax_reviews (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    role VARCHAR(255),
+    rating INT NOT NULL,
+    comment TEXT,
+    date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    image VARCHAR(500)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; 

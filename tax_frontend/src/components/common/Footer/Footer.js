@@ -30,36 +30,36 @@ const Footer = () => {
           <div className="footer-section">
             <h3>ABOUT US</h3>
             <p className="footer-description">
-              Tax.X is your premier financial partner, offering innovative solutions to propel your business forward. 
+              TaxZone is your premier financial partner, offering innovative solutions to propel your business forward. 
               With a focus on excellence and client satisfaction, we deliver bespoke financial services tailored to your needs.
             </p>
-            <img src={TaxLogo} alt="TaxZone Logo" style={{ width: '350px', marginTop: '2rem' }} />
           </div>
 
           <div className="footer-section">
-            <h3>OUR SERVICES</h3>
+            <h3>SERVICES</h3>
             <ul className="footer-list">
               <li className="footer-list-item">
-                <Link to="/tax-report-service" className="footer-service-link">Tax Report Generation</Link>
+                <Link to="/tax-report-service" className="footer-service-link">Tax Report Generation Using AI</Link>
               </li>
               <li className="footer-list-item">
-                <Link to="/calculator-service" className="footer-service-link">Tax Instant Calculation</Link>
+                <Link to="/calculator-service" className="footer-service-link">Tax Instant Calculator for taxes </Link>
               </li>
               <li className="footer-list-item">
-                <Link to="/assistant-service" className="footer-service-link">Tax AI Assistant Chat</Link>
+                <Link to="/assistant-service" className="footer-service-link">Tax AI Assistant Chatbot System</Link>
               </li>
               <li className="footer-list-item">
-                <Link to="/notification-service" className="footer-service-link">Tax Deadline Notification</Link>
+                <Link to="/notification-service" className="footer-service-link">Tax Deadline Notification System</Link>
               </li>
             </ul>
           </div>
 
           <div className="footer-section">
-            <h3>CONTACT US</h3>
+            <h3>CONTACTS</h3>
             <ul className="footer-list">
-              <li className="footer-list-item">(+94) 710784556</li>
-              <li className="footer-list-item">TaxZone@gmail.com</li>
-              <li className="footer-list-item">Standly Road, Jaffna</li>
+              <li className="footer-list-item">Email   : TaxZone@gmail.com</li>
+              <li className="footer-list-item">Address : Standly Road, Jaffna</li>
+              <li className="footer-list-item">Phone   : +94 77 123 4567</li>
+              <li className="footer-list-item">Website : www.taxzone.lk</li>
             </ul>
           </div>
         </div>

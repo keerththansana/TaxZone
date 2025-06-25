@@ -7,6 +7,7 @@ import image3 from '../../assets/home2.jpg';
 import image4 from '../../assets/home7.jpg';
 import './Hero.css';
 
+
 const Hero = () => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);

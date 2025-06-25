@@ -40,6 +40,11 @@ const ServicesSection = () => {
             <Header />
             <section className="services-section">
                 <h2>Our Services</h2>
+                <p className="services-description">
+                    Discover our comprehensive suite of tax services designed to simplify your tax journey. 
+                    From automated calculations to AI-powered guidance, we provide everything you need to 
+                    handle your taxes with confidence and ease.
+                </p>
                 <div className="services-section-content">
                     <div className="service-block" onClick={() => handleServiceClick('tax-report')}>
                         <img src={taxReportImage} alt="Tax Report" />

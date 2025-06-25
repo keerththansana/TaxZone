@@ -10,6 +10,8 @@ const ReviewForm = () => {
     const [userName, setUserName] = useState('');
     const [position, setPosition] = useState('');
     const [submitted, setSubmitted] = useState(false);
+    const [reviewId, setReviewId] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
         // Get user data from localStorage
@@ -17,8 +19,21 @@ const ReviewForm = () => {
         if (userData) {
             try {
                 const parsedUser = JSON.parse(userData);
-                // Use name if available, otherwise use username
-                setUserName(parsedUser.name || parsedUser.username || '');
+                const name = parsedUser.name || parsedUser.username || '';
+                setUserName(name);
+
+                // Check for existing review
+                const existingReviews = JSON.parse(localStorage.getItem('reviews') || '[]');
+                const userReview = existingReviews.find(
+                    (review) => review.name === name
+                );
+                if (userReview) {
+                    setRating(userReview.rating);
+                    setFeedback(userReview.comment);
+                    setPosition(userReview.role);
+                    setReviewId(userReview.id);
+                    setIsEditing(true);
+                }
             } catch (error) {
                 console.error('Error parsing user data:', error);
             }
@@ -32,23 +47,39 @@ const ReviewForm = () => {
             return;
         }
 
-        // Create new review object
-        const newReview = {
-            id: Date.now(), // Use timestamp as unique ID
-            name: userName,
-            role: position,
-            rating: rating,
-            comment: feedback,
-            date: new Date().toISOString(),
-            image: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=023636&color=fff`
-        };
-
         // Get existing reviews from localStorage
         const existingReviews = JSON.parse(localStorage.getItem('reviews') || '[]');
-        
-        // Add new review to the beginning of the array
-        const updatedReviews = [newReview, ...existingReviews];
-        
+
+        let updatedReviews;
+        if (isEditing && reviewId) {
+            // Update the existing review
+            updatedReviews = existingReviews.map((review) =>
+                review.id === reviewId
+                    ? {
+                        ...review,
+                        rating,
+                        comment: feedback,
+                        role: position,
+                        date: new Date().toISOString(),
+                        // Optionally update image if name changed
+                        image: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=023636&color=fff`
+                    }
+                    : review
+            );
+        } else {
+            // Create new review object
+            const newReview = {
+                id: Date.now(), // Use timestamp as unique ID
+                name: userName,
+                role: position,
+                rating: rating,
+                comment: feedback,
+                date: new Date().toISOString(),
+                image: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=023636&color=fff`
+            };
+            updatedReviews = [newReview, ...existingReviews];
+        }
+
         // Store updated reviews in localStorage
         localStorage.setItem('reviews', JSON.stringify(updatedReviews));
 
@@ -65,6 +96,27 @@ const ReviewForm = () => {
         setTimeout(() => {
             window.location.href = '/#review-section';
         }, 3000);
+
+        fetch('/api/users/tax-reviews/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: userName,
+                role: position,
+                rating: rating,
+                comment: feedback,
+                image: `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=023636&color=fff`
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Optionally handle response
+        })
+        .catch(error => {
+            console.error('Error saving review to database:', error);
+        });
     };
 
     return (
@@ -135,7 +187,7 @@ const ReviewForm = () => {
                             </div>
 
                             <button type="submit" className="submit-button">
-                                Submit Review
+                                {isEditing ? "Update Review" : "Submit Review"}
                             </button>
                         </form>
                     ) : (

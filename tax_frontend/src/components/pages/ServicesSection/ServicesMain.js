@@ -7,6 +7,9 @@ import Assistant_Service from './Assistant_Service';
 import Notification_Service from './Notification_Service';
 import assistantImage from '../../../assets/Assistant.png';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../contexts/AuthContext';
+import { useLocation } from "react-router-dom";
+import './ServicesMain.css'; // Adjust the path if needed
 
 const ServicesMain = () => {
   useEffect(() => {
@@ -25,16 +28,41 @@ const ServicesMain = () => {
   }, []);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isLoggedIn } = useAuth(); // Replace with your actual auth logic
   const [showAssistantMsg, setShowAssistantMsg] = useState(false);
 
+  const handleTryItNow = (servicePath) => {
+    if (isLoggedIn) {
+      navigate(servicePath);
+    } else {
+      navigate('/login', { state: { redirectTo: servicePath } });
+    }
+  };
+
+  const handleLogin = () => {
+    // ...your login logic...
+    const redirectTo = location.state?.redirectTo || "/";
+    navigate(redirectTo);
+  };
+
+  const pageStyle = {
+    background: '  #cef8f8',
+    minHeight: "100vh",
+    width: "100%",
+    padding: "2rem 0",
+    boxSizing: "border-box"
+  };
+
   return (
-    <div className="services-main-page">
+    <div className="service-main-page">
       <Header />
-      <div style={{ textAlign: 'center', padding: '50px 20px 0 20px', backgroundColor: '#e8f8f8', marginBottom: 0 }}>
-        <h1 style={{ fontSize: '3em', color: '#023636', marginBottom: '10px' }}>Our Services</h1>
-        <p style={{ fontSize: '1.2em', color: '#555', lineHeight: '1.6', marginBottom: '20px' }}>
+      <div style={{ textAlign: 'center', padding: '50px 20px 0 20px', background: 'linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8)', marginBottom: 0 }}>
+        <h1 className="services-section-heading">Our Services</h1>
+        <p className="services-description">
           Explore our comprehensive suite of services designed to simplify your tax journey.
-          <br />From automated calculations to personalized assistance, we've got you covered.
+          <br />
+          From automated calculations to personalized assistance, we've got you covered.
         </p>
         <div id="tax-calculations">
           <Calculation_Service />
