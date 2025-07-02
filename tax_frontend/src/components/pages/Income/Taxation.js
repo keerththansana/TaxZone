@@ -14,6 +14,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import AnalysisResults from './AnalysisResults'; // Import the new component
 import UploadSuccessModal from '../../common/UploadSuccessModal';
 import ExtractionSuccessModal from '../../common/ExtractionSuccessModal';
+import CategoryAlertModal from '../../common/CategoryAlertModal';
 
 const Taxation = () => {
     // 1. First define all constants
@@ -83,6 +84,7 @@ const Taxation = () => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const [showCategoryAlert, setShowCategoryAlert] = useState(false);
 
     // Place all hooks and effects before any conditional returns
     useEffect(() => {
@@ -323,7 +325,7 @@ const Taxation = () => {
         e.preventDefault();
         
         if (selectedCategories.length === 0) {
-            alert('Please select at least one category');
+            setShowCategoryAlert(true);
             return;
         }
         
@@ -832,6 +834,10 @@ const Taxation = () => {
                         <div className={styles.spinner}></div>
                         <span>Analyzing documents...</span>
                     </div>
+                )}
+
+                {showCategoryAlert && (
+                    <CategoryAlertModal onClose={() => setShowCategoryAlert(false)} />
                 )}
             </div>
         </div>

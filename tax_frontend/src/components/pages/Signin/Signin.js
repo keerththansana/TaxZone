@@ -115,7 +115,7 @@ const Signin = () => {
             if (response.data.access) {
                 localStorage.setItem('token', response.data.access);
                 setStatusMessage('Google login successful! Redirecting...');
-                setTimeout(() => navigate('/emotion'), 2000);
+                setTimeout(() => navigate('/'), 2000);
             }
         } catch (err) {
             console.error('Google login failed:', err);

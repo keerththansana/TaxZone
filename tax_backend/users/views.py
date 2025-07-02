@@ -107,41 +107,46 @@ class LoginView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class GoogleLoginView(APIView):
-    """
-    API endpoint for Google login.
-    Expects 'email' and 'google_id' in the request data.
-    This assumes the user has already signed up (their information exists in your database
-    and is linked with their Google account).
-    """
     def post(self, request):
         email = request.data.get('email')
-        google_id = request.data.get('google_id')
-        given_name = request.data.get('given_name') # You might want to use this during initial Google signup
-        picture = request.data.get('picture')     # You might want to use this during initial Google signup
+        given_name = request.data.get('given_name', '')
+        google_id = request.data.get('google_id', '')
+        picture = request.data.get('picture', '')
 
-        if not email or not google_id:
-            return Response(
-                {"error": "Email and Google ID are required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            user = User.objects.get(email=email, social_auth__provider='google', social_auth__uid=google_id)
+            user = User.objects.get(email=email)
         except User.DoesNotExist:
-            # Consider handling the case where a user logs in with Google for the first time
-            # You might want to create a new user account linked to their Google ID.
-            # This would involve a different flow and potentially a separate endpoint.
-            return Response(
-                {"error": "No user found with this Google account. Please sign up first."},
-                status=status.HTTP_404_NOT_FOUND
+            # Create a new user if not exists (like normal signup)
+            username = email.split('@')[0]
+            user = User.objects.create(
+                username=username,
+                email=email,
+                first_name=given_name,
+                password=make_password(User.objects.make_random_password())
+            )
+            # Optionally, create an AuthNewUser entry if you use that for normal signup
+            AuthNewUser.objects.create(
+                user=user,
+                username=username,
+                email=email,
+                password=user.password  # Already hashed
             )
 
         refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-        return Response(
-            {"access": access_token, "refresh": str(refresh)},
-            status=status.HTTP_200_OK
-        )
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "user": {
+                "id": user.id,
+                "email": user.email,
+                "username": user.username,
+                "name": user.first_name,
+                "picture": picture,
+            }
+        }, status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 def signin(request):

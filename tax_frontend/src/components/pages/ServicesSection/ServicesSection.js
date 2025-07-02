@@ -2,9 +2,9 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import Header from '../../common/Header/Header';
-import taxCalculator from '../../../assets/tax_calc.png';
+import taxCalculator from '../../../assets/tax_cal.png';
 import taxReportImage from '../../../assets/tax_generation.png';
-import aiAdvisorImage from '../../../assets/tax_assist.png';
+import aiAdvisorImage from '../../../assets/tax_assist.jpg';
 import taxDueDateImage from '../../../assets/deadline.png';
 import './ServicesSection.css';
 

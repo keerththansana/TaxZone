@@ -1,7 +1,7 @@
 /* ServicesSection.css */
 .services-section {
     padding: 0;
-    margin-top: 0rem;
+    margin-top: -1rem;
     margin-bottom: 0;
     background: linear-gradient(to left,  #cef8f8,#f0fafa, #cef8f8);
 }

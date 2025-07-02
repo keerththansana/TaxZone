@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../common/Button/Button';
-import image1 from '../../assets/Home_Image.png';
-import image2 from '../../assets/home image.jpg';
-import image3 from '../../assets/home2.jpg';
-import image4 from '../../assets/home7.jpg';
+import image1 from '../../assets/home_image.png';
+import image2 from '../../assets/home image 11.png';
+import image3 from '../../assets/home21.png';
+import image4 from '../../assets/home 72.png';
 import './Hero.css';
 
 
@@ -72,35 +72,25 @@ const Hero = () => {
         </div>
         <div className="hero-slider">
           <div className="slider-container">
-            <div 
-              className={`slider-track ${direction}`}
-              style={{ 
-                transform: `translateX(-${currentSlide * 100}%)`,
-                transition: 'transform 0.5s ease-in-out'
-              }}
-            >
-              {slides.map((slide, index) => (
-                <div key={index} className="slide">
-                  <div className="image-container">
-                    <img 
-                      src={slide.image} 
-                      alt={slide.alt}
-                      className="slide-image"
-                    />
-                  </div>
-                </div>
+            <div className="slide">
+              <div className="image-container">
+                <img
+                  src={slides[currentSlide].image}
+                  alt={slides[currentSlide].alt}
+                  className="slide-image"
+                />
+              </div>
+            </div>
+            <div className="slide-indicators">
+              {slides.map((_, index) => (
+                <button
+                  key={index}
+                  className={`indicator ${index === currentSlide ? 'active' : ''}`}
+                  onClick={() => handleIndicatorClick(index)}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
               ))}
             </div>
-          </div>
-          <div className="slide-indicators">
-            {slides.map((_, index) => (
-              <button
-                key={index}
-                className={`indicator ${index === currentSlide ? 'active' : ''}`}
-                onClick={() => handleIndicatorClick(index)}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../../common/Header/Header';
 import styles from './Service.module.css';
-import taxCalcImage from '../../../assets/tax_calc.png'; // Assuming the image is in assets folder
+import taxCalcImage from '../../../assets/tax_cal.png'; // Assuming the image is in assets folder
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
 import Button from '../../common/Button/Button';

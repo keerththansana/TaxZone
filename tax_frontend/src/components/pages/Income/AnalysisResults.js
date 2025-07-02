@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { AutoFillHelper } from '../../../utils/autoFillHelper';
 import styles from './AnalysisResults.module.css';
 import AutoFillSuccessModal from '../../common/AutoFillSuccessModal';
+import { useNavigate } from 'react-router-dom';
 
 const AnalysisResults = ({ results, onClose, onAutoFill }) => {
     const [isProcessing, setIsProcessing] = useState(false);
@@ -19,6 +20,8 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
     const [showAutoFillSuccess, setShowAutoFillSuccess] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         // Store analysis results in session storage when component mounts
@@ -346,6 +349,9 @@ const AnalysisResults = ({ results, onClose, onAutoFill }) => {
             // After successful auto-fill
             setShowAutoFillSuccess(true);
             onClose(); // Close the analysis results view
+
+            // Optionally, navigate to the form page
+            navigate('/taxation');
         } catch (error) {
             console.error('Error during auto-fill:', error);
             setError('Failed to auto-fill forms. Please try again.');

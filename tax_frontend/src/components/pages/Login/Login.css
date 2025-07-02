@@ -48,7 +48,7 @@ body.login-page {
 
 .login-left {
     flex: 0.5 !important;
-    background-color: #012929 !important;
+    background:linear-gradient(to right, #023636 0%, #034f4f  100%) !important;
     color: white;
     border: none !important;
     text-shadow: none;
@@ -61,7 +61,7 @@ body.login-page {
 }
 
 .login-left h2 {
-    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-size: 36px;
     font-weight: 700;
     margin-bottom: 0.75rem;
     color: #ffffff;
@@ -88,7 +88,7 @@ body.login-page {
 
 .login-right {
     flex: 0.5 !important;
-    background: white !important;
+    background:linear-gradient(to right, #e8f8f8  1%, #ffffff  100%) !important;
     padding: 2.5rem;
     border-radius: 0;
     box-shadow: none;

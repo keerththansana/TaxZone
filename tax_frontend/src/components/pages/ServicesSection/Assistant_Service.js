@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './Service.module.css';
-import taxAssistImage from '../../../assets/tax_assist.png'; // Assuming this is the correct image for Tax Assistant
+import taxAssistImage from '../../../assets/tax_assist.jpg'; // Assuming this is the correct image for Tax Assistant
 import Header from '../../common/Header/Header';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../common/Button/Button'; // <-- Import your Button component

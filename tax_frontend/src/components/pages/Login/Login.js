@@ -94,29 +94,21 @@ const Login = () => {
             });
 
             if (response.data.access) {
-                // Initialize user session to clear previous user's data
-                initializeUserSession();
-                
-                // Store user data properly like regular login
+                initializeUserSession(); // clear previous user data
+
                 const userData = {
                     id: response.data.user?.id || decoded.sub,
-                    username: decoded.name || decoded.email,
+                    username: response.data.user?.username || decoded.email,
                     email: decoded.email,
                     name: decoded.name,
                     picture: decoded.picture
                 };
-                
+
                 localStorage.setItem('user', JSON.stringify(userData));
                 localStorage.setItem('accessToken', response.data.access);
                 localStorage.setItem('refreshToken', response.data.refresh);
-                
-                // Show success message with redirect info
-                const redirectMessage = from !== '/' 
-                    ? `Google login successful! `
-                    : 'Google login successful!';
-                setStatusMessage(redirectMessage);
-                
-                // Navigate immediately after a short delay for user feedback
+
+                setStatusMessage('Google login successful!');
                 setTimeout(() => navigate(from, { replace: true }), 1000);
             }
         } catch (err) {
@@ -140,6 +132,9 @@ const Login = () => {
                     <div className="login-left">
                         <img src={TaxLogo} alt="Tax Logo" className="brand-logo" />
                         <h2>Welcome Back to TaxZone</h2>
+                        <p className="welcome-text">
+                            Your trusted partner for seamless tax filing and management.
+                        </p>
                     </div>
 
                     <div className="login-right">

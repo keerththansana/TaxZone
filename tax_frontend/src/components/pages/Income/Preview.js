@@ -13,6 +13,7 @@ import docx from 'docx';
 import { useFormPersist } from './Data_Persistence';
 import TaxLogo from '../../../assets/taxlogodark (2).png';
 import AnalysisResults from './AnalysisResults';
+import SentMessageModel from '../../common/DocumentDownload';
 
 // First, add a constant for category order
 const CATEGORY_ORDER = [
@@ -171,6 +172,8 @@ const Preview = () => {
 
     const [showAnalysisResults, setShowAnalysisResults] = useState(false);
     const [analysisResults, setAnalysisResults] = useState([]);
+
+    const [showDownloadSuccess, setShowDownloadSuccess] = useState(false);
 
     const handleOpenAnalysis = () => {
         const stored = sessionStorage.getItem('last_analysis');
@@ -2155,7 +2158,7 @@ const Preview = () => {
           console.log('Document saved successfully:', result);
           
           // Show simple success message without user details
-          alert('Document saved and downloaded successfully');
+          setShowDownloadSuccess(true);
         } else {
           const errorData = await response.json();
           console.error('Failed to save document:', errorData);
@@ -2528,6 +2531,9 @@ const Preview = () => {
                     </div>
                 </div>
             </div>
+            {showDownloadSuccess && (
+                <SentMessageModel onClose={() => setShowDownloadSuccess(false)} />
+            )}
         </div>
     );
 };

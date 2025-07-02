@@ -242,7 +242,17 @@ const Nav = () => {
               onClick={toggleUserMenu}
               aria-label="User menu"
             >
-              <FaUser className="user-icon" />
+              {/* Show user profile image if available (Google), else user icon for normal, else email icon as fallback */}
+              {user.picture ? (
+                <img
+                  src={user.picture}
+                  alt="User"
+                  className="user-profile-image"
+                  style={{ width: 28, height: 28, borderRadius: '50%' }}
+                />
+              ) : (
+                <FaUser className="user-icon" />
+              )}
             </button>
             {isUserMenuOpen && (
               <div className="user-dropdown">

@@ -88,14 +88,20 @@ body {
 }
 
 .hero-text {
-  max-width: 50%;
   position: absolute;
-  left: 5%;
+  left: 50%;
+  bottom: 3rem;           /* Adjust as needed for spacing from bottom */
+  transform: translateX(-50%);
+  max-width: 80%;
+  width: auto;
   z-index: 10;
   color: white;
-  background: rgba(0, 0, 0, 0.5);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 1.5rem;
   border-radius: 10px;
+  text-align: center;
+  backdrop-filter: blur(5px);
 }
 
 .hero h1 {
@@ -436,9 +442,10 @@ body {
   }
 
   .hero-text {
-    max-width: 90%;
-    left: 5%;
+    max-width: 95%;
     padding: 1rem;
+    bottom: 1.5rem;
+    font-size: 0.95rem;
   }
 
   .hero h1 {

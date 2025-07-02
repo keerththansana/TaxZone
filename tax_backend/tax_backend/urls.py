@@ -19,6 +19,7 @@ from django.urls import path, include # type: ignore
 from django.conf import settings
 from django.conf.urls.static import static
 from tax_notifications import views
+from users.views import GoogleLoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +28,7 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/tax-report/', include('tax_report.urls')),
     path('api/notifications/', include('tax_notifications.urls')),
-    path('api/notifications/calendar-data/', views.calendar_data, name='calendar-data')
+    path('api/notifications/calendar-data/', views.calendar_data, name='calendar-data'),
+    path('api/login/google/', GoogleLoginView.as_view(), name='google-login'),
+    path('api/signin/google/', GoogleLoginView.as_view(), name='google-signin'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

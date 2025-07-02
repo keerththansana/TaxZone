@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
 import Header from '../../common/Header/Header';
 import styles from './Contact.module.css';
-import mailIcon from '../../../assets/mail.png';
-import phoneIcon from '../../../assets/phone.png';
-import locationIcon from '../../../assets/location.png';
 import axios from 'axios';
+import SentMessageModel from '../../common/SentMessageModel';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -14,6 +12,7 @@ const Contact = () => {
         message: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -32,11 +31,10 @@ const Contact = () => {
                 phone: '',
                 message: ''
             });
-
-            alert(response.data.message || 'Thank you for your message. We will get back to you soon!');
+            setShowSuccessModal(true);
         } catch (error) {
             console.error('Error submitting contact form:', error);
-            alert(error.response?.data?.message || 'There was an error submitting your message. Please try again.');
+            setShowSuccessModal(true);
         } finally {
             setIsSubmitting(false);
         }
@@ -107,6 +105,9 @@ const Contact = () => {
                                 {isSubmitting ? 'Sending...' : 'Send Message'}
                             </button>
                         </form>
+                        {showSuccessModal && (
+                            <SentMessageModel onClose={() => setShowSuccessModal(false)} />
+                        )}
                     </div>
                 </div>
             </div>
