@@ -45,7 +45,7 @@ SECRET_KEY = 'django-insecure-hk$$=gt-uk&7x4@02stp-*+tki=yn=+kw3c!cc#1er1@q7q&%!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
+ALLOWED_HOSTS = ['65.0.8.15', 'localhost']
 
 
 # Application definition
@@ -105,9 +105,9 @@ WSGI_APPLICATION = 'tax_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'tax',
-        'USER': 'root',  # your phpMyAdmin username
-        'PASSWORD': '',  # your phpMyAdmin password (often empty by default)
+        'NAME': 'taxzone_db',
+        'USER': 'taxzone_user',
+        'PASSWORD': 'TaxZone@2025',
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {

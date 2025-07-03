@@ -15712,3 +15712,12 @@ ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
 INFO 2025-07-03 09:57:08,342 loader 18404 25380 Loading faiss with AVX2 support.
 INFO 2025-07-03 09:57:08,399 loader 18404 25380 Successfully loaded faiss with AVX2 support.
 INFO 2025-07-03 09:57:08,434 views 18404 25380 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 12:19:07,504 autoreload 18404 25380 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 12:19:11,974 autoreload 15620 19596 Watching for file changes with StatReloader
+ERROR 2025-07-03 12:19:15,535 views 15620 19596 Error initializing vector store: (1045, "Access denied for user 'taxzone_user'@'localhost' (using password: YES)")
+INFO 2025-07-03 12:20:06,598 autoreload 15620 19596 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 12:20:08,034 autoreload 19540 24432 Watching for file changes with StatReloader
+ERROR 2025-07-03 12:20:10,116 views 19540 24432 Error initializing vector store: (1045, "Access denied for user 'taxzone_user'@'localhost' (using password: NO)")
+INFO 2025-07-03 12:20:13,487 autoreload 19540 24432 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 12:20:14,851 autoreload 17904 17336 Watching for file changes with StatReloader
+ERROR 2025-07-03 12:20:16,797 views 17904 17336 Error initializing vector store: (1045, "Access denied for user 'taxzone_user'@'localhost' (using password: YES)")
