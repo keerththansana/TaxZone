@@ -15693,3 +15693,22 @@ INFO 2025-07-02 13:07:18,319 views 11752 10156   - Document: downloaded_docs/Tax
 INFO 2025-07-02 13:07:18,320 views 11752 10156   - Document size: 702294 bytes
 INFO 2025-07-02 13:07:18,321 views 11752 10156   - Document path: C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\media\downloaded_docs\Tax_Calculation_2024_2025_0S99MkT.pdf
 INFO 2025-07-02 13:07:18,322 views 11752 10156   - Downloaded at: 2025-07-02 07:37:18.309858+00:00
+INFO 2025-07-03 09:55:04,419 loader 3228 27060 Loading faiss with AVX512 support.
+INFO 2025-07-03 09:55:04,419 loader 3228 27060 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 09:55:04,419 loader 3228 27060 Loading faiss with AVX2 support.
+INFO 2025-07-03 09:55:04,659 loader 3228 27060 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 09:55:04,719 views 3228 27060 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 09:56:47,836 loader 21764 25536 Loading faiss with AVX512 support.
+INFO 2025-07-03 09:56:47,836 loader 21764 25536 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 09:56:47,836 loader 21764 25536 Loading faiss with AVX2 support.
+INFO 2025-07-03 09:56:47,867 loader 21764 25536 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 09:56:47,882 views 21764 25536 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 09:57:00,825 autoreload 18404 25380 Watching for file changes with StatReloader
+INFO 2025-07-03 09:57:08,342 loader 18404 25380 Loading faiss with AVX512 support.
+INFO 2025-07-03 09:57:08,342 loader 18404 25380 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 09:57:08,342 loader 18404 25380 Loading faiss with AVX2 support.
+INFO 2025-07-03 09:57:08,399 loader 18404 25380 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 09:57:08,434 views 18404 25380 Vector store initialized with 93 chunks from 12 documents
