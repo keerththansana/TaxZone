@@ -15721,3 +15721,93 @@ ERROR 2025-07-03 12:20:10,116 views 19540 24432 Error initializing vector store:
 INFO 2025-07-03 12:20:13,487 autoreload 19540 24432 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
 INFO 2025-07-03 12:20:14,851 autoreload 17904 17336 Watching for file changes with StatReloader
 ERROR 2025-07-03 12:20:16,797 views 17904 17336 Error initializing vector store: (1045, "Access denied for user 'taxzone_user'@'localhost' (using password: YES)")
+ERROR 2025-07-03 14:27:57,433 views 20840 25868 Error initializing vector store: (1045, "Access denied for user 'taxzone_user'@'localhost' (using password: YES)")
+ERROR 2025-07-03 14:28:46,312 views 4108 26652 Error initializing vector store: (1045, "Access denied for user 'taxzone_user'@'localhost' (using password: YES)")
+INFO 2025-07-03 14:28:57,557 autoreload 18464 10764 Watching for file changes with StatReloader
+ERROR 2025-07-03 14:28:59,452 views 18464 10764 Error initializing vector store: (1045, "Access denied for user 'taxzone_user'@'localhost' (using password: YES)")
+INFO 2025-07-03 14:55:14,450 autoreload 18464 10764 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:55:17,381 autoreload 3592 2152 Watching for file changes with StatReloader
+INFO 2025-07-03 14:55:28,006 loader 3592 2152 Loading faiss with AVX512 support.
+INFO 2025-07-03 14:55:28,006 loader 3592 2152 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 14:55:28,006 loader 3592 2152 Loading faiss with AVX2 support.
+INFO 2025-07-03 14:55:28,168 loader 3592 2152 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 14:55:28,208 views 3592 2152 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 14:55:39,973 autoreload 3592 2152 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:55:43,219 autoreload 3936 25876 Watching for file changes with StatReloader
+ERROR 2025-07-03 14:55:44,861 views 3936 25876 Error initializing vector store: (1049, "Unknown database 'taxzone_db'")
+INFO 2025-07-03 14:55:50,331 autoreload 3936 25876 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:55:51,561 autoreload 26100 17676 Watching for file changes with StatReloader
+INFO 2025-07-03 14:55:58,739 loader 26100 17676 Loading faiss with AVX512 support.
+INFO 2025-07-03 14:55:58,739 loader 26100 17676 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 14:55:58,755 loader 26100 17676 Loading faiss with AVX2 support.
+INFO 2025-07-03 14:55:58,755 loader 26100 17676 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 14:55:58,771 views 26100 17676 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 14:56:01,957 autoreload 26100 17676 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:56:05,297 autoreload 5940 26376 Watching for file changes with StatReloader
+ERROR 2025-07-03 14:56:07,060 views 5940 26376 Error initializing vector store: (1045, "Access denied for user 'Keerththansana'@'localhost' (using password: NO)")
+INFO 2025-07-03 14:56:09,231 autoreload 5940 26376 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:56:10,392 autoreload 11484 1660 Watching for file changes with StatReloader
+ERROR 2025-07-03 14:56:12,023 views 11484 1660 Error initializing vector store: (1045, "Access denied for user 'TaxZon'@'localhost' (using password: NO)")
+INFO 2025-07-03 14:56:14,144 autoreload 11484 1660 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:56:15,365 autoreload 23768 25136 Watching for file changes with StatReloader
+ERROR 2025-07-03 14:56:17,070 views 23768 25136 Error initializing vector store: (1045, "Access denied for user 'TaxZone'@'localhost' (using password: NO)")
+INFO 2025-07-03 14:56:19,383 autoreload 23768 25136 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:56:20,532 autoreload 5320 22936 Watching for file changes with StatReloader
+ERROR 2025-07-03 14:56:22,126 views 5320 22936 Error initializing vector store: (1045, "Access denied for user 'TaxZone@2025'@'localhost' (using password: NO)")
+INFO 2025-07-03 14:56:27,478 autoreload 5320 22936 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:56:28,790 autoreload 18832 25732 Watching for file changes with StatReloader
+ERROR 2025-07-03 14:56:30,810 views 18832 25732 Error initializing vector store: (1045, "Access denied for user 'TaxZone@'@'localhost' (using password: NO)")
+INFO 2025-07-03 14:56:38,335 autoreload 18832 25732 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 14:56:39,621 autoreload 20636 22024 Watching for file changes with StatReloader
+INFO 2025-07-03 14:56:46,733 loader 20636 22024 Loading faiss with AVX512 support.
+INFO 2025-07-03 14:56:46,733 loader 20636 22024 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 14:56:46,733 loader 20636 22024 Loading faiss with AVX2 support.
+INFO 2025-07-03 14:56:46,766 loader 20636 22024 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 14:56:46,777 views 20636 22024 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 15:35:25,888 autoreload 20636 22024 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:35:31,087 autoreload 26856 15692 Watching for file changes with StatReloader
+INFO 2025-07-03 15:35:37,973 loader 26856 15692 Loading faiss with AVX512 support.
+INFO 2025-07-03 15:35:37,989 loader 26856 15692 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 15:35:37,989 loader 26856 15692 Loading faiss with AVX2 support.
+INFO 2025-07-03 15:35:38,050 loader 26856 15692 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 15:35:38,066 views 26856 15692 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 15:35:47,959 autoreload 26856 15692 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:35:51,281 autoreload 1284 17628 Watching for file changes with StatReloader
+INFO 2025-07-03 15:35:56,431 loader 1284 17628 Loading faiss with AVX512 support.
+INFO 2025-07-03 15:35:56,431 loader 1284 17628 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 15:35:56,431 loader 1284 17628 Loading faiss with AVX2 support.
+INFO 2025-07-03 15:35:56,452 loader 1284 17628 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 15:35:56,462 views 1284 17628 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 15:35:58,501 autoreload 1284 17628 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:36:01,711 autoreload 14684 22648 Watching for file changes with StatReloader
+ERROR 2025-07-03 15:36:03,425 views 14684 22648 Error initializing vector store: invalid literal for int() with base 10: 'os3306'
+INFO 2025-07-03 15:39:24,978 autoreload 24100 23072 Watching for file changes with StatReloader
+ERROR 2025-07-03 15:39:26,619 views 24100 23072 Error initializing vector store: invalid literal for int() with base 10: 'os3306'
+INFO 2025-07-03 15:41:49,565 autoreload 15688 21380 Watching for file changes with StatReloader
+INFO 2025-07-03 15:41:54,806 loader 15688 21380 Loading faiss with AVX512 support.
+INFO 2025-07-03 15:41:54,806 loader 15688 21380 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 15:41:54,806 loader 15688 21380 Loading faiss with AVX2 support.
+INFO 2025-07-03 15:41:54,829 loader 15688 21380 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 15:41:54,840 views 15688 21380 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-03 15:43:16,008 autoreload 15688 21380 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:44:21,774 autoreload 15924 25136 Watching for file changes with StatReloader
+INFO 2025-07-03 15:44:52,100 autoreload 15924 25136 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:44:53,047 autoreload 25056 12712 Watching for file changes with StatReloader
+INFO 2025-07-03 15:45:00,158 autoreload 25056 12712 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:45:14,261 autoreload 23928 4668 Watching for file changes with StatReloader
+INFO 2025-07-03 15:46:52,521 autoreload 23928 4668 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:47:53,043 autoreload 1260 22532 Watching for file changes with StatReloader
+INFO 2025-07-03 15:48:50,151 autoreload 1260 22532 C:\Users\Keerththansana\Desktop\Project\TaxZone\tax_backend\tax_backend\settings.py changed, reloading.
+INFO 2025-07-03 15:49:39,038 autoreload 27568 20780 Watching for file changes with StatReloader
+INFO 2025-07-03 15:49:45,418 loader 27568 20780 Loading faiss with AVX512 support.
+INFO 2025-07-03 15:49:45,418 loader 27568 20780 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-03 15:49:45,418 loader 27568 20780 Loading faiss with AVX2 support.
+INFO 2025-07-03 15:49:45,503 loader 27568 20780 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-03 15:49:45,518 views 27568 20780 Vector store initialized with 93 chunks from 12 documents
