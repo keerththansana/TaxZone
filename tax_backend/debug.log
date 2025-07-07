@@ -15886,3 +15886,26 @@ ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
 INFO 2025-07-07 12:13:10,147 loader 18304 12156 Loading faiss with AVX2 support.
 INFO 2025-07-07 12:13:10,169 loader 18304 12156 Successfully loaded faiss with AVX2 support.
 INFO 2025-07-07 12:13:10,189 views 18304 12156 Vector store initialized with 93 chunks from 12 documents
+ERROR 2025-07-07 13:49:03,297 views 14648 10228 Error initializing vector store: Error embedding content: Timeout of 60.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: UNAVAILABLE: getaddrinfo: WSA Error (No such host is known.
+ -- 11001)
+ERROR 2025-07-07 13:50:12,639 views 3296 3188 Error initializing vector store: Error embedding content: Timeout of 60.0s exceeded, last exception: 503 DNS resolution failed for generativelanguage.googleapis.com:443: UNAVAILABLE: getaddrinfo: WSA Error (No such host is known.
+ -- 11001)
+INFO 2025-07-07 13:50:42,035 loader 5764 20752 Loading faiss with AVX512 support.
+INFO 2025-07-07 13:50:42,035 loader 5764 20752 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-07 13:50:42,035 loader 5764 20752 Loading faiss with AVX2 support.
+INFO 2025-07-07 13:50:42,120 loader 5764 20752 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-07 13:50:42,139 views 5764 20752 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-07 13:51:11,849 loader 2008 3684 Loading faiss with AVX512 support.
+INFO 2025-07-07 13:51:11,849 loader 2008 3684 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-07 13:51:11,849 loader 2008 3684 Loading faiss with AVX2 support.
+INFO 2025-07-07 13:51:12,045 loader 2008 3684 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-07 13:51:12,083 views 2008 3684 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-07 13:51:23,840 autoreload 22028 18172 Watching for file changes with StatReloader
+INFO 2025-07-07 13:51:29,267 loader 22028 18172 Loading faiss with AVX512 support.
+INFO 2025-07-07 13:51:29,267 loader 22028 18172 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-07 13:51:29,267 loader 22028 18172 Loading faiss with AVX2 support.
+INFO 2025-07-07 13:51:29,291 loader 22028 18172 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-07 13:51:29,300 views 22028 18172 Vector store initialized with 93 chunks from 12 documents
