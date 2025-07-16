@@ -125,7 +125,9 @@ class GoogleLoginView(APIView):
                 username=username,
                 email=email,
                 first_name=given_name,
-                password=make_password(User.objects.make_random_password())
+                password=make_password(User.objects.make_random_password()),
+                google_id=google_id,
+                picture=picture
             )
             # Optionally, create an AuthNewUser entry if you use that for normal signup
             AuthNewUser.objects.create(
@@ -144,7 +146,7 @@ class GoogleLoginView(APIView):
                 "email": user.email,
                 "username": user.username,
                 "name": user.first_name,
-                "picture": picture,
+                "picture": user.picture,
             }
         }, status=status.HTTP_200_OK)
 
