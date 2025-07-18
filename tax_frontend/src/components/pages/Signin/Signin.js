@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import Header from '../../common/Header/Header';
 import './Signin.css';
+import { API_BASE_URL } from '../../../config/api';
 
 const Signin = () => {
     const [formData, setFormData] = useState({
@@ -77,7 +78,7 @@ const Signin = () => {
         }
 
         try {
-            const response = await axios.post('http://localhost:8000/api/users/signin/', {
+            const response = await axios.post(`${API_BASE_URL}/api/users/signin/`, {
                 username,
                 email,
                 password,
@@ -105,7 +106,7 @@ const Signin = () => {
     const handleGoogleSuccess = async (credentialResponse) => {
         try {
             const decoded = jwtDecode(credentialResponse.credential);
-            const response = await axios.post('http://localhost:8000/api/login/google/', {
+            const response = await axios.post(`${API_BASE_URL}/api/login/google/`, {
                 email: decoded.email,
                 given_name: decoded.name,
                 google_id: decoded.sub,

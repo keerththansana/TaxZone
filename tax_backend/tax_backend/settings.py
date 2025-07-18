@@ -45,8 +45,11 @@ SECRET_KEY = 'django-insecure-hk$$=gt-uk&7x4@02stp-*+tki=yn=+kw3c!cc#1er1@q7q&%!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# DEBUG = False       #for production
+
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '*']
 
+# ALLOWED_HOSTS = ['65.0.8.15']   #for production
 
 # Application definition
 
@@ -213,6 +216,7 @@ FILE_UPLOAD_HANDLERS = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+ #   "http://65.0.8.15", #for production
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -249,6 +253,7 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+#   "http://65.0.8.15"         for production
 ]
 
 # Add this setting
