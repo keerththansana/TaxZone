@@ -1,0 +1,379 @@
+
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                  xmlns:w="urn:schemas-microsoft-com:office:word" 
+                  xmlns="http://www.w3.org/TR/REC-html40">
+            <head>
+                <meta charset="utf-8">
+                <title>Tax Calculation</title>
+                <style>
+                    body { 
+                        font-family: Arial, sans-serif;
+                        margin: 0;
+                        padding: 20px;
+                    }
+                    .user-details {
+                        margin-bottom: 20px;
+                    }
+                    .user-detail-row {
+                        margin-bottom: 10px;
+                    }
+                    .user-detail-label {
+                        font-weight: bold;
+                        margin-right: 10px;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-bottom: 20px;
+                    }
+                    td, th {
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    .category-row {
+                        font-weight: bold;
+                        background-color: #f5f5f5;
+                    }
+                    .total-row {
+                        font-weight: bold;
+                        border-top: 2px solid #000;
+                    }
+                    .bullet-row td:first-child {
+                        width: 20px;
+                    }
+                    .amount-column {
+                        text-align: right;
+                    }
+                    .section-header {
+                        font-weight: bold;
+                        background-color: #f0f0f0;
+                    }
+                    .spacer-row {
+                        height: 10px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="user-details">
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Full Name:</span>
+                        <span>wf</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">TIN Number:</span>
+                        <span>2643</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Year of Assessment:</span>
+                        <span>2024/2025</span>
+                    </div>
+                    <div class="user-detail-row">
+                        <span class="user-detail-label">Date & Time:</span>
+                        <span>23/07/2025 11:08 am</span>
+                    </div>
+                </div>
+
+                <h1 style="text-align: center; margin-bottom: 20px;">Calculation of Income Tax Liability - 2024/2025</h1>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th colspan="2">Income Types and Deductions</th>
+                            <th>Amount (Rs.)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                                <tr class="category-row">
+                                    <td colspan="2">Employment Income</td>
+                                    <td class="amount-column">669,457</td>
+                                </tr>
+                                
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Primary Salary</td>
+                                        <td class="amount-column">668,588</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Secondary Salary</td>
+                                        <td class="amount-column">869</td>
+                                    </tr>
+                                  
+                            
+                                <tr class="category-row">
+                                    <td colspan="2">Business Income</td>
+                                    <td class="amount-column">1,742,096</td>
+                                </tr>
+                                
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Sole Proprietorship Income</td>
+                                        <td class="amount-column">544,444</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Partnership Business Income</td>
+                                        <td class="amount-column">457,654</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Trust Beneficiary Business Income</td>
+                                        <td class="amount-column">500,000</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Betting, Gaming, Liquor & Tobacco Income</td>
+                                        <td class="amount-column">199,999</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Other Business Income</td>
+                                        <td class="amount-column">39,999</td>
+                                    </tr>
+                                  
+                            
+                                <tr class="category-row">
+                                    <td colspan="2">Investment Income</td>
+                                    <td class="amount-column">110,995</td>
+                                </tr>
+                                
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Interest Income</td>
+                                        <td class="amount-column">7,997</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Dividend Income</td>
+                                        <td class="amount-column">90,000</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Rental Income</td>
+                                        <td class="amount-column">6,999</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Capital Gain</td>
+                                        <td class="amount-column">5,999</td>
+                                    </tr>
+                                  
+                            
+                                <tr class="category-row">
+                                    <td colspan="2">Other Income</td>
+                                    <td class="amount-column">197,663</td>
+                                </tr>
+                                
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Service Income</td>
+                                        <td class="amount-column">9,000</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Royalty Income</td>
+                                        <td class="amount-column">69,999</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Natural Resource Payment</td>
+                                        <td class="amount-column">4,999</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Auctioned Gem Sale</td>
+                                        <td class="amount-column">36,666</td>
+                                    </tr>
+                                  
+                                    <tr class="bullet-row">
+                                        <td>•</td>
+                                        <td>Other Income</td>
+                                        <td class="amount-column">76,999</td>
+                                    </tr>
+                                  
+                            
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Assessable Income</td>
+                            <td class="amount-column">2,720,211</td>
+                        </tr>
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        
+                          <tr class="section-header">
+                              <td colspan="3">Terminal Benefits (Less)</td>
+                          </tr>
+                          
+                              <tr class="bullet-row">
+                                  <td>•</td>
+                                  <td>Commuted Pension</td>
+                                  <td class="amount-column">7,999</td>
+                              </tr>
+                            
+                              <tr class="bullet-row">
+                                  <td>•</td>
+                                  <td>Retiring Gratuity</td>
+                                  <td class="amount-column">60,000</td>
+                              </tr>
+                            
+                              <tr class="bullet-row">
+                                  <td>•</td>
+                                  <td>Compensation</td>
+                                  <td class="amount-column">5,999</td>
+                              </tr>
+                            
+                              <tr class="bullet-row">
+                                  <td>•</td>
+                                  <td>ETF Payment</td>
+                                  <td class="amount-column">1,999</td>
+                              </tr>
+                            
+                              <tr class="bullet-row">
+                                  <td>•</td>
+                                  <td>Other Terminal Benefits</td>
+                                  <td class="amount-column">40,000</td>
+                              </tr>
+                            
+                        
+                        
+                        <tr class="section-header">
+                            <td colspan="3">Relief & Qualifying Payments (Less)</td>
+                        </tr>
+                        <tr class="bullet-row">
+                            <td>•</td>
+                            <td>Personal Relief</td>
+                            <td class="amount-column">Rs. 1,200,000</td>
+                        </tr>
+                        
+                        
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>Donation</td>
+                                <td class="amount-column">Rs. 7,998</td>
+                            </tr>
+                          
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>Shop Setup for Samurdhi Beneficiary</td>
+                                <td class="amount-column">Rs. 5,000</td>
+                            </tr>
+                          
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>Solar Panel Installation</td>
+                                <td class="amount-column">Rs. 19,999</td>
+                            </tr>
+                          
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>Film & Cinema Industry Expenditure</td>
+                                <td class="amount-column">Rs. 7,999</td>
+                            </tr>
+                          
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>Low-Income Housing Construction</td>
+                                <td class="amount-column">Rs. 10,000</td>
+                            </tr>
+                          
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>Other Qualifying Payment</td>
+                                <td class="amount-column">Rs. 5,000</td>
+                            </tr>
+                          
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Taxable Income</td>
+                            <td class="amount-column">Rs. 1,348,218</td>
+                        </tr>
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        <tr class="section-header">
+                            <td colspan="3">Tax Liability Calculation</td>
+                        </tr>
+
+                        
+                          <tr class="bullet-row">
+                              <td></td>
+                              <td>
+                                  0 - 500,000 ---------- (6%)
+                              </td>
+                              <td class="amount-column">30,000</td>
+                          </tr>
+                        
+                          <tr class="bullet-row">
+                              <td></td>
+                              <td>
+                                  500,000 - 1,000,000 ---------- (12%)
+                              </td>
+                              <td class="amount-column">60,000</td>
+                          </tr>
+                        
+                          <tr class="bullet-row">
+                              <td></td>
+                              <td>
+                                  1,000,000 - 1,348,218 ---------- (18%)
+                              </td>
+                              <td class="amount-column">62,679.24</td>
+                          </tr>
+                        
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Total Tax Liability</td>
+                            <td class="amount-column">Rs. 152,679.24</td>
+                        </tr>
+                        
+                        
+                          <tr class="spacer-row"><td colspan="3"></td></tr>
+                          <tr class="spacer-row"><td colspan="3"></td></tr>
+                          
+                          <tr class="section-header">
+                              <td colspan="3">Tax Deductions - Credits</td>
+                          </tr>
+                          
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>APIT (Advanced Personal Income Tax)</td>
+                                <td class="amount-column">(68,443)</td>
+                            </tr>
+                          
+                          
+                          
+                          
+                            <tr class="bullet-row">
+                                <td>•</td>
+                                <td>WHT (Withholding Tax)</td>
+                                <td class="amount-column">(12,435)</td>
+                            </tr>
+                          
+                        
+                        
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        <tr class="spacer-row"><td colspan="3"></td></tr>
+                        
+                        <tr class="total-row">
+                            <td colspan="2">Balance Tax Payable</td>
+                            <td class="amount-column">Rs. 71,801.24</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </body>
+            </html>
+          
