@@ -16830,3 +16830,112 @@ ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
 INFO 2025-07-18 21:54:45,400 loader 18400 9840 Loading faiss with AVX2 support.
 INFO 2025-07-18 21:54:45,623 loader 18400 9840 Successfully loaded faiss with AVX2 support.
 INFO 2025-07-18 21:54:45,665 views 18400 9840 Vector store initialized with 93 chunks from 12 documents
+ERROR 2025-07-18 23:56:12,593 views 23872 13624 Error initializing vector store: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+ERROR 2025-07-18 23:59:03,214 views 5564 1404 Error initializing vector store: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+ERROR 2025-07-19 00:00:38,104 views 23104 22484 Error initializing vector store: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+INFO 2025-07-19 00:02:34,996 loader 17476 10444 Loading faiss with AVX512 support.
+INFO 2025-07-19 00:02:34,996 loader 17476 10444 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-19 00:02:34,996 loader 17476 10444 Loading faiss with AVX2 support.
+INFO 2025-07-19 00:02:35,077 loader 17476 10444 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-19 00:02:35,099 __init__ 17476 10444 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-19 00:02:35,119 views 17476 10444 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-19 00:03:19,923 loader 17292 3428 Loading faiss with AVX512 support.
+INFO 2025-07-19 00:03:19,923 loader 17292 3428 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-19 00:03:19,923 loader 17292 3428 Loading faiss with AVX2 support.
+INFO 2025-07-19 00:03:19,960 loader 17292 3428 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-19 00:03:19,966 __init__ 17292 3428 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-19 00:03:19,977 views 17292 3428 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-19 00:04:06,843 loader 15172 1624 Loading faiss with AVX512 support.
+INFO 2025-07-19 00:04:06,843 loader 15172 1624 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-19 00:04:06,843 loader 15172 1624 Loading faiss with AVX2 support.
+INFO 2025-07-19 00:04:06,867 loader 15172 1624 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-19 00:04:06,878 __init__ 15172 1624 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-19 00:04:06,882 views 15172 1624 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-19 00:04:18,283 autoreload 1724 17312 Watching for file changes with StatReloader
+INFO 2025-07-19 00:04:23,727 loader 1724 17312 Loading faiss with AVX512 support.
+INFO 2025-07-19 00:04:23,727 loader 1724 17312 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-19 00:04:23,727 loader 1724 17312 Loading faiss with AVX2 support.
+INFO 2025-07-19 00:04:23,750 loader 1724 17312 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-19 00:04:23,754 __init__ 1724 17312 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-19 00:04:23,761 views 1724 17312 Vector store initialized with 93 chunks from 12 documents
+ERROR 2025-07-22 13:37:48,906 views 9264 14324 Error initializing vector store: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+ERROR 2025-07-22 13:38:25,753 views 25964 29236 Error initializing vector store: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+ERROR 2025-07-22 13:39:04,931 views 3624 11044 Error initializing vector store: Could not import faiss python package. Please install it with `pip install faiss-gpu` (for CUDA supported GPU) or `pip install faiss-cpu` (depending on Python version).
+INFO 2025-07-22 13:41:54,628 loader 27212 10476 Loading faiss with AVX512 support.
+INFO 2025-07-22 13:41:54,628 loader 27212 10476 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-22 13:41:54,628 loader 27212 10476 Loading faiss with AVX2 support.
+INFO 2025-07-22 13:41:54,698 loader 27212 10476 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-22 13:41:54,726 __init__ 27212 10476 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-22 13:41:54,739 views 27212 10476 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-22 13:42:24,154 loader 12860 9808 Loading faiss with AVX512 support.
+INFO 2025-07-22 13:42:24,154 loader 12860 9808 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-22 13:42:24,162 loader 12860 9808 Loading faiss with AVX2 support.
+INFO 2025-07-22 13:42:24,189 loader 12860 9808 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-22 13:42:24,200 __init__ 12860 9808 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-22 13:42:24,212 views 12860 9808 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-22 13:42:39,281 autoreload 29064 12868 Watching for file changes with StatReloader
+INFO 2025-07-22 13:42:47,126 loader 29064 12868 Loading faiss with AVX512 support.
+INFO 2025-07-22 13:42:47,128 loader 29064 12868 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-22 13:42:47,128 loader 29064 12868 Loading faiss with AVX2 support.
+INFO 2025-07-22 13:42:47,166 loader 29064 12868 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-22 13:42:47,176 __init__ 29064 12868 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-22 13:42:47,183 views 29064 12868 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-22 13:45:19,948 loader 16436 12884 Loading faiss with AVX512 support.
+INFO 2025-07-22 13:45:19,948 loader 16436 12884 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-22 13:45:19,948 loader 16436 12884 Loading faiss with AVX2 support.
+INFO 2025-07-22 13:45:20,005 loader 16436 12884 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-22 13:45:20,015 __init__ 16436 12884 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-22 13:45:20,015 views 16436 12884 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-22 13:45:31,797 loader 28552 17628 Loading faiss with AVX512 support.
+INFO 2025-07-22 13:45:31,797 loader 28552 17628 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-22 13:45:31,797 loader 28552 17628 Loading faiss with AVX2 support.
+INFO 2025-07-22 13:45:31,838 loader 28552 17628 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-22 13:45:31,850 __init__ 28552 17628 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-22 13:45:31,863 views 28552 17628 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-22 13:45:47,039 autoreload 15672 3204 Watching for file changes with StatReloader
+INFO 2025-07-22 13:45:54,616 loader 15672 3204 Loading faiss with AVX512 support.
+INFO 2025-07-22 13:45:54,621 loader 15672 3204 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-22 13:45:54,621 loader 15672 3204 Loading faiss with AVX2 support.
+INFO 2025-07-22 13:45:54,665 loader 15672 3204 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-22 13:45:54,674 __init__ 15672 3204 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-22 13:45:54,685 views 15672 3204 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-22 13:51:18,355 autoreload 12332 20120 Watching for file changes with StatReloader
+INFO 2025-07-22 13:51:26,969 loader 12332 20120 Loading faiss with AVX512 support.
+INFO 2025-07-22 13:51:26,972 loader 12332 20120 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-22 13:51:26,973 loader 12332 20120 Loading faiss with AVX2 support.
+INFO 2025-07-22 13:51:27,010 loader 12332 20120 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-22 13:51:27,018 __init__ 12332 20120 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-22 13:51:27,026 views 12332 20120 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-23 10:34:20,533 loader 26420 26888 Loading faiss with AVX512 support.
+INFO 2025-07-23 10:34:20,535 loader 26420 26888 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-23 10:34:20,535 loader 26420 26888 Loading faiss with AVX2 support.
+INFO 2025-07-23 10:34:20,773 loader 26420 26888 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-23 10:34:20,803 __init__ 26420 26888 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-23 10:34:20,810 views 26420 26888 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-23 10:34:43,070 loader 13596 15136 Loading faiss with AVX512 support.
+INFO 2025-07-23 10:34:43,071 loader 13596 15136 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-23 10:34:43,071 loader 13596 15136 Loading faiss with AVX2 support.
+INFO 2025-07-23 10:34:43,106 loader 13596 15136 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-23 10:34:43,118 __init__ 13596 15136 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-23 10:34:43,132 views 13596 15136 Vector store initialized with 93 chunks from 12 documents
+INFO 2025-07-23 10:34:56,095 autoreload 9068 4888 Watching for file changes with StatReloader
+INFO 2025-07-23 10:35:03,693 loader 9068 4888 Loading faiss with AVX512 support.
+INFO 2025-07-23 10:35:03,694 loader 9068 4888 Could not load library with AVX512 support due to:
+ModuleNotFoundError("No module named 'faiss.swigfaiss_avx512'")
+INFO 2025-07-23 10:35:03,695 loader 9068 4888 Loading faiss with AVX2 support.
+INFO 2025-07-23 10:35:03,739 loader 9068 4888 Successfully loaded faiss with AVX2 support.
+INFO 2025-07-23 10:35:03,744 __init__ 9068 4888 Failed to load GPU Faiss: name 'GpuIndexIVFFlat' is not defined. Will not load constructor refs for GPU indexes. This is only an error if you're trying to use GPU Faiss.
+INFO 2025-07-23 10:35:03,754 views 9068 4888 Vector store initialized with 93 chunks from 12 documents

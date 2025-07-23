@@ -8,9 +8,9 @@ import "./Guidelines.css"; // CSS for this component
 
 const guidelinesData = [
   { 
-    title: "How Tax.X Helps Individuals", 
+    title: "How TaxZone Helps Individuals", 
     link: "/guidelines/help",
-    content: "Tax.X revolutionizes the way individuals handle their tax obligations in Sri Lanka. Our platform offers comprehensive tax assistance through user-friendly tools for tax calculations, filing, and management. We provide step-by-step guidance for tax registration, real-time tax calculations, automated form filling, and deadline reminders. Our system helps you understand your tax obligations, maximize your benefits through available deductions, and ensures compliance with Sri Lankan tax laws. With Tax.X, you can track your tax payments, view your tax history, and receive personalized tax-saving recommendations."
+    content: "TaxZone revolutionizes the way individuals handle their tax obligations in Sri Lanka. Our platform offers comprehensive tax assistance through user-friendly tools for tax calculations, filing, and management. We provide step-by-step guidance for tax registration, real-time tax calculations, automated form filling, and deadline reminders. Our system helps you understand your tax obligations, maximize your benefits through available deductions, and ensures compliance with Sri Lankan tax laws. With TaxZone, you can track your tax payments, view your tax history, and receive personalized tax-saving recommendations."
   },
   { 
     title: "Taxpayer Identification Number (TIN) Registration", 
@@ -30,12 +30,12 @@ const guidelinesData = [
   { 
     title: "How to Calculate Your Tax", 
     link: "/guidelines/calculations",
-    content: "Calculating your tax liability involves several steps. First, determine your total income from all sources including employment, business, and investments. Then, subtract eligible deductions such as EPF contributions, life insurance premiums, and medical expenses. The resulting amount is your chargeable income. Apply the appropriate tax rates based on your income slab. Tax.X provides automated calculators that handle these calculations, considering all applicable deductions and relief measures. Our system also helps you estimate your tax liability for the year and plan your tax payments accordingly."
+    content: "Calculating your tax liability involves several steps. First, determine your total income from all sources including employment, business, and investments. Then, subtract eligible deductions such as EPF contributions, life insurance premiums, and medical expenses. The resulting amount is your chargeable income. Apply the appropriate tax rates based on your income slab. TaxZone provides automated calculators that handle these calculations, considering all applicable deductions and relief measures. Our system also helps you estimate your tax liability for the year and plan your tax payments accordingly."
   },
   { 
     title: "Tax Deductions & Exemptions for Individuals", 
     link: "/guidelines/deductions",
-    content: "Various deductions and exemptions are available to reduce your taxable income. Common deductions include contributions to the Employees' Provident Fund (EPF), life insurance premiums, medical expenses, and interest on housing loans. Educational expenses for children and donations to approved charities are also deductible. There are specific exemptions for certain types of income, such as agricultural income and income from government securities. Understanding and properly claiming these deductions can significantly reduce your tax liability. Tax.X helps you identify all eligible deductions and ensures you maximize your tax benefits."
+    content: "Various deductions and exemptions are available to reduce your taxable income. Common deductions include contributions to the Employees' Provident Fund (EPF), life insurance premiums, medical expenses, and interest on housing loans. Educational expenses for children and donations to approved charities are also deductible. There are specific exemptions for certain types of income, such as agricultural income and income from government securities. Understanding and properly claiming these deductions can significantly reduce your tax liability. TaxZone helps you identify all eligible deductions and ensures you maximize your tax benefits."
   },
   { 
     title: "Tax Filing Process for Individuals", 
@@ -45,17 +45,17 @@ const guidelinesData = [
   { 
     title: "Tax Payment & Due Dates", 
     link: "/guidelines/due_dates",
-    content: "Tax payments in Sri Lanka follow a structured schedule. For employed individuals, tax is typically deducted at source through the Pay As You Earn (PAYE) system. Self-employed individuals must make quarterly advance payments based on their estimated annual tax liability. The final tax return and any remaining tax must be submitted and paid by November 30th of the following year. Late payments attract penalties and interest charges. It's crucial to maintain records of all tax payments and ensure timely submission to avoid penalties. Tax.X provides payment reminders and helps you track your payment schedule."
+    content: "Tax payments in Sri Lanka follow a structured schedule. For employed individuals, tax is typically deducted at source through the Pay As You Earn (PAYE) system. Self-employed individuals must make quarterly advance payments based on their estimated annual tax liability. The final tax return and any remaining tax must be submitted and paid by November 30th of the following year. Late payments attract penalties and interest charges. It's crucial to maintain records of all tax payments and ensure timely submission to avoid penalties. TaxZone provides payment reminders and helps you track your payment schedule."
   },
   { 
     title: "Refunds & Overpaid Taxes", 
     link: "/guidelines/refund",
-    content: "If you've overpaid your taxes, you can claim a refund through a formal process. This typically occurs when your tax deductions exceed your actual tax liability. To claim a refund, submit a formal application with supporting documents including your tax returns, payment receipts, and bank details. The Inland Revenue Department will verify your claim and process the refund if approved. The process usually takes 4-6 weeks, and refunds are typically made through bank transfer. Keep all documentation related to your refund claim for at least three years. Tax.X helps you track your refund status and ensures all necessary documentation is properly submitted."
+    content: "If you've overpaid your taxes, you can claim a refund through a formal process. This typically occurs when your tax deductions exceed your actual tax liability. To claim a refund, submit a formal application with supporting documents including your tax returns, payment receipts, and bank details. The Inland Revenue Department will verify your claim and process the refund if approved. The process usually takes 4-6 weeks, and refunds are typically made through bank transfer. Keep all documentation related to your refund claim for at least three years. TaxZone helps you track your refund status and ensures all necessary documentation is properly submitted."
   },
   { 
     title: "Tax Compliance & Penalties", 
     link: "/guidelines/compliance",
-    content: "Tax compliance is crucial to avoid penalties and legal issues. Common compliance requirements include timely filing of returns, accurate reporting of income, and proper payment of taxes. Penalties may be imposed for late filing, underreporting of income, or non-payment of taxes. These can include fines, interest charges, and in severe cases, legal action. The penalty rates vary based on the type of violation and can be substantial. It's important to maintain proper records and meet all filing deadlines. Tax.X helps you stay compliant by providing reminders, guidance, and tools to ensure accurate tax reporting and timely payments."
+    content: "Tax compliance is crucial to avoid penalties and legal issues. Common compliance requirements include timely filing of returns, accurate reporting of income, and proper payment of taxes. Penalties may be imposed for late filing, underreporting of income, or non-payment of taxes. These can include fines, interest charges, and in severe cases, legal action. The penalty rates vary based on the type of violation and can be substantial. It's important to maintain proper records and meet all filing deadlines. TaxZone helps you stay compliant by providing reminders, guidance, and tools to ensure accurate tax reporting and timely payments."
   }
 ];
 

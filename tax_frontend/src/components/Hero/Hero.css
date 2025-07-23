@@ -3,7 +3,7 @@
   position: relative;
   width: 100%;
   height: 100vh;
-  margin-top: 40px; /* Adjust if navbar is fixed */
+  margin-top: 30px; /* Adjust if navbar is fixed */
   padding-top: 0;
   overflow: hidden;
   display: flex;
