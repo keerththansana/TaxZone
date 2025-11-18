@@ -1,6 +1,8 @@
-# TaxZone - Comprehensive Tax Management System
+# TaxZone - SriLankan Comprehensive Taxation System
 
 TaxZone is a full-stack web application designed to help users manage their tax-related documents, calculate taxes, and get AI-powered assistance with tax-related queries. The system supports multiple income types, document processing with OCR, and intelligent tax calculations.
+
+<img width="1897" height="862" alt="home" src="https://github.com/user-attachments/assets/5ef72cb3-5d69-4074-ae6c-4dc31a1e628e" />
 
 ## 🚀 Features
 
@@ -347,22 +349,18 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **Note**: This is a development version. For production deployment, ensure all security settings are properly configured and environment variables are securely managed.
 
-<img width="1896" height="861" alt="review" src="https://github.com/user-attachments/assets/ae02a9b0-04ca-4dc1-8312-e5960f6bfe71" />
-<img width="1897" height="868" alt="reprot details" src="https://github.com/user-attachments/assets/d46a4ea8-f2e3-4b59-a7fe-276dd5824e0f" />
-<img width="1897" height="857" alt="report" src="https://github.com/user-attachments/assets/92891088-7561-4db8-843e-6dbd933ddbbb" />
-<img width="1897" height="867" alt="Login" src="https://github.com/user-attachments/assets/b9a35ba3-b607-49c8-ba35-925aa7650aed" />
-<img width="1897" height="862" alt="home" src="https://github.com/user-attachments/assets/53f1f85e-0028-4909-87a4-e5ef22912a0c" />
-<img width="1896" height="868" alt="footer" src="https://github.com/user-attachments/assets/8ce427ee-1bfd-438c-bfc1-9fc1441d3bca" />
-<img width="1898" height="875" alt="final report" src="https://github.com/user-attachments/assets/8bb54a24-8daf-477f-b661-03afec7aa2ae" />
-<img width="1896" height="857" alt="faq" src="https://github.com/user-attachments/assets/e348560b-1267-442c-8aca-f08f89ea974f" />
-<img width="1900" height="872" alt="details" src="https://github.com/user-attachments/assets/f3a6b285-80c3-4c85-baed-df2f6660f650" />
-<img width="1897" height="867" alt="contact" src="https://github.com/user-attachments/assets/940c586f-3d20-42bb-a0fa-30793f5be69e" />
-<img width="1898" height="861" alt="calender" src="https://github.com/user-attachments/assets/accbe08d-55a6-4d56-97fa-b223a6ecc8c5" />
+## Tax Calculator
 <img width="1893" height="863" alt="calculator" src="https://github.com/user-attachments/assets/0d55c59d-0249-45e0-88d6-f01fb1d4ceaf" />
+
+## Tax AI Chatbot
 <img width="1905" height="862" alt="Assistant" src="https://github.com/user-attachments/assets/57739913-6bd4-4bfb-a70e-71923a9d4f57" />
-<img width="1896" height="865" alt="Signup" src="https://github.com/user-attachments/assets/c0e39be1-ea91-4f11-a73c-bd081e75a52d" />
-<img width="1897" height="861" alt="Signup 1" src="https://github.com/user-attachments/assets/1b655682-01db-4a50-9ca8-187a2b070b2f" />
-<img width="1897" height="862" alt="services" src="https://github.com/user-attachments/assets/05221fc4-53c7-4cbc-a729-72f37b981cc5" />
-<img width="1897" height="867" alt="Service" src="https://github.com/user-attachments/assets/f8caaccb-c4c5-4a99-a4bf-87485a7540a8" />
+
+## Tax Calendar
+<img width="1898" height="861" alt="calender" src="https://github.com/user-attachments/assets/accbe08d-55a6-4d56-97fa-b223a6ecc8c5" />
+
+## Tax Report
+<img width="1900" height="872" alt="details" src="https://github.com/user-attachments/assets/f3a6b285-80c3-4c85-baed-df2f6660f650" />
+
+<img width="1898" height="875" alt="final report" src="https://github.com/user-attachments/assets/8bb54a24-8daf-477f-b661-03afec7aa2ae" />
 
 
